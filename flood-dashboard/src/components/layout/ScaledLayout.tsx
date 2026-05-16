@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 
 // Figma design canvas dimensions — do not change without reviewing all absolute positions
 const DESIGN_W = 1512;

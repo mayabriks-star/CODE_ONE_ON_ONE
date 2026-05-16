@@ -11,13 +11,12 @@ export default function HomePage() {
     <>
       <ScaledLayout className="screen-enter">
         <FloodDepthScale />
-        <ModeSelector />
-        <TopStatusBar />
         <LiveMonitoringPanel />
         <TimeView />
       </ScaledLayout>
 
-      {/* Full-viewport bottom bar — outside ScaledLayout so it always spans 100% viewport width */}
+      <ModeSelector />
+      <TopStatusBar />
       <BottomSummaryBar />
     </>
   );

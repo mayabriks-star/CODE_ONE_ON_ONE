@@ -1,7 +1,7 @@
 # Coastal Flood Dashboard — Architecture & Design System
 
-> **Version:** 1.1 — updated after viewport scaling fix (screens 1 & 2)
-> **Last updated:** 2026-05-16
+> **Version:** 1.2 — updated after header restructure (screens 1 & 2)
+> **Last updated:** 2026-05-17
 > **Figma file:** `UDqpquE5wXMYWz5rqC0Hwd` (Maya Briks)
 > **Background asset:** `public/coastal-background.png`
 
@@ -151,10 +151,14 @@ App loads
 ```
 <div id="root">  {/* 100vw × 100vh, background-image: coastal-background.png */}
   <ScaledLayout> {/* 1512×1008px design canvas, scaled to viewport */}
-    <Component1 /> {/* absolute positioned */}
-    <Component2 />
-    ...
+    <FloodDepthScale />       {/* absolute, canvas-space */}
+    <LiveMonitoringPanel />
+    <TimeView />
+    [<NewAlertCard /> — S2 only]
   </ScaledLayout>
+  <ModeSelector />            {/* absolute, viewport-level, left-1/2 centered */}
+  <TopStatusBar />            {/* absolute, viewport-level, right-aligned */}
+  <BottomSummaryBar />        {/* absolute, viewport-level, bottom-anchored */}
 </div>
 ```
 
@@ -171,15 +175,24 @@ For Screen 3:
 ```
 
 ### Viewport strategy
-**Screens 1 & 2:** Use a hybrid layout:
-- **Top header band and BottomSummaryBar** are positioned outside `ScaledLayout` at viewport level (`position: absolute; left: 0; right: 0`). They always span 100% viewport width regardless of the scale factor applied to the canvas.
-- **Floating panels** (FloodDepthScale, ModeSelector, TopStatusBar, LiveMonitoringPanel, TimeView, NewAlertCard) are inside `ScaledLayout` which applies:
+**Screens 1 & 2:** Use a hybrid layout. Elements are split into two groups:
+
+**Viewport-level elements** (outside `ScaledLayout`, siblings in the Fragment):
+- `ModeSelector` — `absolute left-1/2 -translate-x-1/2 top-[25px]` — viewport-centered, always at the true horizontal midpoint between FloodDepthScale and TopStatusBar.
+- `TopStatusBar` — `absolute top-[29px] right-[21px]` — flush to the viewport right edge.
+- `BottomSummaryBar` — `absolute bottom-0 left-0 right-0` — always spans 100% viewport width.
+
+These three are at viewport level so their positions are not affected by the canvas scale factor. `ModeSelector` is centered on the viewport (not the canvas) so it stays visually balanced between the left and right elements regardless of scale. `TopStatusBar` is right-aligned to the viewport edge.
+
+**Canvas-space elements** (inside `ScaledLayout` — 1512×1008 design canvas):
+- `FloodDepthScale`, `LiveMonitoringPanel`, `TimeView`, `NewAlertCard` (S2 only)
+- `ScaledLayout` applies:
   ```
   scale = Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008)
   transform: scale(scale)
   transform-origin: top left
   ```
-  On a typical 14-inch MacBook (viewport ≈ 1440×900), scale ≈ 0.89. The floating panels shrink proportionally; the full-width bars remain at 100vw.
+  On a typical 14-inch MacBook (viewport ≈ 1440×900), scale ≈ 0.89. Canvas-space panels shrink proportionally while viewport-level elements remain at fixed screen positions.
 
 **Screen 3:** Uses `inset: 20px` on the white panel (not ScaledLayout). The panel already works correctly at typical laptop screen sizes.
 
@@ -196,17 +209,16 @@ Use flex/grid **inside** panels (for internal layout of rows, columns, icon+text
 
 ### How to avoid overlap between floating panels
 
-**Viewport-level elements (outside ScaledLayout — always 100% viewport width):**
+**Viewport-level elements (outside ScaledLayout — positioned relative to viewport):**
 ```
-Header backdrop:  top: 0,    left: 0, right: 0,  height: 90px   [viewport-relative, z-index: 10]
-Bottom Bar:       bottom: 0, left: 0, right: 0,  height: 138px  [viewport-relative]
+Mode Selector:    top: 25px,    left: 50%  (-translate-x-1/2),  width: 489px  [viewport-centered]
+Top Status Bar:   top: 29px,    right: 21px                                   [viewport right-aligned]
+Bottom Bar:       bottom: 0,    left: 0, right: 0,  height: 138px             [full viewport width]
 ```
 
 **Canvas-space elements (inside ScaledLayout — 1512×1008 design canvas):**
 ```
 Flood Depth Scale:  top: 25px,   left: 21px,   height: 65px    → bottom: 90px
-Mode Selector:      top: 25px,   left: 512px,  width: 489px
-Top Status Bar:     top: 29px,   right: 21px
 Live Mon. Panel:    top: 119px,  left: 21px,   height: ~488px  → bottom: 607px
 New Alert Card:     top: 620px,  left: 21px,   height: ~68px   → bottom: 688px
 Time View:          top: 754px,  left: 20px,   height: ~60px   → bottom: 814px
@@ -416,6 +428,7 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Sizes:** 14px, 16px, 20px, 24px, 48px (warning icon on Alert page)
 - **Colors:** Match surrounding text color (`text-[#505153]` for dim icons, `text-black` for primary)
 - **Style:** Line icons only, no fill (except `TriangleAlert` which uses partial fill for emphasis)
+- **Custom SVG icons:** `ModeSelector` uses three inline SVG components (`ProtectIcon`, `AdaptIcon`, `RetreatIcon`) — flat rhombus (isometric top-view layer) shapes stacked 1×, 2×, 3×. These are not from lucide-react; they match the reference image exactly. `viewBox="0 0 24 24"`, `strokeWidth="1.5"`, `fill="none"`, `stroke="currentColor"`.
 
 ### Buttons
 | Type | Style | Example |
@@ -456,18 +469,6 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 
 ## F. Component Architecture
 
-### Top Header Backdrop (inline div, not a component)
-- **Defined in:** `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx` (first sibling BEFORE `<ScaledLayout>`)
-- **Purpose:** Full-width frosted-glass band that visually unifies FloodDepthScale, ModeSelector, and TopStatusBar into a single edge-to-edge header region.
-- **Position:** `absolute top-0 left-0 right-0 z-10` — viewport-relative, NOT inside ScaledLayout
-- **Height:** `90px` — covers FloodDepthScale bottom edge (25px+65px=90px) at scale 1.0
-- **Style:** `background: rgba(255,255,255,0.14)`, `backdropFilter: blur(12px)`, `borderBottom: 1px solid rgba(255,255,255,0.18)`
-- **Why not a component:** Single presentational div with no props or logic.
-- **Why outside ScaledLayout:** Ensures the band always spans 100% viewport width regardless of the canvas scale factor. Inside a scaled canvas, the band would shrink below viewport width.
-- **Used by:** S1 and S2 only. Screen 3 has its own white panel layout.
-
----
-
 ### `ScaledLayout`
 - **File:** `src/components/layout/ScaledLayout.tsx`
 - **Purpose:** Wraps Screen 1 and Screen 2 content. Scales the 1512×1008 design canvas to fit the actual browser viewport using `transform: scale()`.
@@ -485,7 +486,8 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Used by:** `HomePage`, `HomePageAlert`, `AlertPage` (inline in AlertPage)
 - **Props:** `showBadge?: boolean`, `dark?: boolean`
 - **Key detail:** `showBadge=true` shows a red dot on the bell icon (used on S2 and S3).
-- **Position:** `absolute top-[29px] right-[21px]` (within ScaledLayout in S1/S2; within white panel in S3).
+- **Position (S1/S2):** `absolute top-[29px] right-[21px]` — **viewport-relative**, outside `ScaledLayout`. Sits flush against the viewport right edge at all scale factors.
+- **Position (S3):** `absolute top-[29px] right-[21px]` within the white panel (not ScaledLayout).
 - **Dividers:** `w-px h-[37px]` in dark or glass color.
 
 ---
@@ -505,9 +507,9 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Purpose:** Top-center pill selector for Protect / Adapt / Retreat mode.
 - **Used by:** `HomePage`, `HomePageAlert`
 - **Props:** `active?: Mode` (defaults to `'Protect'`)
-- **Position:** `absolute left-1/2 -translate-x-1/2 top-[25px]` — horizontally centered within the 1512px canvas.
+- **Position:** `absolute left-1/2 -translate-x-1/2 top-[25px]` — **viewport-relative**, outside `ScaledLayout`. `left-1/2` resolves to the viewport center, keeping it visually balanced between FloodDepthScale (left) and TopStatusBar (right) at all scale factors.
 - **Active tab:** `.glass-53` background on the active tab.
-- **Icons:** `lucide-react` icons — `Layers2` (Protect), `Layers` (Adapt), `Layers3` (Retreat), `size={18}`, `strokeWidth={1.5}`, `opacity-70`.
+- **Icons:** Custom inline SVG components — `ProtectIcon` (1 rhombus layer), `AdaptIcon` (2 stacked), `RetreatIcon` (3 stacked). Each uses `viewBox="0 0 24 24"`, `width={18}`, `strokeWidth={1.5}`, `stroke="currentColor"`, no fill. Wrapped in a `div` with `opacity-70` to match reference. Lucide `Layers2`/`Layers`/`Layers3` are no longer used.
 
 ---
 
@@ -568,18 +570,26 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 
 ### `HomePage`
 - **File:** `src/screens/HomePage.tsx`
-- **Purpose:** Composes all S1 components inside `ScaledLayout`.
+- **Purpose:** Composes all S1 components. Canvas-space panels inside `ScaledLayout`; viewport-level elements as siblings.
 - **Props:** None
-- **Renders:** `ScaledLayout` → `FloodDepthScale`, `ModeSelector`, `TopStatusBar`, `LiveMonitoringPanel`, `TimeView`, `BottomSummaryBar`
+- **Renders (Fragment):**
+  - `<ScaledLayout className="screen-enter">` → `FloodDepthScale`, `LiveMonitoringPanel`, `TimeView`
+  - `<ModeSelector />` (viewport-level sibling)
+  - `<TopStatusBar />` (viewport-level sibling)
+  - `<BottomSummaryBar />` (viewport-level sibling)
 - **Animation:** `className="screen-enter"` on ScaledLayout
 
 ---
 
 ### `HomePageAlert`
 - **File:** `src/screens/HomePageAlert.tsx`
-- **Purpose:** Composes all S2 components inside `ScaledLayout`. Adds `NewAlertCard` and `showBadge` on bell.
+- **Purpose:** Composes all S2 components. Same structure as `HomePage` but adds `NewAlertCard` inside ScaledLayout and `showBadge` on the bell.
 - **Props:** `onAlertClick: () => void`
-- **Renders:** Same as HomePage + `NewAlertCard`
+- **Renders (Fragment):**
+  - `<ScaledLayout className="screen-enter">` → `FloodDepthScale`, `LiveMonitoringPanel`, `NewAlertCard`, `TimeView`
+  - `<ModeSelector />` (viewport-level sibling)
+  - `<TopStatusBar showBadge />` (viewport-level sibling)
+  - `<BottomSummaryBar />` (viewport-level sibling)
 
 ---
 
@@ -840,8 +850,8 @@ Screen 3's white panel with `inset: 20px` and `overflow-y: auto` already adapts 
 ### Why screens 1 and 2 needed viewport-aware changes
 The Figma design used a fixed 1512×1008px canvas matching the designer's MacBook display resolution. Browser viewports are smaller (tabs + address bar consume ~80px height). Elements positioned absolutely at fixed pixel values (e.g., bottom bar at `top: 856px + height: 138px = 994px`) were cut off. The `ScaledLayout` component solves this by proportionally shrinking the entire design to fit.
 
-### Why the top header backdrop is an inline div, not a component
-The header backdrop is a single presentational `<div>` with fixed dimensions, no props, and no internal logic. Extracting it into a separate component would add file overhead without benefit. It lives inline in both screen files so the relationship between the backdrop and the three floating panels above it is visible at a glance.
+### Why ModeSelector and TopStatusBar are outside ScaledLayout
+When these were inside ScaledLayout, their absolute positions resolved against the 1512px canvas. At scale < 1 (e.g., 0.89 on a 14-inch MacBook), the canvas renders at ~1350px wide — narrower than the 1440px viewport. `left-1/2` of the canvas placed ModeSelector at ~675px instead of the viewport's 720px midpoint, visually off-center. `right-21px` of the canvas placed TopStatusBar ~90px short of the viewport's right edge. Moving both outside ScaledLayout makes their CSS resolve against the full viewport, so ModeSelector is truly viewport-centered and TopStatusBar is flush with the right edge at every screen size.
 
 ### Why the BottomSummaryBar uses edge-to-edge width
 The original Figma spec used `w-[1469px]` centered with ~21px margins. On screen this looked like a floating panel rather than an anchoring bar. Making it `w-[1512px] left-0` with no border radius grounds the map content between the header band and the bottom bar, reducing the left-heavy perception. Padding was increased from `px-[25px]` to `px-[40px]` so content doesn't sit flush against the viewport edges.
@@ -852,7 +862,7 @@ The `NewAlertCard` was at `top: 695px`, height ~80px, ending at 775px. `TimeView
 ### Approximations vs Figma
 | Element | Figma | Prototype |
 |---|---|---|
-| Mode selector icons | Custom vector illustrations | SVG path approximations |
+| Mode selector icons | Custom vector illustrations | Custom inline SVG rhombus paths matching reference |
 | Time View scrubber | Figma image group (Group9) | CSS line + dot |
 | Live monitoring icon | Custom wave vector | SVG path approximation |
 | Bell / Menu icons | Figma vectors | lucide-react icons |
@@ -993,6 +1003,12 @@ Run this checklist whenever making changes to screens 1 or 2:
 ---
 
 ## Changelog
+
+### 2026-05-17 — Header restructure: viewport-level ModeSelector and TopStatusBar (Screens 1 & 2)
+- **What changed**: (1) Removed the frosted-glass header backdrop div from both screen files. (2) Moved `ModeSelector` outside `ScaledLayout` to viewport-level so `left-1/2` centers it on the viewport, not the scaled canvas. (3) Moved `TopStatusBar` outside `ScaledLayout` so `right-21px` is flush with the viewport right edge. (4) Replaced lucide `Layers2`/`Layers`/`Layers3` mode selector icons with custom inline SVG rhombus-stack icons (`ProtectIcon`, `AdaptIcon`, `RetreatIcon`) matching the reference images.
+- **Why**: At scale < 1 (14-inch MacBook ≈ 0.89), canvas-positioned elements are visually offset from viewport edges. ModeSelector appeared ~45px left of viewport center; TopStatusBar appeared ~90px from the right edge instead of flush. The header backdrop was removed as the design calls for transparent floating headers.
+- **Files affected**: `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`, `src/components/shared/ModeSelector.tsx`
+- **Sections updated**: D (Global structure, Viewport strategy, z-position table), E (Icons), F (Top Header Backdrop removed, ModeSelector, TopStatusBar, HomePage, HomePageAlert updated), J (Rationale updated, Approximations table updated)
 
 ### 2026-05-17 — Icon replacement, panel fixes, full-viewport bars (Screens 1 & 2)
 - **What changed**: (1) ModeSelector icons replaced with lucide Layers2/Layers/Layers3. (2) Live Monitoring icon replaced with lucide Radio. (3) Grey oval removed from City Overview sub-card. (4) Stats table right-column alignment fixed with consistent fixed-width two-column layout. (5) Top header backdrop and BottomSummaryBar moved outside ScaledLayout to viewport level so they always span 100% screen width.

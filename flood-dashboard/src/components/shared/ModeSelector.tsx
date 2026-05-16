@@ -1,5 +1,3 @@
-import React from 'react';
-
 type Mode = 'Protect' | 'Adapt' | 'Retreat';
 
 interface Props {
@@ -8,36 +6,38 @@ interface Props {
 
 function ProtectIcon() {
   return (
-    <svg width="30" height="8" viewBox="0 0 30 8" fill="none">
-      <rect x="0" y="3" width="30" height="2" rx="1" fill="currentColor" opacity="0.6"/>
-      <rect x="5" y="1" width="20" height="6" rx="2" fill="currentColor" opacity="0.3"/>
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12 L12 7 L22 12 L12 17 Z" />
     </svg>
   );
 }
 
 function AdaptIcon() {
   return (
-    <svg width="30" height="12" viewBox="0 0 30 12" fill="none">
-      <path d="M2 10 Q8 2 15 6 Q22 10 28 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7"/>
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 9 L12 4 L22 9 L12 14 Z" />
+      <path d="M2 15 L12 10 L22 15 L12 20 Z" />
     </svg>
   );
 }
 
 function RetreatIcon() {
   return (
-    <svg width="30" height="15" viewBox="0 0 30 15" fill="none">
-      <path d="M2 13 L8 5 L15 9 L22 3 L28 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7"/>
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 7 L12 3 L22 7 L12 11 Z" />
+      <path d="M2 13 L12 9 L22 13 L12 17 Z" />
+      <path d="M2 19 L12 15 L22 19 L12 23 Z" />
     </svg>
   );
 }
 
-export default function ModeSelector({ active = 'Protect' }: Props) {
-  const modes: { label: Mode; Icon: () => React.ReactElement }[] = [
-    { label: 'Protect', Icon: ProtectIcon },
-    { label: 'Adapt', Icon: AdaptIcon },
-    { label: 'Retreat', Icon: RetreatIcon },
-  ];
+const modes = [
+  { label: 'Protect' as Mode, Icon: ProtectIcon },
+  { label: 'Adapt'   as Mode, Icon: AdaptIcon   },
+  { label: 'Retreat' as Mode, Icon: RetreatIcon  },
+];
 
+export default function ModeSelector({ active = 'Protect' }: Props) {
   return (
     <div className="absolute left-1/2 -translate-x-1/2 top-[25px] w-[489px] h-[50px] glass-30 glass-shadow-sm rounded-pill flex items-center justify-center gap-[10px] px-[19px] py-[6px]">
       {modes.map(({ label, Icon }) => (
@@ -47,7 +47,9 @@ export default function ModeSelector({ active = 'Protect' }: Props) {
             active === label ? 'glass-53' : ''
           }`}
         >
-          <Icon />
+          <div className="text-black opacity-70">
+            <Icon />
+          </div>
           <span className={`font-medium text-[14px] leading-[20px] tracking-[-0.15px] text-black whitespace-nowrap ${active === label ? 'font-semibold' : ''}`}>
             {label}
           </span>

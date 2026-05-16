@@ -171,15 +171,17 @@ For Screen 3:
 ```
 
 ### Viewport strategy
-**Screens 1 & 2:** Use `ScaledLayout` which applies:
-```
-scale = Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008)
-transform: scale(scale)
-transform-origin: top left
-```
-This scales the 1512×1008 design canvas down to fit the actual browser viewport. The background image (on the parent) always fills 100vw × 100vh. The UI panels scale proportionally within.
+**Screens 1 & 2:** Use a hybrid layout:
+- **Top header band and BottomSummaryBar** are positioned outside `ScaledLayout` at viewport level (`position: absolute; left: 0; right: 0`). They always span 100% viewport width regardless of the scale factor applied to the canvas.
+- **Floating panels** (FloodDepthScale, ModeSelector, TopStatusBar, LiveMonitoringPanel, TimeView, NewAlertCard) are inside `ScaledLayout` which applies:
+  ```
+  scale = Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008)
+  transform: scale(scale)
+  transform-origin: top left
+  ```
+  On a typical 14-inch MacBook (viewport ≈ 1440×900), scale ≈ 0.89. The floating panels shrink proportionally; the full-width bars remain at 100vw.
 
-**Screen 3:** Uses `inset: 20px` on the white panel (not ScaledLayout) because it has its own responsive scrollable layout. The panel already works correctly at typical laptop screen sizes.
+**Screen 3:** Uses `inset: 20px` on the white panel (not ScaledLayout). The panel already works correctly at typical laptop screen sizes.
 
 ### Desktop-first assumptions
 - Designed for 1512×1008px (14-inch MacBook Retina display looks-like resolution)
@@ -193,24 +195,29 @@ Use `position: absolute` for all dashboard panel elements within ScaledLayout. T
 Use flex/grid **inside** panels (for internal layout of rows, columns, icon+text pairs, stat blocks). Do NOT use flex/grid for positioning panels relative to each other — use absolute for that.
 
 ### How to avoid overlap between floating panels
-Key z-positions in design space (1512×1008 canvas):
+
+**Viewport-level elements (outside ScaledLayout — always 100% viewport width):**
 ```
-Flood Depth Scale:  top: 25px,   left: 21px,   height: 65px   → bottom: 90px
-Mode Selector:      top: 25px,   left: 512px,   width: 489px
+Header backdrop:  top: 0,    left: 0, right: 0,  height: 90px   [viewport-relative, z-index: 10]
+Bottom Bar:       bottom: 0, left: 0, right: 0,  height: 138px  [viewport-relative]
+```
+
+**Canvas-space elements (inside ScaledLayout — 1512×1008 design canvas):**
+```
+Flood Depth Scale:  top: 25px,   left: 21px,   height: 65px    → bottom: 90px
+Mode Selector:      top: 25px,   left: 512px,  width: 489px
 Top Status Bar:     top: 29px,   right: 21px
-Live Mon. Panel:    top: 119px,  left: 21px,    height: ~488px → bottom: 607px
-New Alert Card:     top: 620px,  left: 21px,    height: ~68px  → bottom: 688px
-Time View:          top: 754px,  left: 20px,    height: ~60px  → bottom: 814px
-Bottom Bar:         top: 856px,  left: center,  height: 138px  → bottom: 994px
+Live Mon. Panel:    top: 119px,  left: 21px,   height: ~488px  → bottom: 607px
+New Alert Card:     top: 620px,  left: 21px,   height: ~68px   → bottom: 688px
+Time View:          top: 754px,  left: 20px,   height: ~60px   → bottom: 814px
 ```
 
 The gap between the New Alert Card bottom (688px) and Time View top (754px) is 66px — enough breathing room. When adding new floating panels, check these ranges and leave at least 12px gap between any two elements' bottom/top edges.
 
 ### Rules for maintaining visibility of bottom content
-- Never set a panel's `top` value closer than 14px to the bottom of the 1008px design canvas.
-- The bottom summary bar at `top: 856px + height: 138px = 994px` leaves 14px to bottom edge.
-- ScaledLayout shrinks everything proportionally so the bottom bar always fits.
-- Do not add content below `top: 1000px` in design space.
+- The bottom bar is viewport-anchored (`bottom: 0`) and never cut off regardless of scale.
+- Keep canvas-space elements below `top: 820px` to avoid visual collision with the bottom bar at typical scales.
+- Do not add canvas content below `top: 820px`.
 
 ---
 
@@ -449,6 +456,18 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 
 ## F. Component Architecture
 
+### Top Header Backdrop (inline div, not a component)
+- **Defined in:** `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx` (first sibling BEFORE `<ScaledLayout>`)
+- **Purpose:** Full-width frosted-glass band that visually unifies FloodDepthScale, ModeSelector, and TopStatusBar into a single edge-to-edge header region.
+- **Position:** `absolute top-0 left-0 right-0 z-10` — viewport-relative, NOT inside ScaledLayout
+- **Height:** `90px` — covers FloodDepthScale bottom edge (25px+65px=90px) at scale 1.0
+- **Style:** `background: rgba(255,255,255,0.14)`, `backdropFilter: blur(12px)`, `borderBottom: 1px solid rgba(255,255,255,0.18)`
+- **Why not a component:** Single presentational div with no props or logic.
+- **Why outside ScaledLayout:** Ensures the band always spans 100% viewport width regardless of the canvas scale factor. Inside a scaled canvas, the band would shrink below viewport width.
+- **Used by:** S1 and S2 only. Screen 3 has its own white panel layout.
+
+---
+
 ### `ScaledLayout`
 - **File:** `src/components/layout/ScaledLayout.tsx`
 - **Purpose:** Wraps Screen 1 and Screen 2 content. Scales the 1512×1008 design canvas to fit the actual browser viewport using `transform: scale()`.
@@ -488,7 +507,7 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Props:** `active?: Mode` (defaults to `'Protect'`)
 - **Position:** `absolute left-1/2 -translate-x-1/2 top-[25px]` — horizontally centered within the 1512px canvas.
 - **Active tab:** `.glass-53` background on the active tab.
-- **Icons:** Simple inline SVG paths approximating the Figma icon designs.
+- **Icons:** `lucide-react` icons — `Layers2` (Protect), `Layers` (Adapt), `Layers3` (Retreat), `size={18}`, `strokeWidth={1.5}`, `opacity-70`.
 
 ---
 
@@ -500,7 +519,7 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Position:** `absolute left-[21px] top-[119px] w-[326px]`
 - **Approximate height:** ~488px (ends at design-space y ≈ 607px)
 - **Internal sections:**
-  1. Live Monitoring header (radio-wave icon + "Live" green dot)
+  1. Live Monitoring header (`Radio` lucide icon + "Live" green dot)
   2. Horizontal divider
   3. "City Overview" heading
   4. City status sub-card (glass-40, `h-[139px]`): yellow dot, "Moderate", description
@@ -526,8 +545,9 @@ filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
 - **Purpose:** Full-width glass bar at the bottom. Left: 4 stat blocks (Risk Level, Affected Districts, Population at Risk, Active Alerts). Right: 5 navigation icon buttons.
 - **Used by:** `HomePage`, `HomePageAlert`
 - **Props:** None (content from `mockData.ts`)
-- **Position:** `absolute left-1/2 -translate-x-1/2 top-[856px] w-[1469px] h-[138px]`
+- **Position:** `absolute bottom-0 left-0 right-0 h-[138px]` — viewport-relative, NOT inside ScaledLayout. Always spans 100% viewport width regardless of canvas scale.
 - **Background:** `.glass-80` (most opaque glass)
+- **Padding:** `px-[40px]`
 - **Stats:** Risk Level text in `#ffae00`, Districts change indicator in `#fb2c36`, Active Alerts link in `#51a2ff`
 - **Navigation:** `lucide-react` icons: `LayoutDashboard`, `GitBranch`, `ArrowLeftRight`, `FileText`, `Share2`
 
@@ -820,6 +840,12 @@ Screen 3's white panel with `inset: 20px` and `overflow-y: auto` already adapts 
 ### Why screens 1 and 2 needed viewport-aware changes
 The Figma design used a fixed 1512×1008px canvas matching the designer's MacBook display resolution. Browser viewports are smaller (tabs + address bar consume ~80px height). Elements positioned absolutely at fixed pixel values (e.g., bottom bar at `top: 856px + height: 138px = 994px`) were cut off. The `ScaledLayout` component solves this by proportionally shrinking the entire design to fit.
 
+### Why the top header backdrop is an inline div, not a component
+The header backdrop is a single presentational `<div>` with fixed dimensions, no props, and no internal logic. Extracting it into a separate component would add file overhead without benefit. It lives inline in both screen files so the relationship between the backdrop and the three floating panels above it is visible at a glance.
+
+### Why the BottomSummaryBar uses edge-to-edge width
+The original Figma spec used `w-[1469px]` centered with ~21px margins. On screen this looked like a floating panel rather than an anchoring bar. Making it `w-[1512px] left-0` with no border radius grounds the map content between the header band and the bottom bar, reducing the left-heavy perception. Padding was increased from `px-[25px]` to `px-[40px]` so content doesn't sit flush against the viewport edges.
+
 ### How the red alert card overlap was fixed
 The `NewAlertCard` was at `top: 695px`, height ~80px, ending at 775px. `TimeView` started at 754px. Overlap: 21px. Fixed by moving `NewAlertCard` to `top: 620px` (13px below the LiveMonitoringPanel which ends at ~607px). Card now ends at ~688px, giving 66px gap before TimeView at 754px.
 
@@ -963,3 +989,25 @@ Run this checklist whenever making changes to screens 1 or 2:
 - [ ] Budget donut chart renders
 - [ ] Affections table (Infrastructure + Population) visible
 - [ ] Overflow scroll works if viewport is short
+
+---
+
+## Changelog
+
+### 2026-05-17 — Icon replacement, panel fixes, full-viewport bars (Screens 1 & 2)
+- **What changed**: (1) ModeSelector icons replaced with lucide Layers2/Layers/Layers3. (2) Live Monitoring icon replaced with lucide Radio. (3) Grey oval removed from City Overview sub-card. (4) Stats table right-column alignment fixed with consistent fixed-width two-column layout. (5) Top header backdrop and BottomSummaryBar moved outside ScaledLayout to viewport level so they always span 100% screen width.
+- **Why**: Icon images updated to match reference; grey oval was an artifact; stats alignment was inconsistent across rows; bars were narrower than viewport on scaled screens (14-inch MacBook at scale ≈ 0.89).
+- **Files affected**: `src/components/shared/ModeSelector.tsx`, `src/components/dashboard/LiveMonitoringPanel.tsx`, `src/components/dashboard/BottomSummaryBar.tsx`, `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`
+- **Sections updated**: D (Viewport strategy, z-position table), F (Top Header Backdrop, BottomSummaryBar, ModeSelector, LiveMonitoringPanel)
+
+### 2026-05-16 — Horizontal layout balance fix (Screens 1 & 2)
+- **What changed**: Added full-width frosted-glass header backdrop to Screens 1 & 2 (inline div, `left-0 top-0 w-[1512px] h-[100px]`); extended BottomSummaryBar to full canvas width (`left-0 w-[1512px]`, removed side margins and border-radius, increased `px-[40px]`).
+- **Why**: Composition felt left-heavy; the disconnected floating pills in the header and the margined bottom bar left the layout unanchored. Edge-to-edge top and bottom bands frame the map and balance the visual weight.
+- **Files affected**: `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`, `src/components/dashboard/BottomSummaryBar.tsx`
+- **Sections updated**: D (UI Layout — z-position table, bottom bar description), F (BottomSummaryBar position, new top header backdrop entry), J (two new rationale notes)
+
+### 2026-05-16 — Viewport-aware scaling added to Screens 1 & 2
+- **What changed**: ScaledLayout component applies CSS transform scale so the 1512×1008 design canvas fits within any browser viewport without overflow.
+- **Why**: Browser chrome reduces available viewport height, causing BottomSummaryBar to be cut off on standard laptop displays.
+- **Files affected**: `src/components/layout/ScaledLayout.tsx`, `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`
+- **Sections updated**: D (UI Layout), F (Components), J (Known Trade-offs)

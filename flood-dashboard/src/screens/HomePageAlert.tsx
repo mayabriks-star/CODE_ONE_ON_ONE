@@ -13,14 +13,18 @@ interface Props {
 
 export default function HomePageAlert({ onAlertClick }: Props) {
   return (
-    <ScaledLayout className="screen-enter">
-      <FloodDepthScale />
-      <ModeSelector />
-      <TopStatusBar showBadge />
-      <LiveMonitoringPanel />
-      <NewAlertCard onClick={onAlertClick} />
-      <TimeView />
+    <>
+      <ScaledLayout className="screen-enter">
+        <FloodDepthScale />
+        <ModeSelector />
+        <TopStatusBar showBadge />
+        <LiveMonitoringPanel />
+        <NewAlertCard onClick={onAlertClick} />
+        <TimeView />
+      </ScaledLayout>
+
+      {/* Full-viewport bottom bar — outside ScaledLayout so it always spans 100% viewport width */}
       <BottomSummaryBar />
-    </ScaledLayout>
+    </>
   );
 }

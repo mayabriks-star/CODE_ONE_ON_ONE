@@ -1,4 +1,4 @@
-import { TrendingUp, Waves, Building2, Droplets } from 'lucide-react';
+import { TrendingUp, Waves, Building2, Droplets, Radio } from 'lucide-react';
 import { cityOverview } from '../../mockData';
 
 export default function LiveMonitoringPanel() {
@@ -7,9 +7,7 @@ export default function LiveMonitoringPanel() {
       {/* Live Monitoring header */}
       <div className="flex items-center justify-between px-[11px]">
         <div className="flex items-center gap-[12px]">
-          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-            <path d="M1 6 Q3 2 5 6 Q7 10 9 6 Q11 2 13 6 Q14 8 15 6" stroke="#1e2939" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-          </svg>
+          <Radio size={16} className="text-[#1e2939]" strokeWidth={1.5} />
           <span className="font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Live Monitoring</span>
         </div>
         <div className="flex items-center gap-[12px]">
@@ -35,14 +33,9 @@ export default function LiveMonitoringPanel() {
             <span className="font-medium text-[12px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
           </div>
         </div>
-        <div className="flex items-start gap-[14px]">
-          <div className="w-[24px] h-[14px] flex-shrink-0 mt-[3px]">
-            <div className="w-[24px] h-[14px] border-2 border-[#d1d5dc] rounded-sm" />
-          </div>
-          <p className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153] w-[240px]">
-            {cityOverview.description}
-          </p>
-        </div>
+        <p className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+          {cityOverview.description}
+        </p>
       </div>
 
       {/* Stats table */}
@@ -53,9 +46,9 @@ export default function LiveMonitoringPanel() {
             <TrendingUp size={16} className="text-[#505153]" strokeWidth={1.5} />
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Sea Level</span>
           </div>
-          <div className="flex items-center gap-[20px]">
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.seaLevel}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.seaLevelPeriod}</span>
+          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.seaLevel}</span>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.seaLevelPeriod}</span>
           </div>
         </div>
 
@@ -65,9 +58,9 @@ export default function LiveMonitoringPanel() {
             <Waves size={14} className="text-[#505153]" strokeWidth={1.5} />
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Wave Activity</span>
           </div>
-          <div className="flex items-center gap-[31px]">
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.waveActivity}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.waveStatus}</span>
+          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.waveActivity}</span>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.waveStatus}</span>
           </div>
         </div>
 
@@ -77,9 +70,9 @@ export default function LiveMonitoringPanel() {
             <Building2 size={16} className="text-[#505153]" strokeWidth={1.5} />
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Vulnerable Districts</span>
           </div>
-          <div className="flex items-center gap-[44px]">
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.vulnerableDistricts}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">of {cityOverview.totalDistricts}</span>
+          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.vulnerableDistricts}</span>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>of {cityOverview.totalDistricts}</span>
           </div>
         </div>
 
@@ -89,9 +82,9 @@ export default function LiveMonitoringPanel() {
             <Droplets size={16} className="text-[#505153]" strokeWidth={1.5} />
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Tide</span>
           </div>
-          <div className="flex items-center gap-[11px]">
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.tideStatus}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.tideTime}</span>
+          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.tideStatus}</span>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.tideTime}</span>
           </div>
         </div>
       </div>

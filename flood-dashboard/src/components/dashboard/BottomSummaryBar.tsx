@@ -12,7 +12,7 @@ const navItems = [
 export default function BottomSummaryBar() {
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 top-[856px] w-[1469px] h-[138px] glass-80 glass-shadow rounded-lg flex flex-col items-center justify-center px-[25px] pb-[37px] pt-[17px]"
+      className="absolute bottom-0 left-0 right-0 h-[138px] glass-80 glass-shadow flex flex-col items-center justify-center px-[40px] pb-[37px] pt-[17px]"
     >
       <div className="flex items-center justify-between w-full h-[70px]">
         {/* Stats row */}

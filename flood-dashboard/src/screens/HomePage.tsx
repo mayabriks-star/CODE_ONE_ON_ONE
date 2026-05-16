@@ -8,13 +8,17 @@ import BottomSummaryBar from '../components/dashboard/BottomSummaryBar';
 
 export default function HomePage() {
   return (
-    <ScaledLayout className="screen-enter">
-      <FloodDepthScale />
-      <ModeSelector />
-      <TopStatusBar />
-      <LiveMonitoringPanel />
-      <TimeView />
+    <>
+      <ScaledLayout className="screen-enter">
+        <FloodDepthScale />
+        <ModeSelector />
+        <TopStatusBar />
+        <LiveMonitoringPanel />
+        <TimeView />
+      </ScaledLayout>
+
+      {/* Full-viewport bottom bar — outside ScaledLayout so it always spans 100% viewport width */}
       <BottomSummaryBar />
-    </ScaledLayout>
+    </>
   );
 }

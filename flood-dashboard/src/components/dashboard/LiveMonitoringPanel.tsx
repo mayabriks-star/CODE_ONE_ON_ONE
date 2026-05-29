@@ -1,7 +1,7 @@
-import { TrendingUp, Waves, Building2, Droplets, Radio } from 'lucide-react';
+import { TrendingUp, Waves, Building2, Droplets, Radio, ArrowUp } from 'lucide-react';
 import { cityOverview } from '../../mockData';
 
-export default function LiveMonitoringPanel() {
+export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDistrictsProp }: { vulnerableDistricts?: string }) {
   return (
     <div className="absolute left-[21px] top-[119px] w-[326px] glass-65 glass-shadow rounded-lg py-[10px] flex flex-col gap-[21px]">
       {/* Live Monitoring header */}
@@ -24,31 +24,33 @@ export default function LiveMonitoringPanel() {
         City Overview
       </span>
 
-      {/* Status sub-card */}
-      <div className="mx-[11px] glass-40 rounded-lg h-[139px] px-[13px] flex flex-col gap-[3px] justify-center">
-        <div className="flex items-center gap-[15px]">
-          <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
-          <div className="flex flex-col">
-            <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
-            <span className="font-medium text-[12px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
-          </div>
+      {/* Moderate status — directly on panel, no inner card */}
+      <div className="flex items-center gap-[15px] px-[11px]">
+        <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
+        <div className="flex flex-col">
+          <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
+          <span className="font-medium text-[12px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
         </div>
-        <p className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">
-          {cityOverview.description}
-        </p>
       </div>
+      <p className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153] px-[11px]">
+        {cityOverview.description}
+      </p>
+
+      {/* Divider between status and metrics */}
+      <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[7px]" />
 
       {/* Stats table */}
-      <div className="mx-[15px] flex flex-col gap-[10px] py-[7px]" style={{ filter: 'drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03))' }}>
+      <div className="mx-[15px] flex flex-col gap-[10px] py-[7px]">
         {/* Sea Level */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[10px]">
             <TrendingUp size={16} className="text-[#505153]" strokeWidth={1.5} />
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Sea Level</span>
           </div>
-          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.seaLevel}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.seaLevelPeriod}</span>
+          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end', gap: '4px' }}>
+            <ArrowUp size={9} className="text-[#d53c4b]" strokeWidth={2.5} />
+            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '46px', textAlign: 'right' }}>{cityOverview.seaLevel}</span>
+            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '88px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.seaLevelPeriod}</span>
           </div>
         </div>
 
@@ -59,7 +61,7 @@ export default function LiveMonitoringPanel() {
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Wave Activity</span>
           </div>
           <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.waveActivity}</span>
+            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.waveActivity}</span>
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.waveStatus}</span>
           </div>
         </div>
@@ -71,7 +73,7 @@ export default function LiveMonitoringPanel() {
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Vulnerable Districts</span>
           </div>
           <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.vulnerableDistricts}</span>
+            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{vulnerableDistrictsProp ?? cityOverview.vulnerableDistricts}</span>
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>of {cityOverview.totalDistricts}</span>
           </div>
         </div>
@@ -83,7 +85,7 @@ export default function LiveMonitoringPanel() {
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Tide</span>
           </div>
           <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.tideStatus}</span>
+            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.tideStatus}</span>
             <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.tideTime}</span>
           </div>
         </div>

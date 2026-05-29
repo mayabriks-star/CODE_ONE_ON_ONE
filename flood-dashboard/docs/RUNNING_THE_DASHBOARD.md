@@ -32,7 +32,8 @@ This installs all dependencies listed in `package.json` into the `node_modules/`
 
 ```bash
 cd flood-dashboard
-npm run dev
+ (cd = change directory) : change to the location of the dashboard
+npm run dev - Run the application
 ```
 
 You will see output like:

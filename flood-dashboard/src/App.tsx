@@ -19,7 +19,9 @@ export default function App() {
     <div
       className="w-screen h-screen overflow-hidden relative"
       style={{
-        backgroundImage: "url('/coastal-background.png')",
+        backgroundImage: screen === 'home'
+          ? "url('/home-page-new-map.png')"
+          : "url('/coastal-background.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

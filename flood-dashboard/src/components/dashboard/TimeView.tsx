@@ -2,7 +2,7 @@ const years = ['Today', '2030', '2050', '2070', '2090'];
 
 export default function TimeView() {
   return (
-    <div className="absolute left-[20px] top-[754px] w-[317px] flex flex-col gap-[5px]">
+    <div className="absolute left-[20px] top-[784px] w-[317px] flex flex-col gap-[5px]">
       <span className="text-white text-[18px] font-medium leading-[22px]">Time View</span>
       <div className="relative">
         <div className="flex items-center gap-[28px]">

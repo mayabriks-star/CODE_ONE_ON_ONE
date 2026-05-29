@@ -7,13 +7,35 @@ type Screen = 'home' | 'home-alert' | 'alert';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
+  const [transiting, setTransiting] = useState<'none' | 'zoom-in' | 'zoom-out'>('none');
+  const [originX, setOriginX] = useState(0);
+  const [originY, setOriginY] = useState(0);
 
-  // Automatically transition from home → home-alert after 10 seconds
   useEffect(() => {
     if (screen !== 'home') return;
     const timer = setTimeout(() => setScreen('home-alert'), 10_000);
     return () => clearTimeout(timer);
   }, [screen]);
+
+  function handleRedZoneClick(clientX: number, clientY: number) {
+    setOriginX(clientX);
+    setOriginY(clientY);
+    setTransiting('zoom-in');
+    setTimeout(() => {
+      setScreen('alert');
+      setTransiting('none');
+    }, 500);
+  }
+
+  function handleZoomOut() {
+    setOriginX(window.innerWidth / 2);
+    setOriginY(window.innerHeight / 2);
+    setTransiting('zoom-out');
+    setTimeout(() => {
+      setScreen('home-alert');
+      setTransiting('none');
+    }, 400);
+  }
 
   return (
     <div
@@ -21,18 +43,24 @@ export default function App() {
       style={{
         backgroundImage: screen === 'home'
           ? "url('/home-page-new-map.png')"
-          : "url('/coastal-background.png')",
+          : screen === 'alert'
+            ? "url('/harbor-district-bg.png')"
+            : "url('/coastal-background.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        transform: transiting === 'zoom-in' ? 'scale(3.5)' : transiting === 'zoom-out' ? 'scale(0.3)' : 'scale(1)',
+        transformOrigin: `${originX}px ${originY}px`,
+        opacity: transiting !== 'none' ? 0 : 1,
+        transition: transiting !== 'none' ? 'transform 0.5s ease-in, opacity 0.4s ease-in' : 'none',
       }}
     >
       {screen === 'home' && <HomePage />}
       {screen === 'home-alert' && (
-        <HomePageAlert onAlertClick={() => setScreen('alert')} />
+        <HomePageAlert onRedZoneClick={handleRedZoneClick} />
       )}
       {screen === 'alert' && (
-        <AlertPage onBack={() => setScreen('home-alert')} />
+        <AlertPage onZoomOut={handleZoomOut} />
       )}
     </div>
   );

@@ -1,78 +1,101 @@
-import { ArrowLeft, TriangleAlert } from 'lucide-react';
-import AlertOverviewCard from '../components/alert/AlertOverviewCard';
-import StrategyCard from '../components/alert/StrategyCard';
-import DistrictRiskList from '../components/alert/DistrictRiskList';
-import BudgetCard from '../components/alert/BudgetCard';
-import AffectionsTable from '../components/alert/AffectionsTable';
+import type { LucideIcon } from 'lucide-react';
+import { TriangleAlert, Car, Zap, Building2, Droplets, Users } from 'lucide-react';
+import ScaledLayout from '../components/layout/ScaledLayout';
+import HomePageHeader from '../components/shared/HomePageHeader';
 
-interface Props {
-  onBack: () => void;
+interface MarkerProps {
+  icon: LucideIcon;
+  color: string;
+  label: string;
+  sub: string;
+  left: number;
+  top: number;
 }
 
-export default function AlertPage({ onBack }: Props) {
+function MapMarker({ icon: Icon, color, label, sub, left, top }: MarkerProps) {
   return (
-    <div className="relative w-full h-full screen-enter">
-      {/* White panel */}
-      <div
-        className="absolute inset-[20px] rounded-lg overflow-y-auto overflow-x-hidden"
-        style={{ background: 'white' }}
-      >
-        {/* Back arrow */}
-        <button
-          onClick={onBack}
-          className="absolute left-[30px] top-[39px] w-[22px] h-[20px] flex items-center justify-center hover:opacity-70 transition-opacity z-10"
-          aria-label="Back"
+    <div className="absolute flex flex-col items-center" style={{ left, top }}>
+      <div className="flex items-center gap-[8px] bg-white rounded-full px-[12px] py-[8px] shadow-md">
+        <div
+          className="w-[32px] h-[32px] rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: color }}
         >
-          <ArrowLeft size={20} className="text-black" strokeWidth={2} />
-        </button>
+          <Icon size={16} className="text-white" strokeWidth={1.5} />
+        </div>
+        <div>
+          <p className="font-semibold text-[12px] leading-[16px] text-[#101828]">{label}</p>
+          <p className="font-medium text-[10px] leading-[14px] text-[#505153]">{sub}</p>
+        </div>
+      </div>
+      <div className="w-[1px] h-[16px] bg-white/70" />
+      <div className="w-[6px] h-[6px] rounded-full bg-white/70" />
+    </div>
+  );
+}
 
-        {/* Status bar (positioned inside white panel) */}
-        <div className="relative h-[80px]">
-          <div className="absolute flex items-center gap-[15px] top-[29px] right-[21px]">
-            <div className="flex flex-col items-start w-[76px]">
-              <span className="font-semibold text-[14px] leading-[20px] tracking-[-0.15px] text-black whitespace-nowrap">10:42 AM</span>
-              <span className="text-[12px] leading-[16px] text-[#505153] whitespace-nowrap">Last update</span>
+interface Props {
+  onZoomOut: () => void;
+}
+
+export default function AlertPage({ onZoomOut }: Props) {
+  return (
+    <>
+      <ScaledLayout className="screen-enter">
+        {/* Page title */}
+        <h1 className="absolute left-[21px] top-[80px] font-bold text-[40px] leading-[44px] text-[#101828]">
+          Harbor District
+        </h1>
+
+        {/* Left alert panel */}
+        <div className="absolute left-[21px] top-[140px] w-[310px] rounded-xl glass-65 glass-shadow">
+          {/* Panel header */}
+          <div className="flex items-center gap-[8px] px-[14px] pt-[14px] pb-[10px]">
+            <TriangleAlert size={14} className="text-[#fb2c36]" strokeWidth={2} />
+            <span className="font-semibold text-[12px] leading-[16px] text-[#1e2939]">
+              Early Warning - Harbor District
+            </span>
+          </div>
+          <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[10px]" />
+
+          {/* Risk level */}
+          <div className="flex items-center gap-[10px] px-[14px] pt-[12px]">
+            <div className="w-[20px] h-[20px] rounded-full bg-[#ff6b00] flex-shrink-0" />
+            <div>
+              <span className="font-bold text-[24px] leading-[28px] text-[#101828]">High</span>
+              <p className="font-medium text-[11px] leading-[16px] text-[#505153]">Overall risk level</p>
             </div>
-            <div className="w-px h-[37px] bg-[#e5e7eb]" />
-            <div className="flex flex-col items-start w-[76px]">
-              <span className="font-semibold text-[14px] leading-[20px] tracking-[-0.15px] text-black whitespace-nowrap">Moderate</span>
-              <span className="text-[12px] leading-[16px] text-[#505153] whitespace-nowrap">City status</span>
-            </div>
-            <div className="w-px h-[37px] bg-[#e5e7eb]" />
-            <div className="flex flex-col items-center w-[28px] relative">
-              <div className="relative">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-black">
-                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                </svg>
-                <span className="absolute -top-1 -right-1 bg-[#fb2c36] rounded-full w-[8px] h-[8px]" />
-              </div>
-              <span className="text-[10px] leading-[12px] text-[#505153] text-center">Alerts</span>
-            </div>
-            <div className="w-px h-[37px] bg-[#e5e7eb]" />
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-black">
-              <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
-            </svg>
+          </div>
+
+          {/* Description */}
+          <p className="px-[14px] pt-[10px] pb-[12px] font-medium text-[11px] leading-[17px] text-[#505153]">
+            Sea level has reached the city's early action threshold. This district now requires preventive review before coastal impact begins.
+          </p>
+          <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[10px]" />
+
+          {/* Timeline */}
+          <div className="px-[14px] py-[12px]">
+            <span className="font-bold text-[13px] leading-[18px] text-[#101828]">18 - 24 months</span>
+            <p className="font-medium text-[11px] leading-[16px] text-[#505153]">first signs without action</p>
+          </div>
+          <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[10px]" />
+
+          {/* CTA */}
+          <div className="px-[14px] py-[12px]">
+            <button className="w-full h-[40px] rounded-lg bg-[#101828] flex items-center justify-center">
+              <span className="font-medium text-[14px] text-white">Start Response Review →</span>
+            </button>
           </div>
         </div>
 
-        {/* Warning icon + title */}
-        <div className="absolute left-[83px] top-[77px]">
-          <TriangleAlert size={48} className="text-[#fb2c36]" strokeWidth={1.5} fill="#fb2c36" fillOpacity={0.15} />
-        </div>
-        <h1 className="absolute left-[144px] top-[88px] font-semibold text-[20px] leading-[28px] tracking-[-0.15px] text-[#101828]">
-          Sea Level Early Warning
-        </h1>
+        {/* Map markers */}
+        <MapMarker icon={Car}      color="#f59e0b" label="Costal Road Access"      sub="Potential disruption"         left={668} top={148} />
+        <MapMarker icon={Zap}      color="#eab308" label="Electric Utility Point"   sub="Changing the defense system"  left={940} top={358} />
+        <MapMarker icon={Building2} color="#be123c" label="Residential Edge Blocks"  sub="Higher exposure"              left={468} top={480} />
+        <MapMarker icon={Droplets} color="#2563eb" label="Drainage Pressure Point"  sub="Back-flow risk"               left={258} top={650} />
+        <MapMarker icon={Users}    color="#16a34a" label="Vulnerable Residents"     sub="Support planning needed"      left={940} top={722} />
+      </ScaledLayout>
 
-        {/* Content panels (absolute positioned to match Figma) */}
-        <div className="relative" style={{ height: '980px' }}>
-          <AlertOverviewCard />
-          <StrategyCard />
-          <DistrictRiskList />
-          <BudgetCard />
-          <AffectionsTable />
-        </div>
-      </div>
-    </div>
+      <HomePageHeader onMinus={onZoomOut} />
+    </>
   );
 }

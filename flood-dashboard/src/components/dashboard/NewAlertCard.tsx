@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 
 interface Props {
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 export default function NewAlertCard({ onClick }: Props) {

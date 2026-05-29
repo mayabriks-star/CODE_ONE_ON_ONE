@@ -2,14 +2,17 @@ import { Menu, Bell, Minus, Plus, Search, Navigation, ChevronDown } from 'lucide
 
 const leftIcons = [Menu, Bell, Minus, Plus] as const;
 
-export default function HomePageHeader({ showBadge }: { showBadge?: boolean }) {
+export default function HomePageHeader({ showBadge, onMinus }: { showBadge?: boolean; onMinus?: () => void }) {
   return (
     <div className="absolute left-0 right-0 top-0 h-[70px] flex items-center px-[20px]">
       {/* Left: icon buttons */}
       <div className="flex items-center gap-[8px]">
         {leftIcons.map((Icon, i) => (
           <div key={i} className="relative">
-            <button className="w-[44px] h-[44px] rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center">
+            <button
+              className="w-[44px] h-[44px] rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center"
+              onClick={i === 2 ? onMinus : undefined}
+            >
               <Icon size={18} strokeWidth={1.5} className="text-gray-700" />
             </button>
             {i === 1 && showBadge && (

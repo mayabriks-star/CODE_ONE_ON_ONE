@@ -20,7 +20,7 @@ export default function HomePageAlert({ onRedZoneClick }: Props) {
         {/* Invisible hotspot over the red zone district on the map */}
         <div
           className="absolute cursor-pointer z-10"
-          style={{ left: 490, top: 130, width: 560, height: 370 }}
+          style={{ left: 550, top: 110, width: 480, height: 300 }}
           onClick={(e) => onRedZoneClick(e.clientX, e.clientY)}
           aria-label="Zoom into Harbor District"
         />

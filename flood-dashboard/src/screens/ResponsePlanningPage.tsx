@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
+
+const DESIGN_H = 1008;
 
 interface Props {
   onBack: () => void;
@@ -117,12 +120,28 @@ const inactiveSteps = [
 ];
 
 export default function ResponsePlanningPage({ onBack }: Props) {
+  const [scale, setScale] = useState(1);
+  const [innerWidth, setInnerWidth] = useState('100%');
+
+  useEffect(() => {
+    const update = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const s = Math.min(1.0, vh / DESIGN_H);
+      setScale(s);
+      setInnerWidth(`${(vw - 140) / s}px`);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   return (
     <div
       className="screen-enter"
       style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#f8f8f8' }}
     >
-      {/* ── Header — 28px left (matches Figma left=28px for icons/back arrow) ── */}
+      {/* ── Header — NOT scaled, icons at 28px from viewport left ── */}
       <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         {/* Menu + Bell row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
@@ -145,8 +164,10 @@ export default function ResponsePlanningPage({ onBack }: Props) {
         </div>
       </div>
 
-      {/* ── Main content — 70px side margins ── */}
-      <div style={{ marginLeft: '70px', marginRight: '70px' }}>
+      {/* ── Padded content wrapper — provides fixed 70px visual margins, NOT scaled ── */}
+      <div style={{ paddingLeft: '70px', paddingRight: '70px', boxSizing: 'border-box' as const }}>
+        {/* Inner scaled canvas — compensated width so visual = (vw-140), scales only for height fit */}
+        <div style={{ width: innerWidth, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
 
         {/* Projected Impact card */}
         <div
@@ -361,6 +382,7 @@ export default function ResponsePlanningPage({ onBack }: Props) {
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   );

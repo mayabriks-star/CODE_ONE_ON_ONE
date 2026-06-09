@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
 
-const DESIGN_H = 1008;
+const CANVAS_H = 835; // natural inner canvas height (px)
+// marginTop 6px + paddingTop 33px = 39px top; scale = (vh-156)/CANVAS_H ensures 35px bottom (156 = 6+115+35)
 
 interface Props {
   onBack: () => void;
@@ -127,7 +128,7 @@ export default function ResponsePlanningPage({ onBack }: Props) {
     const update = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const s = Math.min(1.0, vh / DESIGN_H);
+      const s = Math.min(1.0, (vh - 156) / CANVAS_H);
       setScale(s);
       setInnerWidth(`${(vw - 140) / s}px`);
     };
@@ -141,6 +142,8 @@ export default function ResponsePlanningPage({ onBack }: Props) {
       className="screen-enter"
       style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#f8f8f8' }}
     >
+      {/* Vertical centering group */}
+      <div style={{ marginTop: '6px' }}>
       {/* ── Header — NOT scaled, icons at 28px from viewport left ── */}
       <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         {/* Menu + Bell row */}
@@ -384,6 +387,7 @@ export default function ResponsePlanningPage({ onBack }: Props) {
         </div>
       </div>
       </div>
+      </div>{/* end centering group */}
     </div>
   );
 }

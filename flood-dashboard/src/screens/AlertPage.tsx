@@ -31,9 +31,10 @@ function MapMarker({ iconSrc, label, sub, left, top }: MarkerProps) {
 
 interface Props {
   onZoomOut: () => void;
+  onPlan: () => void;
 }
 
-export default function AlertPage({ onZoomOut }: Props) {
+export default function AlertPage({ onZoomOut, onPlan }: Props) {
   return (
     <>
       <ScaledLayout className="screen-enter">
@@ -74,7 +75,7 @@ export default function AlertPage({ onZoomOut }: Props) {
           </div>
 
           <div className="w-full px-[14px]">
-            <button className="w-full h-[44px] rounded-[20px] bg-[#101828] flex items-center justify-center">
+            <button onClick={onPlan} className="w-full h-[44px] rounded-[20px] bg-[#101828] flex items-center justify-center">
               <span className="font-medium text-[14px] text-white">Start Response Plan →</span>
             </button>
           </div>

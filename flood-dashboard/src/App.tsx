@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import HomePage from './screens/HomePage';
 import HomePageAlert from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
+import ResponsePlanningPage from './screens/ResponsePlanningPage';
 
-type Screen = 'home' | 'home-alert' | 'alert';
+type Screen = 'home' | 'home-alert' | 'alert' | 'planning';
 
 const bgBase = {
   backgroundSize: 'cover' as const,
@@ -70,6 +71,10 @@ export default function App() {
     }
 
     rafRef.current = requestAnimationFrame(frame);
+  }
+
+  function handleOpenPlanning() {
+    setScreen('planning');
   }
 
   function handleZoomOut() {
@@ -151,7 +156,13 @@ export default function App() {
           className="absolute inset-0"
           style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')" }}
         >
-          <AlertPage onZoomOut={handleZoomOut} />
+          <AlertPage onZoomOut={handleZoomOut} onPlan={handleOpenPlanning} />
+        </div>
+      )}
+      {/* Screen 4 — Response Planning: full white page, no background image */}
+      {screen === 'planning' && (
+        <div className="absolute inset-0" style={{ background: '#F9FAFB' }}>
+          <ResponsePlanningPage onBack={() => setScreen('alert')} />
         </div>
       )}
     </div>

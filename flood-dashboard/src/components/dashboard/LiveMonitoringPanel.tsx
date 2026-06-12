@@ -3,7 +3,7 @@ import { cityOverview } from '../../mockData';
 
 export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDistrictsProp }: { vulnerableDistricts?: string }) {
   return (
-    <div className="absolute left-[21px] top-[119px] w-[326px] glass-65 glass-shadow rounded-lg py-[10px] flex flex-col gap-[21px]">
+    <div className="absolute left-[21px] top-[119px] w-[326px] glass-65 glass-shadow rounded-[16px] py-[10px] flex flex-col gap-[11px]">
       {/* Live Monitoring header */}
       <div className="flex items-center justify-between px-[11px]">
         <div className="flex items-center gap-[12px]">
@@ -24,17 +24,22 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         City Overview
       </span>
 
-      {/* Moderate status — directly on panel, no inner card */}
-      <div className="flex items-center gap-[15px] px-[11px]">
-        <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
-        <div className="flex flex-col">
-          <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
-          <span className="font-medium text-[12px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
+      {/* City Overview container: Moderate status + description grouped */}
+      <div className="flex flex-col gap-[3px] w-full px-[11px] py-[6px]">
+        <div className="flex items-center gap-[15px]">
+          <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
+          <div className="flex flex-col">
+            <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
+            <span className="font-medium text-[13px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
+          </div>
+        </div>
+        <div className="flex gap-[15px] items-center">
+          <div className="w-[24px] h-[14px] flex-shrink-0" />
+          <p className="font-medium text-[15px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+            {cityOverview.description}
+          </p>
         </div>
       </div>
-      <p className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153] px-[11px]">
-        {cityOverview.description}
-      </p>
 
       {/* Divider between status and metrics */}
       <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[7px]" />
@@ -94,7 +99,7 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
       {/* CTA Button */}
       <div className="mx-[11px] mb-[2px]">
         <button
-          className="w-full h-[37px] rounded-md flex items-center justify-center"
+          className="w-full h-[37px] rounded-[14px] flex items-center justify-center"
           style={{ background: 'rgba(16,24,40,0.80)' }}
         >
           <span className="font-medium text-[14px] leading-[20px] tracking-[-0.15px] text-white">

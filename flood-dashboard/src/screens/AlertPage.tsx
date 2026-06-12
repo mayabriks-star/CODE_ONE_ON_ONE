@@ -47,35 +47,39 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
           style={{ left: '21px', top: '140px', width: '326px', height: '325px', padding: '10px 0', gap: '11px', borderRadius: '16px' }}
         >
           <div className="flex items-center gap-[8px] w-full px-[14px]">
-            <TriangleAlert size={18} className="text-[#1e2939]" strokeWidth={2} />
-            <span className="font-bold text-[14px] leading-[18px] text-[#1e2939]">
+            <TriangleAlert size={24} className="text-[#1e2939]" strokeWidth={2} />
+            <span className="font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">
               Early Warning - Harbor District
             </span>
           </div>
 
           <div className="w-full h-px bg-[rgba(0,0,0,0.08)]" />
 
-          <div className="flex items-center gap-[10px] w-full px-[14px]">
-            <div className="w-[32px] h-[32px] rounded-full bg-[#ff6b00] flex-shrink-0" />
-            <div>
-              <span className="font-bold text-[32px] leading-[36px] text-[#101828]">High</span>
-              <p className="font-medium text-[11px] leading-[16px] text-[#505153]">Overall risk level</p>
+          <div className="flex flex-col gap-[3px] w-full px-[14px] py-[6px]">
+            <div className="flex gap-[15px] items-start">
+              <div className="w-[24px] h-[24px] rounded-full bg-[#ff6b00] flex-shrink-0" />
+              <div>
+                <p className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">High</p>
+                <p className="font-medium text-[13px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</p>
+              </div>
+            </div>
+            <div className="flex gap-[14px] items-center">
+              <div className="w-[24px] h-[14px] flex-shrink-0" />
+              <p className="font-medium text-[13px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+                Sea level has reached the city's early action threshold. This district now requires preventive review before coastal impact begins.
+              </p>
             </div>
           </div>
 
-          <p className="font-medium text-[11px] leading-[17px] text-[#505153] w-full px-[14px]">
-            Sea level has reached the city's early action threshold. This district now requires preventive review before coastal impact begins.
-          </p>
-
           <div className="w-full h-px bg-[rgba(0,0,0,0.08)]" />
 
-          <div className="w-full px-[14px]">
-            <span className="font-bold text-[13px] leading-[18px] text-[#101828]">12 - 20 months</span>
-            <p className="font-medium text-[11px] leading-[16px] text-[#505153]">first signs without action</p>
+          <div className="w-full pl-[52px] pr-[14px]">
+            <span className="font-bold text-[12px] leading-[21px] text-[#101828]">12 - 20 months</span>
+            <p className="font-medium text-[13px] leading-[21px] text-[#505153]">first signs without action</p>
           </div>
 
           <div className="w-full px-[14px]">
-            <button onClick={onPlan} className="w-full h-[44px] rounded-[20px] bg-[#101828] flex items-center justify-center">
+            <button onClick={onPlan} className="w-full h-[37px] rounded-[14px] bg-[rgba(16,24,40,0.9)] flex items-center justify-center">
               <span className="font-medium text-[14px] text-white">Start Response Plan →</span>
             </button>
           </div>

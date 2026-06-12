@@ -463,37 +463,38 @@ export default function ResponsePlanningPage({ onBack }: Props) {
 
           {/* Spacer: gap middle column → right column (ratio 88) */}
           <div style={{ flexGrow: 88, minWidth: 0 }} />
-          {/* Right cards column + confirm button */}
-          <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-              {rightCards.map((card) => (
-                <ActionCard key={card.label} {...card} />
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '22px' }}>
-              <button
-                style={{
-                  width: '223px',
-                  height: '40px',
-                  background: 'rgba(0,0,0,0.8)',
-                  borderRadius: '100px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  color: 'white',
-                  letterSpacing: '-0.44px',
-                }}
-              >
-                Confirm area mapping
-              </button>
-            </div>
+          {/* Right cards column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', flexShrink: 0 }}>
+            {rightCards.map((card) => (
+              <ActionCard key={card.label} {...card} />
+            ))}
           </div>
 
         </div>
+
+        {/* Confirm area mapping — bottom right of page */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-42px', paddingRight: '49px' }}>
+          <button
+            style={{
+              width: '223px',
+              height: '40px',
+              background: 'rgba(0,0,0,0.8)',
+              borderRadius: '100px',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '16px',
+              fontWeight: 500,
+              color: 'white',
+              letterSpacing: '-0.44px',
+            }}
+          >
+            Confirm area mapping
+          </button>
+        </div>
+
       </div>
       </div>
       </div>{/* end centering group */}

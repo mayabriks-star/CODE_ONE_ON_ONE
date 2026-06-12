@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
 
-const CANVAS_H = 835; // natural inner canvas height (px)
-// marginTop 6px + paddingTop 33px = 39px top; scale = (vh-156)/CANVAS_H ensures 35px bottom (156 = 6+115+35)
 
 interface Props {
   onBack: () => void;
@@ -120,27 +118,74 @@ const inactiveSteps = [
   { n: 5, title: 'Launch action plan', sub: 'Approve the plan and move it into active monitoring' },
 ];
 
-export default function ResponsePlanningPage({ onBack }: Props) {
-  const [scale, setScale] = useState(1);
-  const [innerWidth, setInnerWidth] = useState('100%');
+function ImpactTimelineChart() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '60px', width: '100%' }}>
+      <svg viewBox="0 0 1190 200" style={{ flex: 1 }} preserveAspectRatio="xMidYMid meet">
+        {/* Y-axis labels */}
+        <text x="72" y="25" textAnchor="end" fontSize="16" fill="#120101">High</text>
+        <text x="72" y="95" textAnchor="end" fontSize="16" fill="#120101">Moderate</text>
+        <text x="72" y="165" textAnchor="end" fontSize="16" fill="#120101">Low</text>
 
-  useEffect(() => {
-    const update = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const s = Math.min(1.0, (vh - 156) / CANVAS_H);
-      setScale(s);
-      setInnerWidth(`${(vw - 140) / s}px`);
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+        {/* Dashed grid lines */}
+        <line x1="82" y1="20" x2="1080" y2="20" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
+        <line x1="82" y1="90" x2="1080" y2="90" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
+        <line x1="82" y1="160" x2="1080" y2="160" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
+
+        {/* Red line — without protection, rises Moderate → High */}
+        <path d="M 82 90 C 155 75, 185 52, 225 48 C 350 32, 520 20, 700 15 C 850 12, 980 10, 1080 10"
+          stroke="#e05252" strokeWidth="2" fill="none"/>
+
+        {/* Green line — with protection, stays near Moderate */}
+        <path d="M 82 90 C 250 90, 400 86, 500 84 C 600 80, 760 76, 1080 70"
+          stroke="#84af79" strokeWidth="2" fill="none"/>
+
+        {/* Data point dots */}
+        <circle cx="82" cy="90" r="6" fill="#1a1a1a"/>
+        <circle cx="225" cy="48" r="6" fill="#1a1a1a"/>
+        <circle cx="652" cy="78" r="6" fill="#1a1a1a"/>
+
+        {/* X-axis baseline */}
+        <line x1="82" y1="175" x2="1080" y2="175" stroke="#333" strokeWidth="1"/>
+
+        {/* X-axis labels */}
+        <text x="82"   y="195" textAnchor="middle" fontSize="16" fontWeight="700" fill="#120101">Today</text>
+        <text x="225"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2030</text>
+        <text x="367"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2040</text>
+        <text x="510"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2050</text>
+        <text x="652"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2060</text>
+        <text x="795"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2070</text>
+        <text x="937"  y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2080</text>
+        <text x="1080" y="195" textAnchor="middle" fontSize="16" fill="rgba(20,2,2,0.8)">2090</text>
+      </svg>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '190px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '20px', borderTop: '2px solid #84af79', flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: '#364153', letterSpacing: '-0.44px' }}>With protection measures</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '20px', borderTop: '2px solid #e05252', flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: '#364153', letterSpacing: '-0.44px' }}>Without protection measures</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResponsePlanningPage({ onBack }: Props) {
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
   return (
     <div
       className="screen-enter"
-      style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#f8f8f8' }}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        overflowY: 'auto',
+        background: '#f8f8f8',
+      }}
     >
       {/* Vertical centering group */}
       <div style={{ marginTop: '6px' }}>
@@ -169,8 +214,8 @@ export default function ResponsePlanningPage({ onBack }: Props) {
 
       {/* ── Padded content wrapper — provides fixed 70px visual margins, NOT scaled ── */}
       <div style={{ paddingLeft: '70px', paddingRight: '70px', boxSizing: 'border-box' as const }}>
-        {/* Inner scaled canvas — compensated width so visual = (vw-140), scales only for height fit */}
-        <div style={{ width: innerWidth, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+        {/* Inner canvas — natural layout, no scaling */}
+        <div style={{ width: '100%' }}>
 
         {/* Projected Impact card */}
         <div
@@ -232,6 +277,7 @@ export default function ResponsePlanningPage({ onBack }: Props) {
 
           {/* Impact Timeline button */}
           <button
+            onClick={() => setIsTimelineOpen(o => !o)}
             style={{
               position: 'absolute',
               right: '49px',
@@ -253,9 +299,25 @@ export default function ResponsePlanningPage({ onBack }: Props) {
             }}
           >
             Impact Timeline
-            <ChevronDown size={12} />
+            <ChevronDown size={12} style={{ transform: isTimelineOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
+
         </div>
+
+        {/* Impact Timeline chart — in document flow, pushes lower content down */}
+        {isTimelineOpen && (
+          <div style={{ marginTop: '43px', width: '100%' }}>
+            <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              Impact Timeline: Compare projected impact
+            </p>
+            <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              The timeline updates as protection measures progress
+            </p>
+            <div style={{ marginTop: '20px' }}>
+              <ImpactTimelineChart />
+            </div>
+          </div>
+        )}
 
         {/* Section title */}
         <p
@@ -277,8 +339,8 @@ export default function ResponsePlanningPage({ onBack }: Props) {
           style={{
             marginTop: '30px',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'flex-start',
+            width: '100%',
           }}
         >
           {/* Dark steps panel */}
@@ -347,6 +409,8 @@ export default function ResponsePlanningPage({ onBack }: Props) {
             ))}
           </div>
 
+          {/* Spacer: gap dark panel → middle column (ratio 62) */}
+          <div style={{ flexGrow: 62, minWidth: 0 }} />
           {/* Left cards column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', flexShrink: 0 }}>
             {leftCards.map((card) => (
@@ -354,6 +418,8 @@ export default function ResponsePlanningPage({ onBack }: Props) {
             ))}
           </div>
 
+          {/* Spacer: gap middle column → right column (ratio 88) */}
+          <div style={{ flexGrow: 88, minWidth: 0 }} />
           {/* Right cards column + confirm button */}
           <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>

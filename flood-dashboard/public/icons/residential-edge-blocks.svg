@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
   <circle cx="12" cy="12" r="12" fill="#B55C6A"/>
-  <g transform="translate(12,12) scale(0.62) translate(-12,-12)" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10 12h4"/>
-    <path d="M10 8h4"/>
-    <path d="M14 21v-3a2 2 0 0 0-4 0v3"/>
-    <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"/>
-    <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/>
+  <g transform="translate(12,12) scale(0.62) translate(-12,-12)">
+    <path fill="white" fill-rule="evenodd" d="M2 21h20v-2H2zM4 5v14h16V5zM6 8h4v3H6zM14 8h4v3h-4zM6 13h4v3H6zM14 13h4v3h-4z"/>
   </g>
 </svg>

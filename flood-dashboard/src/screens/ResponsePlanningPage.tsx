@@ -14,9 +14,11 @@ interface CardData {
   desc: string;
   contentGap?: string;
   contentPL?: string;
+  iconSize?: number;
+  reviewAlignLeft?: boolean;
 }
 
-function ActionCard({ icon, color, label, value, desc, contentGap = '10px', contentPL = '10px' }: CardData) {
+function ActionCard({ icon, color, label, value, desc, contentGap = '10px', contentPL = '10px', iconSize = 28, reviewAlignLeft = false }: CardData) {
   return (
     <div style={{ display: 'flex', height: '159px', width: '340px' }}>
       <div
@@ -31,7 +33,7 @@ function ActionCard({ icon, color, label, value, desc, contentGap = '10px', cont
           justifyContent: 'center',
         }}
       >
-        <img src={icon} alt="" width={28} height={28} />
+        <img src={icon} alt="" width={iconSize} height={iconSize} />
       </div>
       <div
         style={{
@@ -57,11 +59,19 @@ function ActionCard({ icon, color, label, value, desc, contentGap = '10px', cont
         <p style={{ fontSize: '12px', fontWeight: 500, color: '#505153', margin: 0, letterSpacing: '-0.44px', lineHeight: '21px' }}>
           {desc}
         </p>
-        <div style={{ width: '100%', height: '23px', borderBottom: '1px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: '11px', fontWeight: 500, color: 'black', letterSpacing: '-0.44px', whiteSpace: 'nowrap' }}>
-            Review &amp; Edit
-          </span>
-        </div>
+        {reviewAlignLeft ? (
+          <div style={{ alignSelf: 'flex-start', height: '23px', borderBottom: '1px solid black', display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 500, color: 'black', letterSpacing: '-0.44px', whiteSpace: 'nowrap' }}>
+              Review &amp; Edit
+            </span>
+          </div>
+        ) : (
+          <div style={{ width: '100%', height: '23px', borderBottom: '1px solid black', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 500, color: 'black', letterSpacing: '-0.44px', whiteSpace: 'nowrap' }}>
+              Review &amp; Edit
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -74,6 +84,8 @@ const leftCards: CardData[] = [
     label: 'Costal Road Access',
     value: '15km',
     desc: 'Upgrade entrances, shared access points, and ground-floor protection in shoreline residential blocks',
+    iconSize: 40,
+    reviewAlignLeft: true,
   },
   {
     icon: '/icons/vulnerable-residents.svg',
@@ -81,6 +93,8 @@ const leftCards: CardData[] = [
     label: 'Vulnerable Residents',
     value: '620',
     desc: 'Adapt access routes, ramps, raised walkways for elderly and mobility-limited residents',
+    iconSize: 40,
+    reviewAlignLeft: true,
   },
   {
     icon: '/icons/increase-pump-capacity.svg',
@@ -90,6 +104,8 @@ const leftCards: CardData[] = [
     desc: 'Increase drainage pump capacity to 75% to reduce back-flow risk',
     contentGap: '12px',
     contentPL: '9px',
+    iconSize: 40,
+    reviewAlignLeft: true,
   },
 ];
 
@@ -101,6 +117,8 @@ const rightCards: CardData[] = [
     value: '240',
     desc: 'Adapt ground-floor entrances and shared access points in shoreline residential blocks',
     contentPL: '11px',
+    iconSize: 40,
+    reviewAlignLeft: true,
   },
   {
     icon: '/icons/electric-utility-point.svg',
@@ -108,6 +126,8 @@ const rightCards: CardData[] = [
     label: 'Electric Utility Point',
     value: '2',
     desc: 'Relocate to the Uptown area to maintain power continuity',
+    iconSize: 40,
+    reviewAlignLeft: true,
   },
 ];
 
@@ -122,6 +142,13 @@ function ImpactTimelineChart() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '60px', width: '100%' }}>
       <svg viewBox="0 0 1190 200" style={{ flex: 1 }} preserveAspectRatio="xMidYMid meet">
+        <style>{`
+          @keyframes drawLine {
+            from { stroke-dashoffset: 1; }
+            to   { stroke-dashoffset: 0; }
+          }
+        `}</style>
+
         {/* Y-axis labels */}
         <text x="72" y="25" textAnchor="end" fontSize="16" fill="#120101">High</text>
         <text x="72" y="95" textAnchor="end" fontSize="16" fill="#120101">Moderate</text>
@@ -132,13 +159,21 @@ function ImpactTimelineChart() {
         <line x1="82" y1="90" x2="1080" y2="90" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
         <line x1="82" y1="160" x2="1080" y2="160" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
 
-        {/* Red line — without protection, rises Moderate → High */}
-        <path d="M 82 90 C 155 75, 185 52, 225 48 C 350 32, 520 20, 700 15 C 850 12, 980 10, 1080 10"
-          stroke="#e05252" strokeWidth="2" fill="none"/>
+        {/* Red line — animated left-to-right draw */}
+        <path
+          d="M 82 90 C 155 75, 185 52, 225 48 C 350 32, 520 20, 700 15 C 850 12, 980 10, 1080 10"
+          stroke="#e05252" strokeWidth="2" fill="none"
+          pathLength="1"
+          style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'drawLine 0.7s ease-out forwards' }}
+        />
 
-        {/* Green line — with protection, stays near Moderate */}
-        <path d="M 82 90 C 250 90, 400 86, 500 84 C 600 80, 760 76, 1080 70"
-          stroke="#84af79" strokeWidth="2" fill="none"/>
+        {/* Green line — animated, slightly delayed */}
+        <path
+          d="M 82 90 C 250 90, 400 86, 500 84 C 600 80, 760 76, 1080 70"
+          stroke="#84af79" strokeWidth="2" fill="none"
+          pathLength="1"
+          style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'drawLine 0.7s ease-out 0.1s forwards' }}
+        />
 
         {/* Data point dots */}
         <circle cx="82" cy="90" r="6" fill="#1a1a1a"/>
@@ -215,21 +250,22 @@ export default function ResponsePlanningPage({ onBack }: Props) {
       {/* ── Padded content wrapper — provides fixed 70px visual margins, NOT scaled ── */}
       <div style={{ paddingLeft: '70px', paddingRight: '70px', boxSizing: 'border-box' as const }}>
         {/* Inner canvas — natural layout, no scaling */}
-        <div style={{ width: '100%' }}>
+        <div style={{ width: '100%', paddingBottom: '34px' }}>
 
         {/* Projected Impact card */}
         <div
           style={{
             marginTop: '44px',
             width: '100%',
-            height: '172px',
+            height: isTimelineOpen ? '555px' : '172px',
             background: 'rgba(255,255,255,0.6)',
             borderRadius: '30px',
             paddingLeft: '66px',
+            paddingTop: isTimelineOpen ? '22px' : undefined,
             display: 'flex',
             flexDirection: 'column',
             gap: '9px',
-            justifyContent: 'center',
+            justifyContent: isTimelineOpen ? 'flex-start' : 'center',
             boxSizing: 'border-box',
             position: 'relative',
           }}
@@ -302,22 +338,29 @@ export default function ResponsePlanningPage({ onBack }: Props) {
             <ChevronDown size={12} style={{ transform: isTimelineOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
-        </div>
-
-        {/* Impact Timeline chart — in document flow, pushes lower content down */}
-        {isTimelineOpen && (
-          <div style={{ marginTop: '43px', width: '100%' }}>
-            <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-              Impact Timeline: Compare projected impact
-            </p>
-            <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-              The timeline updates as protection measures progress
-            </p>
-            <div style={{ marginTop: '20px' }}>
-              <ImpactTimelineChart />
+          {/* Impact Timeline chart — inside the card, card expands to contain it */}
+          {isTimelineOpen && (
+            <div style={{
+              marginTop: '43px',
+              marginLeft: '-66px',
+              width: 'calc(100% + 66px)',
+              paddingLeft: '25px',
+              paddingRight: '25px',
+              boxSizing: 'border-box' as const,
+            }}>
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+                Impact Timeline: Compare projected impact
+              </p>
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+                The timeline updates as protection measures progress
+              </p>
+              <div style={{ marginTop: '20px' }}>
+                <ImpactTimelineChart />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+        </div>
 
         {/* Section title */}
         <p

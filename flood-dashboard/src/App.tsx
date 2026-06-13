@@ -3,8 +3,9 @@ import HomePage from './screens/HomePage';
 import HomePageAlert from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
 import ResponsePlanningPage from './screens/ResponsePlanningPage';
+import CoastalRoadAccessPage from './screens/CoastalRoadAccessPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'planning';
+type Screen = 'home' | 'home-alert' | 'alert' | 'planning' | 'coastal-road';
 
 const bgBase = {
   backgroundSize: 'cover' as const,
@@ -75,6 +76,10 @@ export default function App() {
 
   function handleOpenPlanning() {
     setScreen('planning');
+  }
+
+  function handleOpenCoastalRoad() {
+    setScreen('coastal-road');
   }
 
   function handleZoomOut() {
@@ -162,7 +167,13 @@ export default function App() {
       {/* Screen 4 — Response Planning: full white page, no background image */}
       {screen === 'planning' && (
         <div className="absolute inset-0" style={{ background: '#F9FAFB' }}>
-          <ResponsePlanningPage onBack={() => setScreen('alert')} />
+          <ResponsePlanningPage onBack={() => setScreen('alert')} onCoastalRoad={handleOpenCoastalRoad} />
+        </div>
+      )}
+      {/* Screen 6 — Costal Road Access detail */}
+      {screen === 'coastal-road' && (
+        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
+          <CoastalRoadAccessPage onBack={() => setScreen('planning')} />
         </div>
       )}
     </div>

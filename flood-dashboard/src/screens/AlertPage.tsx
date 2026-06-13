@@ -8,14 +8,23 @@ interface MarkerProps {
   sub: string;
   left: number;
   top: number;
+  delay: number;
 }
 
-function MapMarker({ iconSrc, label, sub, left, top }: MarkerProps) {
+function MapMarker({ iconSrc, label, sub, left, top, delay }: MarkerProps) {
   return (
-    <div className="absolute flex flex-col items-center" style={{ left, top }}>
+    <div style={{ position: 'absolute', left, top }}>
+      {/* Tab — reveals left to right */}
       <div
-        className="flex items-center bg-white shadow-md"
-        style={{ height: '45px', borderRadius: '9999px', paddingLeft: '5px', paddingRight: '16px' }}
+        className="inline-flex items-center bg-white shadow-md"
+        style={{
+          height: '45px',
+          borderRadius: '9999px',
+          paddingLeft: '5px',
+          paddingRight: '16px',
+          animation: `alertTabReveal 0.35s cubic-bezier(0.4,0,0.2,1) both`,
+          animationDelay: `${delay + 0.5}s`,
+        }}
       >
         <img src={iconSrc} alt="" width={35} height={35} style={{ flexShrink: 0 }} />
         <div style={{ marginLeft: '27px' }}>
@@ -23,8 +32,34 @@ function MapMarker({ iconSrc, label, sub, left, top }: MarkerProps) {
           <p className="font-medium text-[12px] leading-[16px] text-[#505153]">{sub}</p>
         </div>
       </div>
-      <div className="w-[1px] h-[20px] bg-white/70" />
-      <div className="w-[8px] h-[8px] rounded-full bg-white/70" />
+      {/* Connector line — grows upward from dot, at icon right edge (32px from tab left) */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 32,
+          top: 45,
+          width: 1,
+          height: 33,
+          background: 'rgba(255,255,255,0.7)',
+          animation: `alertLineGrow 0.3s ease both`,
+          animationDelay: `${delay + 0.2}s`,
+          transformOrigin: 'bottom center',
+        }}
+      />
+      {/* Dot — appears first, centered on the line */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 29,
+          top: 78,
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.7)',
+          animation: `alertDotAppear 0.2s ease both`,
+          animationDelay: `${delay}s`,
+        }}
+      />
     </div>
   );
 }
@@ -37,6 +72,20 @@ interface Props {
 export default function AlertPage({ onZoomOut, onPlan }: Props) {
   return (
     <>
+      <style>{`
+        @keyframes alertDotAppear {
+          from { opacity: 0; transform: scale(0); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes alertLineGrow {
+          from { transform: scaleY(0); }
+          to   { transform: scaleY(1); }
+        }
+        @keyframes alertTabReveal {
+          from { clip-path: inset(0 100% 0 0); opacity: 0; }
+          to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
+        }
+      `}</style>
       <ScaledLayout className="screen-enter">
         <h1 className="absolute left-[21px] top-[80px] font-bold text-[30px] leading-[36px] text-white">
           Harbor District
@@ -85,11 +134,11 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
           </div>
         </div>
 
-        <MapMarker iconSrc="/icons/costal-road-access.svg"     label="Costal Road Access"      sub="Potential disruption"        left={668} top={148} />
-        <MapMarker iconSrc="/icons/electric-utility-point.svg"  label="Electric Utility Point"   sub="Changing the defense system" left={940} top={358} />
-        <MapMarker iconSrc="/icons/residential-edge-blocks.svg" label="Residential Edge Blocks"  sub="Higher exposure"             left={468} top={480} />
-        <MapMarker iconSrc="/icons/increase-pump-capacity.svg"  label="Increase pump capacity"   sub="Back-flow risk"              left={258} top={650} />
-        <MapMarker iconSrc="/icons/vulnerable-residents.svg"    label="Vulnerable Residents"     sub="Support planning needed"     left={940} top={722} />
+        <MapMarker iconSrc="/icons/costal-road-access.svg"     label="Costal Road Access"      sub="Potential disruption"        left={713}  top={172} delay={0}    />
+        <MapMarker iconSrc="/icons/electric-utility-point.svg"  label="Electric Utility Point"   sub="Changing the defense system" left={888}  top={392} delay={0.15} />
+        <MapMarker iconSrc="/icons/residential-edge-blocks.svg" label="Residential Edge Blocks"  sub="Higher exposure"             left={429}  top={527} delay={0.3}  />
+        <MapMarker iconSrc="/icons/increase-pump-capacity.svg"  label="Increase pump capacity"   sub="Back-flow risk"              left={310}  top={718} delay={0.45} />
+        <MapMarker iconSrc="/icons/vulnerable-residents.svg"    label="Vulnerable Residents"     sub="Support planning needed"     left={1066} top={814} delay={0.6}  />
       </ScaledLayout>
 
       <HomePageHeader onMinus={onZoomOut} />

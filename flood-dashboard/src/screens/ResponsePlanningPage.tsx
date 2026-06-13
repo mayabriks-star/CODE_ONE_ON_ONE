@@ -4,6 +4,7 @@ import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
+  onCoastalRoad?: () => void;
 }
 
 interface CardData {
@@ -18,9 +19,9 @@ interface CardData {
   reviewAlignLeft?: boolean;
 }
 
-function ActionCard({ icon, color, label, value, desc, contentGap = '10px', contentPL = '10px', iconSize = 28, reviewAlignLeft = false }: CardData) {
+function ActionCard({ icon, color, label, value, desc, contentGap = '10px', contentPL = '10px', iconSize = 28, reviewAlignLeft = false, onClick }: CardData & { onClick?: () => void }) {
   return (
-    <div style={{ display: 'flex', height: '159px', width: '340px' }}>
+    <div style={{ display: 'flex', height: '159px', width: '340px', cursor: onClick ? 'pointer' : undefined }} onClick={onClick}>
       <div
         style={{
           width: '40px',
@@ -209,7 +210,7 @@ function ImpactTimelineChart() {
   );
 }
 
-export default function ResponsePlanningPage({ onBack }: Props) {
+export default function ResponsePlanningPage({ onBack, onCoastalRoad }: Props) {
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
   return (
@@ -457,7 +458,11 @@ export default function ResponsePlanningPage({ onBack }: Props) {
           {/* Left cards column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', flexShrink: 0 }}>
             {leftCards.map((card) => (
-              <ActionCard key={card.label} {...card} />
+              <ActionCard
+                key={card.label}
+                {...card}
+                onClick={card.label === 'Costal Road Access' ? onCoastalRoad : undefined}
+              />
             ))}
           </div>
 

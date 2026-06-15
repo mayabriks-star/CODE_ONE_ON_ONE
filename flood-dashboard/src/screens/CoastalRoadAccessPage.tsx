@@ -7,11 +7,11 @@ interface Props {
 
 function RiskGauge() {
   const cx = 50;
-  const cy = 55;
-  const r = 32;
+  const cy = 46;       // Figma arc center at y≈46
+  const r = 34;        // Figma arc radius ≈34
   const strokeW = 7;
-  const startAngle = 215;
-  const endAngle = 325;
+  const startAngle = 215; // lower-left
+  const endAngle = 145;   // lower-right (was 325 = upper-left — wrong direction)
   const fillPct = 9.2 / 10;
 
   function polarToXY(angle: number, radius: number) {
@@ -22,13 +22,13 @@ function RiskGauge() {
   function arcPath(from: number, to: number) {
     const s = polarToXY(from, r);
     const e = polarToXY(to, r);
-    const large = to - from > 180 ? 1 : 0;
+    const clockwiseSpan = ((to - from) % 360 + 360) % 360;
+    const large = clockwiseSpan > 180 ? 1 : 0;
     return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
   }
 
-  const totalSpan = endAngle - startAngle + 360 - endAngle + startAngle;
-  const activeSpan = (endAngle - startAngle + (endAngle < startAngle ? 360 : 0)) * fillPct;
-  const activeEnd = startAngle + activeSpan;
+  const totalSpan = ((endAngle - startAngle) % 360 + 360) % 360; // 290°
+  const activeEnd = (startAngle + totalSpan * fillPct) % 360;     // 121.8°
 
   return (
     <svg viewBox="0 0 100 82" width={100} height={82}>
@@ -43,13 +43,13 @@ function RiskGauge() {
 function DonutChart() {
   const cx = 93;
   const cy = 93;
-  const r = 65;
+  const r = 55;
   const circum = 2 * Math.PI * r;
 
   const segments = [
-    { pct: 0.20, color: '#F5D4A0', label: '20%', lx: 86, ly: 37 },
-    { pct: 0.30, color: '#E87840', label: '30%', lx: 133, ly: 91 },
-    { pct: 0.50, color: '#C8722A', label: '50%', lx: 40, ly: 113 },
+    { pct: 0.20, color: '#F5D4A0', label: '20%', lx: 125, ly: 49 },
+    { pct: 0.30, color: '#F5A06E', label: '30%', lx: 138, ly: 125 },
+    { pct: 0.50, color: '#E87840', label: '50%', lx: 38,  ly: 93  },
   ];
 
   let offset = 0;
@@ -64,7 +64,7 @@ function DonutChart() {
   return (
     <div style={{ position: 'relative', width: 186, height: 186, flexShrink: 0 }}>
       <svg viewBox="0 0 186 186" width={186} height={186}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f3f4f6" strokeWidth={30} />
+        <circle cx={cx} cy={cy} r={55} fill="none" stroke="#f3f4f6" strokeWidth={30} />
         {arcs.map((arc) => (
           <circle
             key={arc.label}
@@ -80,12 +80,12 @@ function DonutChart() {
           />
         ))}
         {segments.map((seg) => (
-          <text key={seg.label} x={seg.lx} y={seg.ly} fontSize={10} fontWeight="600" fill="#364153" fontFamily="Inter, sans-serif" textAnchor="middle">
+          <text key={seg.label} x={seg.lx} y={seg.ly} fontSize={12} fontWeight="600" fill="#364153" fontFamily="Inter, sans-serif" textAnchor="middle">
             {seg.label}
           </text>
         ))}
       </svg>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 15, fontWeight: 700, color: '#323232', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 20, fontWeight: 700, color: '#323232', pointerEvents: 'none' }}>
         9M
       </div>
     </div>
@@ -148,12 +148,12 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
           paddingRight: '70px',
           paddingTop: '20px',
           paddingBottom: '35px',
-          gap: '41px',
+          gap: '42px',
           boxSizing: 'border-box',
         }}
       >
         {/* Left column — scrollable */}
-        <div style={{ width: '698px', flexShrink: 0, overflowY: 'auto' }}>
+        <div style={{ width: '724px', flexShrink: 0, overflowY: 'auto' }}>
 
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>
@@ -220,17 +220,17 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
             </p>
 
             {/* Bottom image card */}
-            <div style={{ marginTop: '16px', border: '1px solid #cfcccc', borderRadius: '10px', height: '102px', width: '650px', display: 'flex', overflow: 'hidden' }}>
+            <div style={{ marginTop: '16px', border: '1px solid #cfcccc', borderRadius: '15px', display: 'flex', overflow: 'hidden', alignItems: 'stretch', width: '100%' }}>
               <img
                 src="/costal-road-pile.jpg"
                 alt="Elevated roadway"
-                style={{ width: '325px', flexShrink: 0, height: '100%', objectFit: 'cover', borderRadius: '10px 0 0 10px' }}
+                style={{ width: '325px', flexShrink: 0, objectFit: 'cover' }}
               />
-              <div style={{ padding: '25px 16px 0 16px' }}>
-                <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.44px' }}>
+              <div style={{ flex: 1, padding: '20px 20px 20px 24px' }}>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#364153', lineHeight: '20px', letterSpacing: '-0.44px' }}>
                   Elevated Roadway on Pile-Supported Structure
                 </p>
-                <p style={{ margin: 0, fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.44px' }}>
+                <p style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20px', letterSpacing: '-0.44px' }}>
                   Raising the roadway on piles allows storm surge and wave energy to pass beneath, reducing overtopping while maintaining connectivity and long-term resilience.
                 </p>
               </div>
@@ -273,15 +273,15 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
 
               {/* Cost & Budget */}
               <div style={{ background: 'white', borderRadius: '20px', height: '286px', padding: '0 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ paddingLeft: '7px' }}>
+                <div style={{ paddingLeft: '25px' }}>
                   <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '18px', letterSpacing: '-0.15px', whiteSpace: 'nowrap' }}>Cost &amp; Budget</p>
-                  <p style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '16px', letterSpacing: '0.06px' }}>
+                  <p style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '16px', letterSpacing: '0.06px', maxWidth: '519px' }}>
                     Implementation is estimated over 12–20 months with an estimated total budget of $18.6M, funded through a combination of municipal funds and grants.
                   </p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '30px', marginTop: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '25px', gap: '75px' }}>
                   <DonutChart />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '17px', flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '17px', width: '280px', flexShrink: 0 }}>
                     {[
                       { color: '#E87840', text: 'Road Elevation & Structural Works', value: '4.5M' },
                       { color: '#F5A06E', text: 'Drainage & Coastal Protection', value: '3M' },
@@ -300,18 +300,18 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
 
               {/* Implementation Schedule */}
               <div style={{ background: 'white', borderRadius: '20px', height: '196px', paddingLeft: '43px', paddingRight: '43px', display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center', flexShrink: 0 }}>
-                <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153' }}>Implementation Schedule</p>
-                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '31px' }}>
+                <p style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#364153' }}>Implementation Schedule</p>
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '38px' }}>
                   {/* Vertical line */}
-                  <div style={{ position: 'absolute', left: '8px', top: '8px', width: '1px', height: '97px', background: '#364153' }} />
+                  <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: '116px', background: '#364153', zIndex: 0 }} />
                   {[
-                    { label: 'Planning & Approval', value: '0-4 months' },
+                    { label: 'Planning & Approval', value: '0-4 months', bold: true },
                     { label: 'Site Preparation', value: '4-16 months', bold: true },
                     { label: 'Construction & Adaptation Works', value: '16-20 months', bold: true },
                   ].map((item) => (
-                    <div key={item.label} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                      <div style={{ width: 17, height: 17, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                      <p style={{ margin: 0, fontSize: '13px', color: '#364153', whiteSpace: 'nowrap' }}>
+                    <div key={item.label} style={{ display: 'flex', gap: '15px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
+                      <p style={{ margin: 0, fontSize: '14px', color: '#364153', whiteSpace: 'nowrap' }}>
                         <span style={{ color: '#505153' }}>{item.label}</span>
                         {' '}
                         <span style={{ fontWeight: item.bold ? 700 : 600 }}>{item.value}</span>
@@ -324,7 +324,7 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
             </div>
 
             {/* Buttons — 55px below last card (matches Figma gap) */}
-            <div style={{ marginTop: '55px', display: 'flex', gap: '30px' }}>
+            <div style={{ marginTop: '55px', display: 'flex', gap: '30px', justifyContent: 'center' }}>
               <button
                 style={{
                   width: '233px',

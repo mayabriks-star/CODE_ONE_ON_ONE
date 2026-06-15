@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
 
 
@@ -213,6 +213,17 @@ function ImpactTimelineChart() {
 export default function ResponsePlanningPage({ onBack, onCoastalRoad }: Props) {
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
+  const DESIGN_PAGE_HEIGHT = 990;
+  const [pageScale, setPageScale] = useState(() =>
+    Math.min(1, window.innerHeight / DESIGN_PAGE_HEIGHT)
+  );
+  useEffect(() => {
+    const update = () =>
+      setPageScale(Math.min(1, window.innerHeight / DESIGN_PAGE_HEIGHT));
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   return (
     <div
       className="screen-enter"
@@ -224,7 +235,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad }: Props) {
       }}
     >
       {/* Vertical centering group */}
-      <div style={{ marginTop: '6px' }}>
+      <div style={{ marginTop: '6px', zoom: pageScale }}>
       {/* ── Header — NOT scaled, icons at 28px from viewport left ── */}
       <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         {/* Menu + Bell row */}

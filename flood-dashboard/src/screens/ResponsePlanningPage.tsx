@@ -5,6 +5,7 @@ import { ArrowLeft, Menu, Bell, ChevronDown } from 'lucide-react';
 interface Props {
   onBack: () => void;
   onCoastalRoad?: () => void;
+  onVulnerableResidents?: () => void;
 }
 
 interface CardData {
@@ -210,7 +211,7 @@ function ImpactTimelineChart() {
   );
 }
 
-export default function ResponsePlanningPage({ onBack, onCoastalRoad }: Props) {
+export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerableResidents }: Props) {
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
 
   const DESIGN_PAGE_HEIGHT = 990;
@@ -472,7 +473,11 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad }: Props) {
               <ActionCard
                 key={card.label}
                 {...card}
-                onClick={card.label === 'Costal Road Access' ? onCoastalRoad : undefined}
+                onClick={
+                  card.label === 'Costal Road Access'   ? onCoastalRoad :
+                  card.label === 'Vulnerable Residents' ? onVulnerableResidents :
+                  undefined
+                }
               />
             ))}
           </div>

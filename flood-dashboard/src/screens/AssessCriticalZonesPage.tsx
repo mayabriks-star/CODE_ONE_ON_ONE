@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 
@@ -54,7 +55,63 @@ const MAP_TABS = [
   },
 ];
 
+const HOVER_DATA: Record<string, {
+  accent: string;
+  opensAbove: boolean;
+  description: string;
+  proposed: string;
+}> = {
+  'Costal Road Access': {
+    accent: '#ea7836',
+    opensAbove: false,
+    description: 'Primary access route will become limited during high-water events, affecting evacuation, emergency response, and daily movement.',
+    proposed: 'Elevate low road segments',
+  },
+  'Electric Utility Point': {
+    accent: '#ffbb00',
+    opensAbove: false,
+    description: 'A critical utility point is located within the projected flood-impact area and may disrupt essential services if left unprotected.',
+    proposed: 'Raise electrical cabinets and add protected power points.',
+  },
+  'Residential Edge Blocks': {
+    accent: '#bf5761',
+    opensAbove: true,
+    description: 'Residential edges near the shoreline may face repeated water intrusion, access limitations, and damage to shared ground-floor areas.',
+    proposed: 'Adapt ground-floor access points.',
+  },
+  'Increase pump capacity': {
+    accent: '#2864e4',
+    opensAbove: true,
+    description: 'Sewage overflow and road flooding from overloaded drainage channels block streets and disrupt local access.',
+    proposed: 'Upgrade pump capacity and drainage routes.',
+  },
+  'Vulnerable Residents': {
+    accent: '#84af79',
+    opensAbove: true,
+    description: 'Low-lying residential blocks include residents who may need assisted access, clearer alerts, and continuity of daily services during flood events.',
+    proposed: 'Improve building access and resident support.',
+  },
+};
+
 export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents }: Props) {
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [animDone, setAnimDone] = useState(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimDone(true), 2100);
+    return () => clearTimeout(t);
+  }, []);
+
+  function handleEnter(title: string) {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setHoveredTab(title);
+  }
+
+  function handleLeave() {
+    hideTimer.current = setTimeout(() => setHoveredTab(null), 120);
+  }
+
   return (
     <>
       <style>{`
@@ -66,9 +123,13 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           from { transform: scaleY(0); }
           to   { transform: scaleY(1); }
         }
-        @keyframes pillReveal {
-          from { clip-path: inset(0 100% 0 0 round 100px); }
-          to   { clip-path: inset(0 0% 0 0 round 100px); }
+        @keyframes pillEnterUp {
+          from { clip-path: inset(calc(100% - 45px) 100% 0 0 round 100px); }
+          to   { clip-path: inset(calc(100% - 45px) 0% 0 0 round 100px); }
+        }
+        @keyframes pillEnterDown {
+          from { clip-path: inset(0 100% calc(100% - 45px) 0 round 100px); }
+          to   { clip-path: inset(0 0% calc(100% - 45px) 0 round 100px); }
         }
       `}</style>
       <ScaledLayout className="screen-enter">
@@ -93,7 +154,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             border: '1px solid rgba(255,255,255,0.3)',
           }}
         >
-          {/* Title */}
           <p
             className="absolute font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#1e2939]"
             style={{ left: 12, top: 16 }}
@@ -101,10 +161,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             1. Assess Critical Zones
           </p>
 
-          {/* Header divider */}
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 59, left: 0, right: 0, height: 1 }} />
 
-          {/* Body paragraph */}
           <p
             className="absolute font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#505153]"
             style={{ left: 58, top: 79, width: 307 }}
@@ -115,10 +173,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             repair, or reinforcement in order to reduce future disruption.
           </p>
 
-          {/* Divider above notice */}
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 329, left: 13, right: 13, height: 1 }} />
 
-          {/* Notice row */}
           <div className="absolute flex gap-[13px] items-start" style={{ left: 17, top: 355 }}>
             <img src="/icons/notice-icon.svg" alt="" width={28} height={28} className="flex-shrink-0" />
             <p className="font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#505153]" style={{ width: 308 }}>
@@ -126,10 +182,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             </p>
           </div>
 
-          {/* Divider above zone list */}
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 437, left: 13, right: 13, height: 1 }} />
 
-          {/* Zone list */}
           <div className="absolute flex flex-col" style={{ left: 19, top: 463, gap: 20 }}>
             {ZONE_LIST.map(({ icon, label }) => (
               <div key={label} className="flex items-end" style={{ gap: 15 }}>
@@ -141,7 +195,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             ))}
           </div>
 
-          {/* Start Response Plan button */}
           <button
             onClick={onPlan}
             className="absolute w-[313px] h-[37px] rounded-[14px] bg-[rgba(16,24,40,0.9)] flex items-center justify-center"
@@ -151,59 +204,139 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           </button>
         </div>
 
-        {/* Map tab pills */}
+        {/* Map tabs — each is a single expanding element */}
         {MAP_TABS.map((tab, i) => {
           const handler =
             tab.action === 'coastal' ? onCoastalRoad
             : tab.action === 'vulnerable' ? onVulnerableResidents
             : undefined;
+
           const base = i * 0.3;
           const dotDelay  = `${base}s`;
           const lineDelay = `${base + 0.15}s`;
           const pillDelay = `${base + 0.4}s`;
 
+          const hoverData = HOVER_DATA[tab.title];
+          const isOpen = hoveredTab === tab.title;
+          const isUpward = hoverData.opensAbove;
+
+          // Clip-path: compact shows only the pill row (45px); expanded shows everything
+          const compactClip = isUpward
+            ? 'inset(calc(100% - 45px) 0 0 0 round 100px)'
+            : 'inset(0 0 calc(100% - 45px) 0 round 100px)';
+          const expandedClip = 'inset(0 0 0 0 round 16px)';
+          const entranceAnim = isUpward
+            ? `pillEnterUp 0.3s ease-out ${pillDelay} both`
+            : `pillEnterDown 0.3s ease-out ${pillDelay} both`;
+
+          const containerStyle: React.CSSProperties = {
+            position: 'absolute',
+            left: tab.left,
+            // For upward tabs, anchor the bottom edge at the pill's bottom so content grows up
+            ...(isUpward
+              ? { bottom: 1008 - tab.top - 45 }
+              : { top: tab.top }),
+            width: animDone ? (isOpen ? 280 : tab.width) : tab.width,
+            animation: !animDone ? entranceAnim : undefined,
+            clipPath: animDone ? (isOpen ? expandedClip : compactClip) : undefined,
+            transition: animDone
+              ? 'clip-path 0.3s ease-out, width 0.3s ease-out, box-shadow 0.2s'
+              : 'none',
+            background: 'rgba(255,255,255,0.9)',
+            boxShadow: isOpen
+              ? '0 4px 24px rgba(0,0,0,0.15)'
+              : '0 2px 8px rgba(0,0,0,0.08)',
+            zIndex: isOpen ? 30 : 5,
+            cursor: handler ? 'pointer' : 'default',
+          };
+
+          const pillRow = (
+            <div style={{
+              height: 45,
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 27,
+              padding: '0 5px',
+            }}>
+              <img src={tab.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                lineHeight: '21px',
+                letterSpacing: '-0.44px',
+              }}>
+                <span style={{ fontWeight: 600, fontSize: 12, color: '#1e2939' }}>{tab.title}</span>
+                <span style={{ fontWeight: 500, fontSize: 12, color: '#505153' }}>{tab.subtitle}</span>
+              </div>
+            </div>
+          );
+
+          const extraContent = (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              padding: isUpward ? '16px 16px 8px 16px' : '0 16px 16px 16px',
+            }}>
+              <p style={{
+                fontWeight: 500, fontSize: 13, lineHeight: '23px',
+                letterSpacing: '-0.44px', color: '#1e2939', margin: 0,
+              }}>
+                {hoverData.description}
+              </p>
+              <p style={{
+                fontWeight: 500, fontSize: 13, lineHeight: '23px',
+                letterSpacing: '-0.44px', color: '#1e2939', margin: 0,
+              }}>
+                <strong style={{ fontWeight: 700 }}>Proposed response: </strong>
+                {hoverData.proposed}
+              </p>
+              <div style={{ borderBottom: `1px solid ${hoverData.accent}`, width: 80 }}>
+                <span style={{
+                  fontWeight: 700, fontSize: 13, lineHeight: '23px',
+                  letterSpacing: '-0.44px', color: hoverData.accent,
+                }}>
+                  View full plan
+                </span>
+              </div>
+            </div>
+          );
+
           return (
             <div key={tab.title}>
-              {/* Pill — reveals left to right */}
+              {/* Single container: compact pill ↔ expanded card */}
               <div
                 onClick={handler}
-                style={{
-                  position: 'absolute',
-                  left: tab.left,
-                  top: tab.top,
-                  width: tab.width,
-                  height: 45,
-                  background: 'rgba(255,255,255,0.9)',
-                  borderRadius: 100,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 27,
-                  paddingLeft: 5,
-                  paddingRight: 5,
-                  cursor: handler ? 'pointer' : 'default',
-                  animation: `pillReveal 0.3s ease-out ${pillDelay} both`,
-                } as React.CSSProperties}
+                onMouseEnter={() => handleEnter(tab.title)}
+                onMouseLeave={handleLeave}
+                style={containerStyle}
               >
-                <img src={tab.icon} alt="" width={32} height={32} className="flex-shrink-0" />
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '21px', letterSpacing: '-0.44px' }}>
-                  <span style={{ fontWeight: 600, fontSize: 12, color: '#1e2939' }}>{tab.title}</span>
-                  <span style={{ fontWeight: 500, fontSize: 12, color: '#505153' }}>{tab.subtitle}</span>
-                </div>
+                {isUpward ? (
+                  <>
+                    {extraContent}
+                    {pillRow}
+                  </>
+                ) : (
+                  <>
+                    {pillRow}
+                    {extraContent}
+                  </>
+                )}
               </div>
 
-              {/* Connector: line grows upward from dot */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: tab.left + 32,
-                  top: tab.top + 45,
-                  width: 10,
-                  height: 33,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
+              {/* Connector: line grows up from dot */}
+              <div style={{
+                position: 'absolute',
+                left: tab.left + 32,
+                top: tab.top + 45,
+                width: 10,
+                height: 33,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}>
                 <div style={{
                   width: 2,
                   flex: 1,

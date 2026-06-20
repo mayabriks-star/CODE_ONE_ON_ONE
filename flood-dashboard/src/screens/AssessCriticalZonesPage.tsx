@@ -7,14 +7,42 @@ interface Props {
   onPlan: () => void;
   onCoastalRoad: () => void;
   onVulnerableResidents: () => void;
+  onElectricUtility: () => void;
+  onResidentialEdge: () => void;
+  onPumpCapacity: () => void;
+  skipAnimation?: boolean;
+  approvedZones: string[];
 }
 
+const ZONE_ACCENT: Record<string, string> = {
+  'Costal Road Access': '#ea7836',
+  'Electric Utility Point': '#ffbb00',
+  'Residential Edge Blocks': '#bf5761',
+  'Increase pump capacity': '#2864e4',
+  'Vulnerable Residents': '#84af79',
+};
+
 const ZONE_LIST = [
-  { icon: '/icons/list-car.svg', label: 'Costal Road Access' },
-  { icon: '/icons/list-electric.svg', label: 'Electric Utility Point' },
-  { icon: '/icons/list-building.svg', label: 'Residential Edge Blocks' },
-  { icon: '/icons/list-water.svg', label: 'Increase pump capacity' },
-  { icon: '/icons/list-people.svg', label: 'Vulnerable Residents' },
+  {
+    label: 'Costal Road Access',
+    svgPath: 'M19.024 9.786L17.928 6.59535C17.7694 6.12954 17.4635 5.72443 17.054 5.4379C16.6445 5.15138 16.1524 4.99811 15.648 5.00002H8.36C7.85587 4.9993 7.36431 5.15302 6.95506 5.43938C6.5458 5.72574 6.23964 6.13019 6.08 6.59535L4.984 9.786C4.408 10.0195 4 10.5798 4 11.2179V15.109C4.00169 15.3806 4.07641 15.647 4.21676 15.8818C4.3571 16.1167 4.55818 16.3117 4.8 16.4475V18.2218C4.8 18.6498 5.16 19 5.6 19H6.4C6.84 19 7.2 18.6498 7.2 18.2218V16.6654H16.8V18.2218C16.8 18.6498 17.16 19 17.6 19H18.4C18.84 19 19.2 18.6498 19.2 18.2218V16.4475C19.4418 16.3117 19.6429 16.1167 19.7832 15.8818C19.9236 15.647 19.9983 15.3806 20 15.109V11.2179C20 10.572 19.592 10.0195 19.016 9.786H19.024ZM17.608 13.1634C17.608 13.8093 17.072 14.3307 16.408 14.3307C15.744 14.3307 15.208 13.8093 15.208 13.1634C15.208 12.5175 15.744 11.9961 16.408 11.9961C17.072 11.9961 17.608 12.5175 17.608 13.1634ZM8.808 13.1634C8.808 13.8093 8.272 14.3307 7.608 14.3307C6.944 14.3307 6.408 13.8093 6.408 13.1634C6.408 12.5175 6.944 11.9961 7.608 11.9961C8.272 11.9961 8.808 12.5175 8.808 13.1634ZM8.36 6.54865H15.656C15.8237 6.54823 15.9873 6.5991 16.1237 6.69406C16.2601 6.78902 16.3623 6.92327 16.416 7.07784L17.304 9.66149H6.72L7.608 7.07784C7.66167 6.92327 7.76392 6.78902 7.9003 6.69406C8.03668 6.5991 8.20029 6.54823 8.368 6.54865H8.36Z',
+  },
+  {
+    label: 'Electric Utility Point',
+    svgPath: 'M16 10.5H12V4L8 13.5H12V20L16 10.5Z',
+  },
+  {
+    label: 'Residential Edge Blocks',
+    svgPath: 'M17.6786 18.125H17.1429V5.65625C17.1429 5.29381 16.855 5 16.5 5H7.5C7.14496 5 6.85714 5.29381 6.85714 5.65625V18.125H6.32143C6.14392 18.125 6 18.2719 6 18.4531V19H18V18.4531C18 18.2719 17.8561 18.125 17.6786 18.125ZM9.42857 7.07812C9.42857 6.89692 9.57249 6.75 9.75 6.75H10.8214C10.9989 6.75 11.1429 6.89692 11.1429 7.07812V8.17188C11.1429 8.35308 10.9989 8.5 10.8214 8.5H9.75C9.57249 8.5 9.42857 8.35308 9.42857 8.17188V7.07812ZM9.42857 9.70312C9.42857 9.52192 9.57249 9.375 9.75 9.375H10.8214C10.9989 9.375 11.1429 9.52192 11.1429 9.70312V10.7969C11.1429 10.9781 10.9989 11.125 10.8214 11.125H9.75C9.57249 11.125 9.42857 10.9781 9.42857 10.7969V9.70312ZM10.8214 13.75H9.75C9.57249 13.75 9.42857 13.6031 9.42857 13.4219V12.3281C9.42857 12.1469 9.57249 12 9.75 12H10.8214C10.9989 12 11.1429 12.1469 11.1429 12.3281V13.4219C11.1429 13.6031 10.9989 13.75 10.8214 13.75ZM12.8571 18.125H11.1429V15.8281C11.1429 15.6469 11.2868 15.5 11.4643 15.5H12.5357C12.7132 15.5 12.8571 15.6469 12.8571 15.8281V18.125ZM14.5714 13.4219C14.5714 13.6031 14.4275 13.75 14.25 13.75H13.1786C13.0011 13.75 12.8571 13.6031 12.8571 13.4219V12.3281C12.8571 12.1469 13.0011 12 13.1786 12H14.25C14.4275 12 14.5714 12.1469 14.5714 12.3281V13.4219ZM14.5714 10.7969C14.5714 10.9781 14.4275 11.125 14.25 11.125H13.1786C13.0011 11.125 12.8571 10.9781 12.8571 10.7969V9.70312C12.8571 9.52192 13.0011 9.375 13.1786 9.375H14.25C14.4275 9.375 14.5714 9.52192 14.5714 9.70312V10.7969ZM14.5714 8.17188C14.5714 8.35308 14.4275 8.5 14.25 8.5H13.1786C13.0011 8.5 12.8571 8.35308 12.8571 8.17188V7.07812C12.8571 6.89692 13.0011 6.75 13.1786 6.75H14.25C14.4275 6.75 14.5714 6.89692 14.5714 7.07812V8.17188Z',
+  },
+  {
+    label: 'Increase pump capacity',
+    svgPath: 'M12.3167 5.14392C12.2776 5.09879 12.229 5.06255 12.1744 5.03771C12.1197 5.01286 12.0603 5 12.0002 5C11.94 5 11.8806 5.01286 11.826 5.03771C11.7713 5.06255 11.7228 5.09879 11.6837 5.14392C10.5844 6.41433 7 10.8064 7 14.0597C7 17.0915 8.93194 19 12 19C15.0681 19 17 17.0915 17 14.0597C17 10.8064 13.4156 6.41433 12.3167 5.14392ZM12.5556 17.216C12.4888 17.2162 12.423 17.2005 12.3637 17.1702C12.3044 17.14 12.2533 17.0962 12.2147 17.0424C12.1761 16.9886 12.1512 16.9264 12.142 16.8611C12.1328 16.7958 12.1396 16.7293 12.1618 16.6671C12.1902 16.586 12.2438 16.5158 12.3149 16.4665C12.3861 16.4172 12.4711 16.3914 12.558 16.3926C13.1095 16.3915 13.6381 16.1745 14.0281 15.7891C14.4181 15.4038 14.6377 14.8815 14.6389 14.3366C14.6376 14.2508 14.6638 14.1667 14.7137 14.0964C14.7635 14.0262 14.8346 13.9732 14.9167 13.9451C14.9796 13.9232 15.0469 13.9164 15.113 13.9255C15.1791 13.9346 15.242 13.9593 15.2965 13.9974C15.3509 14.0355 15.3953 14.086 15.4259 14.1446C15.4565 14.2032 15.4724 14.2683 15.4722 14.3342C15.4714 15.0982 15.1638 15.8308 14.617 16.371C14.0702 16.9113 13.3289 17.2152 12.5556 17.216Z',
+  },
+  {
+    label: 'Vulnerable Residents',
+    svgPath: 'M11 18C11 18 10 18 10 17C10 16 11 13 15 13C19 13 20 16 20 17C20 18 19 18 19 18H11ZM15 12C15.7956 12 16.5587 11.6839 17.1213 11.1213C17.6839 10.5587 18 9.79565 18 9C18 8.20435 17.6839 7.44129 17.1213 6.87868C16.5587 6.31607 15.7956 6 15 6C14.2044 6 13.4413 6.31607 12.8787 6.87868C12.3161 7.44129 12 8.20435 12 9C12 9.79565 12.3161 10.5587 12.8787 11.1213C13.4413 11.6839 14.2044 12 15 12ZM9.216 18C9.06782 17.6878 8.9939 17.3455 9 17C9 15.645 9.68 14.25 10.936 13.28C10.3092 13.0864 9.65598 12.992 9 13C5 13 4 16 4 17C4 18 5 18 5 18H9.216ZM8.5 12C9.16304 12 9.79893 11.7366 10.2678 11.2678C10.7366 10.7989 11 10.163 11 9.5C11 8.83696 10.7366 8.20107 10.2678 7.73223C9.79893 7.26339 9.16304 7 8.5 7C7.83696 7 7.20107 7.26339 6.73223 7.73223C6.26339 8.20107 6 8.83696 6 9.5C6 10.163 6.26339 10.7989 6.73223 11.2678C7.20107 11.7366 7.83696 12 8.5 12Z',
+  },
 ];
 
 const MAP_TABS = [
@@ -30,21 +58,21 @@ const MAP_TABS = [
     icon: '/icons/tab-electric.svg',
     title: 'Electric Utility Point',
     subtitle: 'Changing the defense system',
-    action: null,
+    action: 'electric' as const,
   },
   {
     left: 610, top: 527, width: 211,
     icon: '/icons/tab-building.svg',
     title: 'Residential Edge Blocks',
     subtitle: 'Higher exposure',
-    action: null,
+    action: 'residential' as const,
   },
   {
     left: 488, top: 718, width: 208,
     icon: '/icons/tab-water.svg',
     title: 'Increase pump capacity',
     subtitle: 'Back-flow risk',
-    action: null,
+    action: 'pump' as const,
   },
   {
     left: 1066, top: 814, width: 215,
@@ -93,12 +121,13 @@ const HOVER_DATA: Record<string, {
   },
 };
 
-export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents }: Props) {
+export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, approvedZones }: Props) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
-  const [animDone, setAnimDone] = useState(false);
+  const [animDone, setAnimDone] = useState(skipAnimation ?? false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (skipAnimation) return;
     const t = setTimeout(() => setAnimDone(true), 2100);
     return () => clearTimeout(t);
   }, []);
@@ -185,14 +214,23 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 437, left: 13, right: 13, height: 1 }} />
 
           <div className="absolute flex flex-col" style={{ left: 19, top: 463, gap: 20 }}>
-            {ZONE_LIST.map(({ icon, label }) => (
-              <div key={label} className="flex items-end" style={{ gap: 15 }}>
-                <img src={icon} alt="" width={24} height={24} className="flex-shrink-0" />
-                <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
-                  {label}
-                </p>
-              </div>
-            ))}
+            {ZONE_LIST.map(({ label, svgPath }) => {
+              const isApproved = approvedZones.includes(label);
+              return (
+                <div key={label} className="flex items-end" style={{ gap: 15 }}>
+                  <svg viewBox="0 0 24 24" width={24} height={24} fill="none" style={{ flexShrink: 0 }}>
+                    <rect
+                      width="24" height="24" rx="12"
+                      style={{ fill: isApproved ? ZONE_ACCENT[label] : '#C6C7C8', transition: 'fill 0.3s ease' }}
+                    />
+                    <path d={svgPath} fill="white" />
+                  </svg>
+                  <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+                    {label}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
           <button
@@ -209,6 +247,9 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           const handler =
             tab.action === 'coastal' ? onCoastalRoad
             : tab.action === 'vulnerable' ? onVulnerableResidents
+            : tab.action === 'electric' ? onElectricUtility
+            : tab.action === 'residential' ? onResidentialEdge
+            : tab.action === 'pump' ? onPumpCapacity
             : undefined;
 
           const base = i * 0.3;
@@ -342,7 +383,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                   flex: 1,
                   background: 'rgba(255,255,255,0.9)',
                   transformOrigin: 'bottom center',
-                  animation: `lineGrow 0.25s ease-out ${lineDelay} both`,
+                  animation: !skipAnimation ? `lineGrow 0.25s ease-out ${lineDelay} both` : undefined,
                 } as React.CSSProperties} />
                 <div style={{
                   width: 8,
@@ -350,7 +391,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                   borderRadius: '50%',
                   background: 'rgba(255,255,255,0.9)',
                   flexShrink: 0,
-                  animation: `dotPop 0.15s ease-out ${dotDelay} both`,
+                  animation: !skipAnimation ? `dotPop 0.15s ease-out ${dotDelay} both` : undefined,
                 } as React.CSSProperties} />
               </div>
             </div>

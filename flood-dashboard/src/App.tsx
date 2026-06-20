@@ -6,8 +6,11 @@ import AssessCriticalZonesPage from './screens/AssessCriticalZonesPage';
 import ResponsePlanningPage from './screens/ResponsePlanningPage';
 import CoastalRoadAccessPage from './screens/CoastalRoadAccessPage';
 import VulnerableResidentsPage from './screens/VulnerableResidentsPage';
+import ElectricUtilityPage from './screens/ElectricUtilityPage';
+import ResidentialEdgePage from './screens/ResidentialEdgePage';
+import PumpCapacityPage from './screens/PumpCapacityPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'coastal-road' | 'vulnerable-residents';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
 
 const bgBase = {
   backgroundSize: 'cover' as const,
@@ -23,6 +26,8 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [transiting, setTransiting] = useState<'none' | 'zoom-in' | 'zoom-out'>('none');
   const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
+  const [approvedZones, setApprovedZones] = useState<string[]>([]);
+  const assessVisited = useRef(false);
 
   const s2Ref = useRef<HTMLDivElement | null>(null);
   const s3BgRef = useRef<HTMLDivElement | null>(null);
@@ -37,6 +42,12 @@ export default function App() {
   }, [screen]);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  useEffect(() => {
+    if (screen === 'assess-critical-zones' && !assessVisited.current) {
+      assessVisited.current = true;
+    }
+  }, [screen]);
 
   function handleRedZoneClick(clientX: number, clientY: number) {
     cancelAnimationFrame(rafRef.current);
@@ -93,6 +104,26 @@ export default function App() {
   function handleOpenVulnerableResidents(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
     setDetailReturnScreen(from);
     setScreen('vulnerable-residents');
+  }
+
+  function handleOpenElectricUtility() {
+    setDetailReturnScreen('assess-critical-zones');
+    setScreen('electric-utility');
+  }
+
+  function handleOpenResidentialEdge() {
+    setDetailReturnScreen('assess-critical-zones');
+    setScreen('residential-edge');
+  }
+
+  function handleOpenPumpCapacity() {
+    setDetailReturnScreen('assess-critical-zones');
+    setScreen('pump-capacity');
+  }
+
+  function handleApproveZone(zoneName: string) {
+    setApprovedZones(prev => prev.includes(zoneName) ? prev : [...prev, zoneName]);
+    setScreen('assess-critical-zones');
   }
 
   function handleZoomOut() {
@@ -185,6 +216,11 @@ export default function App() {
             onPlan={handleOpenPlanning}
             onCoastalRoad={() => handleOpenCoastalRoad('assess-critical-zones')}
             onVulnerableResidents={() => handleOpenVulnerableResidents('assess-critical-zones')}
+            onElectricUtility={handleOpenElectricUtility}
+            onResidentialEdge={handleOpenResidentialEdge}
+            onPumpCapacity={handleOpenPumpCapacity}
+            skipAnimation={assessVisited.current}
+            approvedZones={approvedZones}
           />
         </div>
       )}
@@ -201,13 +237,31 @@ export default function App() {
       {/* Screen 6 — Costal Road Access detail */}
       {screen === 'coastal-road' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
-          <CoastalRoadAccessPage onBack={() => setScreen(detailReturnScreen)} />
+          <CoastalRoadAccessPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Costal Road Access')} />
         </div>
       )}
       {/* Screen 7 — Vulnerable Residents detail */}
       {screen === 'vulnerable-residents' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
-          <VulnerableResidentsPage onBack={() => setScreen(detailReturnScreen)} />
+          <VulnerableResidentsPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Vulnerable Residents')} />
+        </div>
+      )}
+      {/* Screen 8 — Electric Utility Point detail */}
+      {screen === 'electric-utility' && (
+        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
+          <ElectricUtilityPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Electric Utility Point')} />
+        </div>
+      )}
+      {/* Screen 9 — Residential Edge Blocks detail */}
+      {screen === 'residential-edge' && (
+        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
+          <ResidentialEdgePage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Residential Edge Blocks')} />
+        </div>
+      )}
+      {/* Screen 10 — Increase Pump Capacity detail */}
+      {screen === 'pump-capacity' && (
+        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
+          <PumpCapacityPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Increase pump capacity')} />
         </div>
       )}
     </div>

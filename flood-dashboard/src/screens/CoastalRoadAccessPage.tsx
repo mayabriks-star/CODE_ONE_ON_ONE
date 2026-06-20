@@ -3,6 +3,7 @@ import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
+  onApprove: () => void;
 }
 
 function RiskGauge() {
@@ -101,17 +102,25 @@ const implementationSteps = [
   { n: 6, label: 'Maintain Emergency Access:', desc: 'Ensure continuous access for emergency services through all stages of construction.' },
 ];
 
-export default function CoastalRoadAccessPage({ onBack }: Props) {
+export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
   const DESIGN_RIGHT_HEIGHT = 788;
   const [rightScale, setRightScale] = useState(() =>
     Math.min(1, (window.innerHeight - 170) / DESIGN_RIGHT_HEIGHT)
   );
+  const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     const update = () =>
       setRightScale(Math.min(1, (window.innerHeight - 170) / DESIGN_RIGHT_HEIGHT));
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
+
+  const editStyle: React.CSSProperties = isEditing ? {
+    outline: '1.5px dashed rgba(0,0,0,0.18)',
+    borderRadius: 4,
+    padding: '2px 4px',
+    cursor: 'text',
+  } : {};
 
   return (
     <div
@@ -181,7 +190,7 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
 
             {/* Action Plan Overview */}
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Action Plan Overview</p>
-            <p style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '512px' }}>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '512px', ...editStyle }}>
               The coastal road segment provides critical connectivity for 620 residents and is a primary evacuation and emergency access route. It is exposed to storm surge and sea level rise, with multiple elevation and infrastructure vulnerabilities.
             </p>
 
@@ -198,7 +207,7 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
                       <span style={{ fontSize: '8.8px', fontWeight: 700, color: '#ea7836', letterSpacing: '0.18px' }}>{step.n}</span>
                     </div>
                   </div>
-                  <p style={{ margin: 0, fontSize: '13px', lineHeight: '20.15px', letterSpacing: '-0.08px' }}>
+                  <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '13px', lineHeight: '20.15px', letterSpacing: '-0.08px', ...editStyle }}>
                     <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>
                     {' '}
                     <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
@@ -212,10 +221,10 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
 
             {/* Implementation Approach */}
             <p style={{ margin: '20px 0 0 0', fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Implementation Approach</p>
-            <p style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '578px' }}>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '578px', ...editStyle }}>
               Construction will be completed in phased segments to maintain at least one travel lane at all times. Work will prioritize the lowest elevation areas and critical access points. Coordination with utility providers and emergency services will minimize disruptions.
             </p>
-            <p style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '579px' }}>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '579px', ...editStyle }}>
               Implementation is designed to align with storm season windows and permit approval timelines. Coordination with utility providers and emergency services will minimize disruptions.
             </p>
 
@@ -227,10 +236,10 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
                 style={{ width: '325px', flexShrink: 0, objectFit: 'cover' }}
               />
               <div style={{ flex: 1, padding: '20px 20px 20px 24px' }}>
-                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#364153', lineHeight: '20px', letterSpacing: '-0.44px' }}>
+                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#364153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
                   Elevated Roadway on Pile-Supported Structure
                 </p>
-                <p style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20px', letterSpacing: '-0.44px' }}>
+                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
                   Raising the roadway on piles allows storm surge and wave energy to pass beneath, reducing overtopping while maintaining connectivity and long-term resilience.
                 </p>
               </div>
@@ -326,6 +335,7 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
             {/* Buttons — 55px below last card (matches Figma gap) */}
             <div style={{ marginTop: '55px', display: 'flex', gap: '30px', justifyContent: 'center' }}>
               <button
+                onClick={() => setIsEditing(e => !e)}
                 style={{
                   width: '233px',
                   height: '40px',
@@ -344,9 +354,10 @@ export default function CoastalRoadAccessPage({ onBack }: Props) {
                 }}
               >
                 <Pencil size={16} />
-                Edit plan
+                {isEditing ? 'Done' : 'Edit plan'}
               </button>
               <button
+                onClick={onApprove}
                 style={{
                   width: '233px',
                   height: '40px',

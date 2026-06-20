@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import HomePage from './screens/HomePage';
 import HomePageAlert from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
+import AssessCriticalZonesPage from './screens/AssessCriticalZonesPage';
 import ResponsePlanningPage from './screens/ResponsePlanningPage';
 import CoastalRoadAccessPage from './screens/CoastalRoadAccessPage';
 import VulnerableResidentsPage from './screens/VulnerableResidentsPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'planning' | 'coastal-road' | 'vulnerable-residents';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'coastal-road' | 'vulnerable-residents';
 
 const bgBase = {
   backgroundSize: 'cover' as const,
@@ -21,6 +22,7 @@ function easeOut(t: number): number {
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [transiting, setTransiting] = useState<'none' | 'zoom-in' | 'zoom-out'>('none');
+  const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
 
   const s2Ref = useRef<HTMLDivElement | null>(null);
   const s3BgRef = useRef<HTMLDivElement | null>(null);
@@ -75,15 +77,21 @@ export default function App() {
     rafRef.current = requestAnimationFrame(frame);
   }
 
+  function handleOpenAssessCriticalZones() {
+    setScreen('assess-critical-zones');
+  }
+
   function handleOpenPlanning() {
     setScreen('planning');
   }
 
-  function handleOpenCoastalRoad() {
+  function handleOpenCoastalRoad(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
+    setDetailReturnScreen(from);
     setScreen('coastal-road');
   }
 
-  function handleOpenVulnerableResidents() {
+  function handleOpenVulnerableResidents(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
+    setDetailReturnScreen(from);
     setScreen('vulnerable-residents');
   }
 
@@ -166,25 +174,40 @@ export default function App() {
           className="absolute inset-0"
           style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')" }}
         >
-          <AlertPage onZoomOut={handleZoomOut} onPlan={handleOpenPlanning} />
+          <AlertPage onZoomOut={handleZoomOut} onPlan={handleOpenAssessCriticalZones} />
         </div>
       )}
-      {/* Screen 4 — Response Planning: full white page, no background image */}
+      {/* Screen 4 — Assess Critical Zones: same harbor map background */}
+      {screen === 'assess-critical-zones' && (
+        <div className="absolute inset-0" style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')" }}>
+          <AssessCriticalZonesPage
+            onBack={() => setScreen('alert')}
+            onPlan={handleOpenPlanning}
+            onCoastalRoad={() => handleOpenCoastalRoad('assess-critical-zones')}
+            onVulnerableResidents={() => handleOpenVulnerableResidents('assess-critical-zones')}
+          />
+        </div>
+      )}
+      {/* Screen 5 — Response Planning: full white page, no background image */}
       {screen === 'planning' && (
         <div className="absolute inset-0" style={{ background: '#F9FAFB' }}>
-          <ResponsePlanningPage onBack={() => setScreen('alert')} onCoastalRoad={handleOpenCoastalRoad} onVulnerableResidents={handleOpenVulnerableResidents} />
+          <ResponsePlanningPage
+            onBack={() => setScreen('assess-critical-zones')}
+            onCoastalRoad={() => handleOpenCoastalRoad('planning')}
+            onVulnerableResidents={() => handleOpenVulnerableResidents('planning')}
+          />
         </div>
       )}
       {/* Screen 6 — Costal Road Access detail */}
       {screen === 'coastal-road' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
-          <CoastalRoadAccessPage onBack={() => setScreen('planning')} />
+          <CoastalRoadAccessPage onBack={() => setScreen(detailReturnScreen)} />
         </div>
       )}
       {/* Screen 7 — Vulnerable Residents detail */}
       {screen === 'vulnerable-residents' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
-          <VulnerableResidentsPage onBack={() => setScreen('planning')} />
+          <VulnerableResidentsPage onBack={() => setScreen(detailReturnScreen)} />
         </div>
       )}
     </div>

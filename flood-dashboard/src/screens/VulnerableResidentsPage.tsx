@@ -106,12 +106,12 @@ const implementationSteps = [
 export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
   const DESIGN_RIGHT_HEIGHT = 788;
   const [rightScale, setRightScale] = useState(() =>
-    Math.min(1, (window.innerHeight - 170) / DESIGN_RIGHT_HEIGHT)
+    Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
   );
   const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     const update = () =>
-      setRightScale(Math.min(1, (window.innerHeight - 170) / DESIGN_RIGHT_HEIGHT));
+      setRightScale(Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT));
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
@@ -157,13 +157,13 @@ export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
           paddingLeft: '70px',
           paddingRight: '70px',
           paddingTop: '20px',
-          paddingBottom: '35px',
+          paddingBottom: 0,
           gap: '42px',
           boxSizing: 'border-box',
         }}
       >
         {/* Left column — scrollable */}
-        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto' }}>
+        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto', paddingBottom: '35px' }}>
 
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>

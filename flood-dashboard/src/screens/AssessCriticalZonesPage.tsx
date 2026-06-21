@@ -132,6 +132,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     return () => clearTimeout(t);
   }, []);
 
+  const allApproved = ZONE_LIST.every(({ label }) => approvedZones.includes(label));
+
   function handleEnter(title: string) {
     if (hideTimer.current) clearTimeout(hideTimer.current);
     setHoveredTab(title);
@@ -234,11 +236,16 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           </div>
 
           <button
-            onClick={onPlan}
-            className="absolute w-[313px] h-[37px] rounded-[14px] bg-[rgba(16,24,40,0.9)] flex items-center justify-center"
-            style={{ left: 41, top: 722 }}
+            onClick={allApproved ? onPlan : undefined}
+            className="absolute w-[313px] h-[37px] rounded-[14px] flex items-center justify-center"
+            style={{
+              left: 41, top: 722,
+              background: allApproved ? 'rgba(16,24,40,0.9)' : 'rgba(16,24,40,0.3)',
+              cursor: allApproved ? 'pointer' : 'default',
+              transition: 'background 0.3s ease',
+            }}
           >
-            <span className="font-medium text-[14px] text-white">Start Response Plan →</span>
+            <span className="font-medium text-[14px] text-white">Simulate response scenarios</span>
           </button>
         </div>
 

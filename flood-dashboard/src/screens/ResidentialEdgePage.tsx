@@ -165,7 +165,7 @@ export default function ResidentialEdgePage({ onBack, onApprove }: Props) {
         }}
       >
         {/* Left column — scrollable */}
-        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto', paddingBottom: '35px' }}>
+        <div className="no-scrollbar" style={{ flex: 1, minWidth: '620px', overflowY: 'auto', paddingBottom: '35px' }}>
 
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>
@@ -246,7 +246,7 @@ export default function ResidentialEdgePage({ onBack, onApprove }: Props) {
         </div>
 
         {/* Right column — proportionally scaled to viewport height */}
-        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
+        <div style={{ width: '590px', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
           <div
             style={{
               position: 'absolute',

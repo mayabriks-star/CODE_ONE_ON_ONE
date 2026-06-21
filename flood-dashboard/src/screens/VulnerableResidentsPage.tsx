@@ -103,6 +103,9 @@ const implementationSteps = [
   { n: 5, label: 'Strengthen Community Support Systems:', desc: 'Coordinate outreach, welfare checks, multilingual alerts, and neighborhood response teams.' },
 ];
 
+const ACCENT = '#84af79';
+const ACCENT_BG = 'rgba(132,175,121,0.2)';
+
 export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
   const DESIGN_RIGHT_HEIGHT = 788;
   const [rightScale, setRightScale] = useState(() =>
@@ -163,7 +166,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
         }}
       >
         {/* Left column — scrollable */}
-        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto', paddingBottom: '35px' }}>
+        <div className="no-scrollbar" style={{ flex: 1, minWidth: '620px', overflowY: 'auto', paddingBottom: '35px' }}>
 
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>
@@ -204,8 +207,8 @@ export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
               {implementationSteps.map((step) => (
                 <div key={step.n} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <div style={{ flexShrink: 0, paddingTop: '2px' }}>
-                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(234,120,54,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '8.8px', fontWeight: 700, color: '#ea7836', letterSpacing: '0.18px' }}>{step.n}</span>
+                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '8.8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.18px' }}>{step.n}</span>
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '13px', lineHeight: '20.15px', letterSpacing: '-0.08px', ...editStyle }}>
@@ -250,7 +253,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
         </div>
 
         {/* Right column — proportionally scaled to viewport height */}
-        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0, position: 'relative' }}>
+        <div style={{ width: '590px', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
           <div
             style={{
               position: 'absolute',

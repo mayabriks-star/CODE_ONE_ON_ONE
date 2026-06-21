@@ -9,8 +9,9 @@ import VulnerableResidentsPage from './screens/VulnerableResidentsPage';
 import ElectricUtilityPage from './screens/ElectricUtilityPage';
 import ResidentialEdgePage from './screens/ResidentialEdgePage';
 import PumpCapacityPage from './screens/PumpCapacityPage';
+import CompareResponseScenariosPage from './screens/CompareResponseScenariosPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'compare-scenarios' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
 
 const bgBase = {
   backgroundSize: 'cover' as const,
@@ -37,7 +38,7 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== 'home') return;
-    const timer = setTimeout(() => setScreen('home-alert'), 10_000);
+    const timer = setTimeout(() => setScreen('home-alert'), 3_000);
     return () => clearTimeout(timer);
   }, [screen]);
 
@@ -94,6 +95,10 @@ export default function App() {
 
   function handleOpenPlanning() {
     setScreen('planning');
+  }
+
+  function handleOpenComparison() {
+    setScreen('compare-scenarios');
   }
 
   function handleOpenCoastalRoad(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
@@ -185,7 +190,7 @@ export default function App() {
           className="absolute inset-0"
           style={{ ...bgBase, backgroundImage: "url('/coastal-background.png')" }}
         >
-          <HomePageAlert onRedZoneClick={handleRedZoneClick} />
+          <HomePageAlert onRedZoneClick={handleRedZoneClick} onAlertClick={() => setScreen('alert')} />
         </div>
       )}
 
@@ -213,7 +218,7 @@ export default function App() {
         <div className="absolute inset-0" style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')" }}>
           <AssessCriticalZonesPage
             onBack={() => setScreen('alert')}
-            onPlan={handleOpenPlanning}
+            onPlan={handleOpenComparison}
             onCoastalRoad={() => handleOpenCoastalRoad('assess-critical-zones')}
             onVulnerableResidents={() => handleOpenVulnerableResidents('assess-critical-zones')}
             onElectricUtility={handleOpenElectricUtility}
@@ -232,6 +237,12 @@ export default function App() {
             onCoastalRoad={() => handleOpenCoastalRoad('planning')}
             onVulnerableResidents={() => handleOpenVulnerableResidents('planning')}
           />
+        </div>
+      )}
+      {/* Screen — Compare Response Scenarios */}
+      {screen === 'compare-scenarios' && (
+        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
+          <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} />
         </div>
       )}
       {/* Screen 6 — Costal Road Access detail */}

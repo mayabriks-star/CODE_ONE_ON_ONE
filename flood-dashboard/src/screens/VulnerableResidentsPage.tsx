@@ -163,7 +163,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove }: Props) {
         }}
       >
         {/* Left column — scrollable */}
-        <div style={{ width: '724px', flexShrink: 0, overflowY: 'auto' }}>
+        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto' }}>
 
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>

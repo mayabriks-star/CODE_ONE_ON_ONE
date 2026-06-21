@@ -30,12 +30,12 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
           <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
           <div className="flex flex-col">
             <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
-            <span className="font-medium text-[13px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
+            <span className="font-medium text-[14px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
           </div>
         </div>
         <div className="flex gap-[15px] items-center">
           <div className="w-[24px] h-[14px] flex-shrink-0" />
-          <p className="font-medium text-[15px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+          <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
             {cityOverview.description}
           </p>
         </div>
@@ -50,12 +50,16 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[10px]">
             <TrendingUp size={16} className="text-[#505153]" strokeWidth={1.5} />
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Sea Level</span>
+            <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">Sea Level</span>
           </div>
-          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end', gap: '4px' }}>
-            <ArrowUp size={9} className="text-[#d53c4b]" strokeWidth={2.5} />
-            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '46px', textAlign: 'right' }}>{cityOverview.seaLevel}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '88px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.seaLevelPeriod}</span>
+          <div style={{ width: '155px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ width: '68px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+              <ArrowUp size={9} className="text-[#d53c4b]" strokeWidth={2.5} />
+              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.seaLevel}</span>
+            </div>
+            <div style={{ width: '87px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.seaLevelPeriod}</span>
+            </div>
           </div>
         </div>
 
@@ -63,11 +67,15 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[12px]">
             <Waves size={14} className="text-[#505153]" strokeWidth={1.5} />
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Wave Activity</span>
+            <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">Wave Activity</span>
           </div>
-          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.waveActivity}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.waveStatus}</span>
+          <div style={{ width: '155px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ width: '68px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.waveActivity}</span>
+            </div>
+            <div style={{ width: '87px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.waveStatus}</span>
+            </div>
           </div>
         </div>
 
@@ -75,11 +83,15 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[11px]">
             <Building2 size={16} className="text-[#505153]" strokeWidth={1.5} />
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Vulnerable Districts</span>
+            <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">Vulnerable Districts</span>
           </div>
-          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{vulnerableDistrictsProp ?? cityOverview.vulnerableDistricts}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>of {cityOverview.totalDistricts}</span>
+          <div style={{ width: '155px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ width: '68px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{vulnerableDistrictsProp ?? cityOverview.vulnerableDistricts}</span>
+            </div>
+            <div style={{ width: '87px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">of {cityOverview.totalDistricts}</span>
+            </div>
           </div>
         </div>
 
@@ -87,11 +99,15 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-[11px]">
             <Droplets size={16} className="text-[#505153]" strokeWidth={1.5} />
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]">Tide</span>
+            <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">Tide</span>
           </div>
-          <div className="flex items-center" style={{ width: '155px', justifyContent: 'flex-end' }}>
-            <span className="font-semibold text-[12px] leading-[21px] tracking-[-0.44px] text-black" style={{ minWidth: '58px', textAlign: 'right' }}>{cityOverview.tideStatus}</span>
-            <span className="font-medium text-[12px] leading-[21px] tracking-[-0.44px] text-[#505153]" style={{ minWidth: '90px', textAlign: 'right', paddingLeft: '7px' }}>{cityOverview.tideTime}</span>
+          <div style={{ width: '155px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ width: '68px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.tideStatus}</span>
+            </div>
+            <div style={{ width: '87px', flexShrink: 0, textAlign: 'right' }}>
+              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.tideTime}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -103,7 +119,7 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
           style={{ background: 'rgba(16,24,40,0.80)' }}
         >
           <span className="font-medium text-[14px] leading-[20px] tracking-[-0.15px] text-white">
-            View full analysis →
+            View full analysis
           </span>
         </button>
       </div>

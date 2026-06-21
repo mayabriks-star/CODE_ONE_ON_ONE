@@ -1,1029 +1,840 @@
 # Coastal Flood Dashboard — Architecture & Design System
 
-> **Version:** 1.2 — updated after header restructure (screens 1 & 2)
-> **Last updated:** 2026-05-17
+> **Version:** 2.0 — full design-system update covering all 10 implemented screens
+> **Last updated:** 2026-06-21
 > **Figma file:** `UDqpquE5wXMYWz5rqC0Hwd` (Maya Briks)
-> **Background asset:** `public/coastal-background.png`
+> **Background asset (map screens):** `public/coastal-background.png`
 
 ---
 
 ## A. Product Overview
 
 ### What this prototype is
-A coastal flood-risk monitoring dashboard prototype. It presents live sea-level data, city-wide risk status, flood depth visualization, and a detailed alert-response view. It is designed as a presentation-quality local prototype — opened in a browser, run locally with `npm run dev`.
-
-### What problem it solves
-City planners and emergency managers need to see live coastal flood risk at a glance, understand which districts are at risk, evaluate mitigation strategies, and take action when a new alert fires. This prototype demonstrates that UX flow.
+A coastal flood-risk monitoring and response-planning dashboard. It presents live sea-level data, city-wide risk status, flood depth visualization, a district alert, a multi-step response workflow (assess critical zones → response planning), and detailed zone-specific action plans.
 
 ### Main user flow
-1. **Screen 1 — Home Page**: User sees the city overview, mode selection (Protect/Adapt/Retreat), live monitoring stats, flood depth scale, and a city-wide risk summary. No alert is active.
-2. **Screen 2 — Home Page Alert**: After 10 seconds, a new alert fires automatically. A red alert card appears. The bell icon shows a badge. The user reads the alert.
-3. **Screen 3 — Alert Detail**: User clicks the red alert card and sees a full breakdown: sea level rise metrics, the recommended strategy, affected districts, estimated budget, and an affections table.
+1. **Home** — Live monitoring panel, flood-depth scale, time-view selector, city risk overview.
+2. **Home + Alert** — Auto-fires after 10 s; red alert card appears below the monitoring panel.
+3. **Alert Detail** — Full breakdown of the district alert: metrics, strategy, districts, budget.
+4. **Assess Critical Zones** — Map with five zone pills; left panel lists zones; approve each zone to unlock next step.
+5. **Zone Detail screens** (×5) — Per-zone action plan with problem summary, cost/budget, schedule, edit & approve actions.
+6. **Response Planning** — Summary of projected impact, recommended action sequence, action cards for all zones.
 
-### Current screens
-| ID | Name | Type | Trigger |
-|---|---|---|---|
-| S1 | `Home_page` | Idle dashboard | App loads |
-| S2 | `Home_page_alert` | Alert state | Auto after 10 s |
-| S3 | `Alert` | Detail view | Click on red alert card in S2 |
+### Screen inventory
 
-### Future expected use
-- Connect to live sensor data API
-- Add more screens: Scenarios, Compare, Reports, Scenarios detail
-- Expand district detail views
-- Add multi-city support
-- Add time-travel controls (2030, 2050, 2070, 2090 projections)
-
----
-
-## B. Screen Inventory
-
-### S1 — Home Page
-
-- **File:** `src/screens/HomePage.tsx`
-- **Purpose:** Idle monitoring dashboard. Shows current city risk without an active alert.
-- **User role:** City planner / emergency manager browsing risk status.
-- **User intent:** "What is the current state of the city's coastal risk?"
-- **Main UI sections:**
-  - Flood Depth Scale (top-left)
-  - Mode Selector pill: Protect / Adapt / Retreat (top-center)
-  - Top Status Bar: time, city status, bell, menu (top-right)
-  - Live Monitoring + City Overview glass panel (left)
-  - Time View: Today / 2030 / 2050 / 2070 / 2090 (bottom-left)
-  - Bottom Summary Bar: stats + navigation (bottom, full-width)
-- **Key interactions:** None (static in prototype; Time View not interactive yet)
-- **Entry condition:** App loads
-- **Exit action:** Auto-transitions to S2 after 10 seconds (timer in App.tsx)
-- **Related components:** `ScaledLayout`, `FloodDepthScale`, `ModeSelector`, `TopStatusBar`, `LiveMonitoringPanel`, `TimeView`, `BottomSummaryBar`
-- **Figma frame:** `node-id=137-750`
-- **Screenshot reference:** `Reference_Images/Home_page.png`
+| ID | State key | File | Screen type |
+|----|-----------|------|-------------|
+| S1 | `home` | `HomePage.tsx` | Map dashboard |
+| S2 | `home-alert` | `HomePageAlert.tsx` | Map dashboard + alert |
+| S3 | `alert` | `AlertPage.tsx` | White-panel detail |
+| S4 | `assess-critical-zones` | `AssessCriticalZonesPage.tsx` | Map + glass card |
+| S5 | `coastal-road` | `CoastalRoadAccessPage.tsx` | Detail screen |
+| S6 | `vulnerable-residents` | `VulnerableResidentsPage.tsx` | Detail screen |
+| S7 | `electric-utility` | `ElectricUtilityPage.tsx` | Detail screen |
+| S8 | `residential-edge` | `ResidentialEdgePage.tsx` | Detail screen |
+| S9 | `pump-capacity` | `PumpCapacityPage.tsx` | Detail screen |
+| S10 | `planning` | `ResponsePlanningPage.tsx` | Planning screen |
 
 ---
 
-### S2 — Home Page Alert
+## B. Screen-Type Taxonomy
 
-- **File:** `src/screens/HomePageAlert.tsx`
-- **Purpose:** Alert state. The red alert card appears below the Live Monitoring panel. The bell has a notification badge.
-- **User role:** City planner / emergency manager reacting to a new alert.
-- **User intent:** "A new alert fired. What happened? Let me read it and investigate."
-- **Main UI sections:** Same as S1, plus:
-  - Red Alert Card (`NewAlertCard`) — between panel bottom and Time View
-  - Bell badge on `TopStatusBar`
-- **Key interactions:** Click the red alert card → navigate to S3
-- **Entry condition:** 10-second timer fires from S1
-- **Exit action:** Click red card → S3. Back arrow on S3 → returns to S2.
-- **Related components:** Same as S1 + `NewAlertCard`
-- **Figma frame:** `node-id=137-1148` (background sub-node; full frame inferred from screenshot)
-- **Screenshot reference:** `Reference_Images/Home page - alert.png`
+The app has three structural screen types. Every new screen fits into one of these.
 
----
+### Type 1 — Map Canvas Screens (S1, S2, S4)
+- Use `<ScaledLayout>` (1512×1008 px design canvas, `transform: scale()` to viewport).
+- All positioned elements are `position: absolute` within the canvas.
+- Background: full-screen aerial photo (`coastal-background.png`), flood overlays baked in.
+- Floating glass panels sit on top of the map.
+- `HomePageHeader` (frosted-glass map controls) lives inside ScaledLayout.
 
-### S3 — Alert Detail Page
+### Type 2 — Detail Screens (S5–S9)
+- No ScaledLayout. Root is `display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f8f8f8`.
+- Header: two-row standard header (Menu+Bell / ArrowLeft+Title) — NOT map header.
+- Body: `flex: 1; display: flex; overflow: hidden; padding 70px sides; gap 42px` — **left column** (scrollable, 724px wide) + **right column** (scaled to viewport height, flexible width).
+- Right column uses a `transform: scale(rightScale)` + `transformOrigin: top left` trick to proportionally shrink at smaller viewports.
 
-- **File:** `src/screens/AlertPage.tsx`
-- **Purpose:** Full breakdown of the alert: metrics, recommended strategy, affected districts, budget.
-- **User role:** City planner analyzing the alert and deciding on action.
-- **User intent:** "How serious is this? What is the recommended response? What areas and people are affected? What does it cost?"
-- **Main UI sections:**
-  - Back arrow (top-left of white panel)
-  - Inline status bar (top-right of white panel)
-  - Sea Level Early Warning header with red warning icon
-  - Alert Overview card: Sea Level Rise / First Expected Impact / With Action
-  - Strategy card: title, description, 4 metric boxes, key components checklist, compare link
-  - Districts Requiring Review card (right column)
-  - Estimated Budget donut card (right column, below districts)
-  - Affections table: Infrastructure + Population (bottom)
-- **Key interactions:** Back arrow → returns to S2
-- **Entry condition:** Click red card on S2
-- **Exit action:** Back arrow → S2
-- **Related components:** `AlertOverviewCard`, `StrategyCard`, `DistrictRiskList`, `BudgetCard`, `AffectionsTable`
-- **IMPORTANT:** Screen 3 uses its own internal layout (white panel with `inset: 20px`, overflow-y: auto) and does NOT use `ScaledLayout`. Do not add scaling to this screen.
-- **Figma frame:** `node-id=143-1376`
-- **Screenshot reference:** `Reference_Images/Alert.png`
+### Type 3 — Planning / Summary Screens (S3, S10)
+- White or light-gray full-page layout with `overflow-y: auto`.
+- S3 uses `inset: 20px` white panel with internal absolute positioning.
+- S10 uses `zoom: pageScale` (computed from `window.innerHeight / 990`) for overall scaling.
+- Both have the standard two-row header.
 
 ---
 
-## C. UX Architecture
+## C. Navigation Architecture
 
-### Full prototype flow
+No router. Single `useState<Screen>` in `App.tsx`. All navigation is callback props (`onBack`, `onPlan`, `onCoastalRoad`, etc.).
+
+`detailReturnScreen` state in `App.tsx` tracks where zone detail screens should return to (`'assess-critical-zones'` or `'planning'`), so the back button works correctly from both entry points.
 
 ```
-App loads
-  └── setState: 'home'
-        └── renders: <HomePage />
-              └── useEffect timer: 10,000ms
-                    └── setState: 'home-alert'
-                          └── renders: <HomePageAlert />
-                                └── user clicks <NewAlertCard>
-                                      └── setState: 'alert'
-                                            └── renders: <AlertPage />
-                                                  └── user clicks back arrow
-                                                        └── setState: 'home-alert'
+home ──(10s timer)──► home-alert ──(click alert)──► alert
+                                                       └──(back)──► home-alert
+alert ──(Start Response Plan)──► assess-critical-zones
+assess-critical-zones ──(zone click)──► [coastal-road | vulnerable-residents | electric-utility | residential-edge | pump-capacity]
+                       ──(all zones approved → Simulate response scenarios)──► planning
+planning ──(Review & Edit)──► zone detail screens (return to planning)
 ```
-
-### State transitions
-| From | Event | To | Where implemented |
-|---|---|---|---|
-| `'home'` | 10s timer fires | `'home-alert'` | `App.tsx` useEffect |
-| `'home-alert'` | Red card click | `'alert'` | `NewAlertCard` onClick prop → `HomePageAlert` → `App.tsx` |
-| `'alert'` | Back arrow click | `'home-alert'` | `AlertPage` onBack prop → `App.tsx` |
-
-### Navigation logic
-- No router. All navigation is `useState` in `App.tsx`.
-- The back button on S3 returns to `'home-alert'`, not `'home'`, because the alert timer has already fired.
-- The 10s timer uses `useEffect` with `screen` in dependency array and `if (screen !== 'home') return` guard — it only fires once from the home state.
-
-### Alert behavior
-- **Automatic:** S1 → S2 transition (timer in App.tsx)
-- **User-triggered:** S2 → S3 (red card click), S3 → S2 (back arrow)
-
-### Future UX extension points
-- Add a "dismiss alert" button to S2 that returns to S1 (re-sets timer)
-- Add navigation from BottomSummaryBar icons to other screens
-- Add Time View interactivity (click year → change projected data)
-- Add a notification drawer (click bell → show all alerts)
 
 ---
 
 ## D. UI Layout Architecture
 
-### Global screen structure
+### ScaledLayout (canvas screens)
+
 ```
-<div id="root">  {/* 100vw × 100vh, background-image: coastal-background.png */}
-  <ScaledLayout> {/* 1512×1008px design canvas, scaled to viewport */}
-    <FloodDepthScale />       {/* absolute, canvas-space */}
-    <LiveMonitoringPanel />
-    <TimeView />
-    [<NewAlertCard /> — S2 only]
-  </ScaledLayout>
-  <ModeSelector />            {/* absolute, viewport-level, left-1/2 centered */}
-  <TopStatusBar />            {/* absolute, viewport-level, right-aligned */}
-  <BottomSummaryBar />        {/* absolute, viewport-level, bottom-anchored */}
+1512 × 1008 px design canvas
+scale = Math.min(1.0, viewportW / 1512, viewportH / 1008)
+transform: scale(scale); transform-origin: top left
+```
+
+All absolute positions within ScaledLayout reference this 1512×1008 coordinate space.
+
+### Viewport-level elements (outside ScaledLayout, siblings in Fragment)
+Only these elements sit outside ScaledLayout and are positioned relative to the viewport:
+- `ModeSelector` — `absolute left-1/2 -translate-x-1/2 top-[25px]`
+- `TopStatusBar` — `absolute top-[29px] right-[21px]`
+- `BottomSummaryBar` — `absolute bottom-0 left-0 right-0 h-[138px]`
+
+**Why:** These must span the full viewport width, not the scaled canvas.
+
+### Detail screen body layout
+
+```
+<div style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden', background:'#f8f8f8' }}>
+  <Header />                  ← flexShrink: 0
+  <div style={{ flex:1, display:'flex', overflow:'hidden',
+                paddingLeft:'70px', paddingRight:'70px',
+                paddingTop:'20px', paddingBottom:'35px', gap:'42px' }}>
+    <LeftColumn  style={{ width:'724px', flexShrink:0, overflowY:'auto' }} />
+    <RightColumn style={{ flex:1, overflow:'hidden', position:'relative' }}>
+      {/* scaled subtree */}
+    </RightColumn>
+  </div>
 </div>
 ```
 
-For Screen 3:
+### Right-column proportional scaling (detail screens)
+```tsx
+const DESIGN_RIGHT_HEIGHT = 788; // px at which the right column was designed
+const [rightScale, setRightScale] = useState(
+  () => Math.min(1, (window.innerHeight - 170) / DESIGN_RIGHT_HEIGHT)
+);
+// 170 ≈ header height + vertical padding
 ```
-<div id="root">
-  {/* same background */}
-  <AlertPage>
-    <div inset-[20px]>  {/* white panel, 1470×938px, overflow-y: auto */}
-      {/* all alert content, absolute positioned within panel */}
-    </div>
-  </AlertPage>
-</div>
+The scaled subtree uses:
+```tsx
+position: 'absolute', top: 0, left: 0,
+width: `${100 / rightScale}%`,
+transformOrigin: 'top left',
+transform: `scale(${rightScale})`,
+display: 'flex', flexDirection: 'column'
 ```
-
-### Viewport strategy
-**Screens 1 & 2:** Use a hybrid layout. Elements are split into two groups:
-
-**Viewport-level elements** (outside `ScaledLayout`, siblings in the Fragment):
-- `ModeSelector` — `absolute left-1/2 -translate-x-1/2 top-[25px]` — viewport-centered, always at the true horizontal midpoint between FloodDepthScale and TopStatusBar.
-- `TopStatusBar` — `absolute top-[29px] right-[21px]` — flush to the viewport right edge.
-- `BottomSummaryBar` — `absolute bottom-0 left-0 right-0` — always spans 100% viewport width.
-
-These three are at viewport level so their positions are not affected by the canvas scale factor. `ModeSelector` is centered on the viewport (not the canvas) so it stays visually balanced between the left and right elements regardless of scale. `TopStatusBar` is right-aligned to the viewport edge.
-
-**Canvas-space elements** (inside `ScaledLayout` — 1512×1008 design canvas):
-- `FloodDepthScale`, `LiveMonitoringPanel`, `TimeView`, `NewAlertCard` (S2 only)
-- `ScaledLayout` applies:
-  ```
-  scale = Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008)
-  transform: scale(scale)
-  transform-origin: top left
-  ```
-  On a typical 14-inch MacBook (viewport ≈ 1440×900), scale ≈ 0.89. Canvas-space panels shrink proportionally while viewport-level elements remain at fixed screen positions.
-
-**Screen 3:** Uses `inset: 20px` on the white panel (not ScaledLayout). The panel already works correctly at typical laptop screen sizes.
-
-### Desktop-first assumptions
-- Designed for 1512×1008px (14-inch MacBook Retina display looks-like resolution)
-- The ScaledLayout ensures it fits on smaller viewports (minimum tested: 1280×720)
-- No mobile breakpoints
-
-### When to use absolute positioning
-Use `position: absolute` for all dashboard panel elements within ScaledLayout. These elements have fixed design-space coordinates from Figma and must appear at exact positions relative to the background map.
-
-### When to use flex/grid
-Use flex/grid **inside** panels (for internal layout of rows, columns, icon+text pairs, stat blocks). Do NOT use flex/grid for positioning panels relative to each other — use absolute for that.
-
-### How to avoid overlap between floating panels
-
-**Viewport-level elements (outside ScaledLayout — positioned relative to viewport):**
-```
-Mode Selector:    top: 25px,    left: 50%  (-translate-x-1/2),  width: 489px  [viewport-centered]
-Top Status Bar:   top: 29px,    right: 21px                                   [viewport right-aligned]
-Bottom Bar:       bottom: 0,    left: 0, right: 0,  height: 138px             [full viewport width]
-```
-
-**Canvas-space elements (inside ScaledLayout — 1512×1008 design canvas):**
-```
-Flood Depth Scale:  top: 25px,   left: 21px,   height: 65px    → bottom: 90px
-Live Mon. Panel:    top: 119px,  left: 21px,   height: ~488px  → bottom: 607px
-New Alert Card:     top: 620px,  left: 21px,   height: ~68px   → bottom: 688px
-Time View:          top: 754px,  left: 20px,   height: ~60px   → bottom: 814px
-```
-
-The gap between the New Alert Card bottom (688px) and Time View top (754px) is 66px — enough breathing room. When adding new floating panels, check these ranges and leave at least 12px gap between any two elements' bottom/top edges.
-
-### Rules for maintaining visibility of bottom content
-- The bottom bar is viewport-anchored (`bottom: 0`) and never cut off regardless of scale.
-- Keep canvas-space elements below `top: 820px` to avoid visual collision with the bottom bar at typical scales.
-- Do not add canvas content below `top: 820px`.
 
 ---
 
-## E. Design System
+## E. Design Language
 
-### Design language
-**Visual mood:** Clean, authoritative, data-driven. Professional emergency management aesthetic. Glassmorphism panels float over a real aerial photograph. High contrast between the glass UI and the vivid background.
+### Visual mood
+Clean, authoritative, minimal-chrome. Two registers coexist:
+- **Map screens:** Glassmorphism panels floating over aerial photography. High contrast between transparent UI and vivid background.
+- **Detail / planning screens:** White and light-gray surfaces (`#f8f8f8`), black text, maximum readability. No glassmorphism; no map backdrop.
 
-### Background treatment
-- Asset: `public/coastal-background.png`
-- Contains the aerial coastal photograph composited with colored flood-risk zone overlays (red, orange/amber, blue/teal) and white dashed ocean depth contours.
-- Applied on `#root` in `App.tsx`: `background-image: url('/coastal-background.png'); background-size: cover; background-position: center; background-repeat: no-repeat`
-- The background is always full-screen (`100vw × 100vh`) regardless of ScaledLayout.
+### Background
+- **Map screens:** `public/coastal-background.png` — aerial coastal photo with baked-in flood-risk overlays (orange/amber zones, blue/teal zones, white dashed ocean contour lines). Applied on `#root` via `background-image`, `background-size: cover`, `background-position: center`.
+- **Detail screens:** `background: #f8f8f8` on the root div.
+- **Planning screen (S10):** `background: #f8f8f8`.
 
-### Glassmorphism style
-All glass panels share this recipe:
+---
 
-| Property | Value |
-|---|---|
-| background | `rgba(255,255,255, X)` where X = 0.30 / 0.40 / 0.53 / 0.65 / 0.80 |
-| border | `1px solid rgba(255,255,255, 0.20)` |
-| backdrop-filter | `blur(12px)` |
-| -webkit-backdrop-filter | `blur(12px)` |
-| border-radius | `16px` (use `rounded-lg`) |
-| box-shadow | `0px 4px 6px 0px rgba(0,0,0,0.1), 0px 10px 15px 0px rgba(0,0,0,0.1)` |
+## F. Color Palette
 
-Defined as Tailwind utilities in `src/index.css`:
-- `.glass-30` — mode selector, flood depth scale
-- `.glass-40` — inner City Overview sub-card
-- `.glass-53` — active mode tab background
-- `.glass-65` — main left panel (Live Monitoring)
-- `.glass-80` — bottom summary bar
+### Zone accent colors
+Each of the five critical zones has a dedicated accent color used consistently across tabs, icon circles, donut segments, and step indicators.
 
-### Color palette
+| Zone | Accent hex | Usage |
+|------|-----------|-------|
+| Costal Road Access | `#ea7836` / `#E87840` | Orange |
+| Electric Utility Point | `#ffbb00` / `#F5B830` | Yellow |
+| Residential Edge Blocks | `#bf5761` / `#B55C6A` | Rose/mauve |
+| Increase pump capacity | `#2864e4` / `#3B5CF6` | Blue |
+| Vulnerable Residents | `#84af79` / `#79A86A` | Green |
 
-#### Background glassmorphism
-| Token | Value | Usage |
-|---|---|---|
-| glass-30 | `rgba(255,255,255,0.30)` | Flood Depth Scale, Mode Selector |
-| glass-40 | `rgba(255,255,255,0.40)` | City Overview inner card |
-| glass-53 | `rgba(255,255,255,0.53)` | Active mode tab |
-| glass-65 | `rgba(255,255,255,0.65)` | Live Monitoring main panel |
-| glass-80 | `rgba(255,255,255,0.80)` | Bottom Summary Bar |
+> The slight hex variations come from the two contexts (ScaledLayout vs detail screen); treat them as the same zone color.
 
-#### Text colors
+### Semantic / status colors
+| Role | Hex | Usage |
+|------|-----|-------|
+| Risk red (urgent) | `#b91d1d` | "12 month (May 2027)" — no-intervention timeline |
+| Risk green (improved) | `#84af79` | "6-8 yrs (~2033)" — with-intervention timeline |
+| Live dot | `#4aaf59` | Green pulse dot next to "Live" |
+| Alert red | `#fb2c36` | Bell badge, arrow icon |
+| Risk moderate | `#ffae00` | "MODERATE" label, yellow status dot |
+| Success green | `#00a63e` | Risk reduction %, With Action stat |
+
+### Text colors
 | Token | Hex | Usage |
-|---|---|---|
-| text-primary | `#1e2939` | Main headings, panel titles |
-| text-secondary | `#505153` | Subtext, stat labels, nav labels |
-| text-tertiary | `#4a5565` | Lighter subtext in Alert page |
-| text-muted | `#6a7282` | Caption/footnote text |
-| text-body | `#364153` | Alert page body paragraphs |
+|-------|-----|-------|
+| text-primary | `#364153` | All body text in detail/planning screens, icon color in header |
+| text-dark | `#1e2939` | Map panel headings, tab titles |
+| text-secondary | `#505153` | Sublabels, body paragraphs, stats labels |
+| text-muted | `#6b778a` | "Risk Score" label in gauge, captions |
+| text-black | `#323232` or `black` | Button text, step numbers, large values |
 
-#### Risk / semantic colors
-| Token | Hex | Usage |
-|---|---|---|
-| risk-moderate | `#ffae00` | "MODERATE" label, yellow status dot |
-| risk-high | `#d53c4b` | High Risk badge background |
-| risk-high-bg | `#fef2f2` | High Risk district row background |
-| risk-medium | `#f54900` | Medium badge background |
-| risk-medium-bg | `#fff7ed` | Medium district row background |
-| risk-orange-border | `#ff6900` | Medium district left border |
-| risk-low | `#519bd3` | Low badge background / stat-blue |
-| risk-low-bg | `#eff6ff` | Low district row background |
-| success-green | `#00a63e` | Risk reduction %, With Action stat |
-
-#### Alert / status colors
-| Token | Hex | Usage |
-|---|---|---|
-| alert-red | `#fb2c36` | Bell notification badge, arrow icon |
-| live-dot | `#4aaf59` | Live monitoring green pulse dot |
-| link-blue | `#51a2ff` | "View all alerts" link, budget-light |
-| stat-blue | `#519bd3` | Sea level rise value, Low risk badge |
-| btn-dark | `rgba(16,24,40,0.80)` | "View full analysis" dark CTA button |
-
-#### Budget donut
-| Token | Hex | Usage |
-|---|---|---|
-| budget-dark | `#155dfc` | Protection Measures slice |
-| budget-light | `#51a2ff` | Adaptation Measures slice |
-
-#### Surface colors (Alert page white panel)
+### Surface colors
 | Value | Usage |
-|---|---|
-| `#ffffff` | White panel background |
-| `#f9fafb` | Subtle section backgrounds (Alert Overview card header, district footer) |
-| `#e5e7eb` | Panel borders |
-| `#d1d5dc` | Dividers inside panels, button borders |
-| `#99a1af` | Affections table bullet dots |
+|-------|-------|
+| `#f8f8f8` | Detail / planning screen backgrounds |
+| `white` | Cards within detail screens, active step card, plan text backgrounds |
+| `rgba(255,255,255,0.85)` | Glass info card in AssessCriticalZonesPage |
+| `rgba(255,255,255,0.9)` | Map tab pills |
+| `rgba(255,255,255,0.6)` | ActionCards (right side of card), Projected Impact card |
+| `rgba(0,0,0,0.8)` | Dark steps panel, "Confirm area mapping" / "Simulate response scenarios" buttons |
+| `#cfcccc` | Dividers inside detail-screen left column |
+| `rgba(0,0,0,0.1)` | Vertical dividers inside white cards |
 
-### Typography system
+### Glassmorphism levels (map screens only)
+| Class | Background opacity | Usage |
+|-------|--------------------|-------|
+| `.glass-30` | `rgba(255,255,255,0.30)` | Flood Depth Scale, Mode Selector |
+| `.glass-40` | `rgba(255,255,255,0.40)` | City Overview inner sub-card |
+| `.glass-53` | `rgba(255,255,255,0.53)` | Active mode tab |
+| `.glass-65` | `rgba(255,255,255,0.65)` | Live Monitoring main panel |
+| `.glass-80` | `rgba(255,255,255,0.80)` | Bottom Summary Bar |
 
-**Primary font stack:**
+All glass panels share `border: 1px solid rgba(255,255,255,0.2)`, `backdrop-filter: blur(12px)`, `border-radius: 16px`.
+
+---
+
+## G. Typography System
+
+### Font stack
 ```css
 font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
 ```
-On macOS: resolves to SF Pro Display (Apple system font, no embedding needed).
-On other platforms: falls back to Inter (loaded from Google Fonts in index.css).
+Inter is imported from Google Fonts as fallback.
 
-**Secondary (Time View only):**
+### Scale
+
+| Size | Weight | Color | Usage |
+|------|--------|-------|-------|
+| 8.8px | 700 | `#ea7836` | Step number in zone-circle badge |
+| 9px | 600/500 | `#101828` / `#505153` | Map marker mini-label |
+| 11px | 500 | `black` | "Review & Edit" link |
+| 12px | 600 / 500 | `#364153` / `#505153` | ActionCard label / description; map tab title/subtitle; legend text |
+| 13px | 400/600 | `#505153` / `#364153` | Body text in detail left column; Cost & Budget desc; implementation step text |
+| 14px | 600/400 | `black` / `black` | Projected Impact sub-labels ("When", "Action should begin within"), detail body |
+| 16px | 600/400 | `#364153` | Section subtitles in ResponsePlanningPage, chart labels |
+| 18px | 600/700 | `#364153` | Card section headers ("Action Plan Overview", "Problem Summary", "Cost & Budget", "Implementation Schedule") |
+| 24px | 500 | varies | Projected Impact large values ("12 month (May 2027)", "30 Days", "Harbor District") |
+| 26px | 600 | `#364153` | Page/screen title in detail header |
+| 30px | 500 | `black` | ActionCard main value (15km, 620, 75%) |
+
+### Letter spacing
+- Most text: `letterSpacing: '-0.44px'`
+- Card sub-headers (18px): `letterSpacing: '-0.31px'`
+- Detail body (13px): `letterSpacing: '-0.08px'`
+- Cost & Budget desc (13px): `letterSpacing: '0.06px'`
+
+### Line heights
+- 28px text → `lineHeight: '28px'`
+- 24px heading → `lineHeight: '24px'`
+- 18px text → `lineHeight: '19.5px'` or `'18px'`
+- 13px body → `lineHeight: '20.8px'` or `'20.15px'`
+- Steps in dark panel: `lineHeight: '1.3'`
+
+---
+
+## H. Header Patterns
+
+### Map-style header (`HomePageHeader` component)
+Used on S1, S2 only. Lives inside ScaledLayout.
+- Menu, Bell, Minus, Plus buttons (left side).
+- Search bar (center, frosted glass pill).
+- Protect button with dropdown (right).
+- Style: frosted-glass buttons (`bg-white/70 backdrop-blur-sm`), absolute `left-0 right-0 top-0 h-[70px]`.
+
+On S4 (AssessCriticalZonesPage), `HomePageHeader` is still used from inside ScaledLayout, plus a separate back button at `left: 32, top: 99` with **white** text "← Harbor District".
+
+### Detail / planning two-row header
+Used on S5–S10. Built inline (not a shared component). **Not inside ScaledLayout.**
+
+```
+Padding: paddingLeft 28px | paddingRight 70px | paddingTop 33px
+Row 1:  Menu (20px, color #364153)  +  Bell pill (38×38, bg rgba(247,247,247,0.8), border 1px solid rgba(255,255,255,0.2), borderRadius 100px, Bell size 20 color #364153)
+        gap between icons: 21px
+Row 2:  ArrowLeft (20px, color #364153, calls onBack)  +  Screen title (26px, fontWeight 600, color #364153, letterSpacing -0.44px, lineHeight 28px)
+        gap between elements: 19px
+marginTop between rows: 16px
+```
+
+Screen title examples:
+- `Assess Critical Zones- Costal Road Access`
+- `Response Planning`
+
+---
+
+## I. Card Styles
+
+### Glass info card (map screens — AssessCriticalZonesPage left panel)
+```
+background: rgba(255,255,255,0.85)
+border: 1px solid rgba(255,255,255,0.3)
+borderRadius: 16px
+box-shadow: glass-shadow
+position: absolute; left: 16; top: 138; width: 386; height: 778
+```
+Internal layout: absolute-positioned text blocks. Section dividers: `bg-[rgba(0,0,0,0.08)]`, 1px height, full width or with 13px side margins.
+
+### White detail card (right column in zone detail screens)
+```
+background: white
+borderRadius: 20px
+height: fixed (151px | 286px | 196px)
+```
+No border. Cards stack vertically with `gap: 30px`.
+
+### Projected Impact card (ResponsePlanningPage)
+```
+background: rgba(255,255,255,0.6)
+borderRadius: 30px
+height: 172px (collapsed) or 555px (expanded with chart)
+transition: height (no CSS transition — React re-render)
+```
+
+### Dark steps panel (ResponsePlanningPage)
+```
+background: rgba(0,0,0,0.8)
+borderRadius: 20px
+width: 542px; height: 523px
+padding: 26px 24px 0 23px
+```
+
+### ActionCard (ResponsePlanningPage)
+```
+width: 340px; height: 159px
+Left stripe: 40px wide, accent color, borderRadius 20px 0 0 20px
+Right content: 300px, bg rgba(255,255,255,0.6), borderRadius 0 20px 20px 0
+```
+Internal: label (12px/600), value (30px/500), description (12px/500), "Review & Edit" link (11px/500, borderBottom 1px solid black).
+
+### Horizontal image+text card (detail left column)
+```
+border: 1px solid #cfcccc
+borderRadius: 15px
+display: flex; overflow: hidden
+Left: image 325px wide, objectFit: cover
+Right: padding 20px 20px 20px 24px, 12px/700 title, 11px/400 description
+```
+
+### Map pill tab (zone tabs on map)
+Compact/collapsed state:
+```
+height: 45px; borderRadius: 100px (→ inset clip-path keeps only 45px visible)
+background: rgba(255,255,255,0.9)
+box-shadow: 0 2px 8px rgba(0,0,0,0.08)
+```
+Expanded/hover state:
+```
+borderRadius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); width: 280px
+Extra content: padding 16px, description + proposed response + "View full plan" link
+```
+Icon: `<img>` at 32×32, zone-specific SVG icon from `/icons/tab-*.svg`.
+Title: 12px/600/`#1e2939`. Subtitle: 12px/500/`#505153`. Gap between icon and text: 27px.
+
+---
+
+## J. Button Styles
+
+All buttons throughout the product use one of four styles:
+
+### 1. Dark filled pill (primary CTA)
+```
+height: 40px (or 37px in Assess)
+borderRadius: 100px
+background: rgba(0,0,0,0.8) or rgba(16,24,40,0.9)
+border: none
+color: white
+fontSize: 16px (or 14px); fontWeight: 500; letterSpacing: -0.44px
+```
+Examples: "Approve area plan", "Confirm area mapping", "Simulate response scenarios" (active).
+
+### 2. Outlined pill (secondary)
+```
+height: 40px
+borderRadius: 100px
+background: transparent
+border: 1px solid #323232 (or rgba(0,0,0,0.8) for lighter variant)
+color: #323232
+fontSize: 16px; fontWeight: 500; letterSpacing: -0.44px
+```
+Examples: "Edit plan", "Impact Timeline ↓".
+
+### 3. Dimmed CTA (disabled state)
+Same as dark filled pill but:
+```
+background: rgba(16,24,40,0.3)
+cursor: default
+onClick: undefined
+```
+Example: "Simulate response scenarios" before all zones approved.
+
+### 4. Dark CTA small (glass panel)
+```
+height: 37px; width: 313px
+borderRadius: 14px
+background: rgba(16,24,40,0.9) or 0.3 (disabled)
+```
+Lives inside the AssessCriticalZonesPage left panel.
+
+### Transition behavior
+When a button transitions from disabled → active:
 ```css
-font-family: 'SF Compact', system-ui, 'Inter', sans-serif;
+transition: background 0.3s ease
 ```
 
-**Inter** is imported via Google Fonts in `src/index.css`.
+---
 
-#### Font sizes
-| Size | Usage |
-|---|---|
-| 10px | Bell "Alerts" label |
-| 12px | Captions, stat sublabels, badge text, Flood Depth Scale labels |
-| 13px | New Alert Card headline |
-| 14px | Body text, nav labels, status bar sublabels |
-| 16px | Medium headings, Alert page metric values |
-| 18px | Section headings (Live Monitoring, City Overview), Alert page sub-headings |
-| 20px | City status text "Moderate", Alert page title |
-| 22px | Budget total ($70M) |
-| 24px | Bottom bar stat values (MODERATE risk level in text, Affected Districts) |
-| 25px | Alert Overview large metrics (+0.20m, 18-24, 5-7) |
-| 30px | Bottom bar large stat numbers (Affected Districts "12 / 28") |
+## K. Zone Icon System
 
-#### Font weights
-| Value | CSS / Tailwind | Usage |
-|---|---|---|
-| 400 | `font-normal` | Body text, sublabels |
-| 500 | `font-medium` | Nav labels, panel labels, stat sub-labels |
-| 600 | `font-semibold` | Time/status bar primary values, district names |
-| 700 | `font-bold` | Main stat numbers, section headings, risk level label |
+### In the Assess Critical Zones left-panel list (inline SVG)
+All five zone icons are rendered as **inline SVG** (not `<img>`), enabling dynamic color changes via React state:
 
-#### Line heights
-The design uses tight line heights:
-- 16px text → `leading-[16px]` (1:1)
-- 20px text → `leading-[20px]` or `leading-[21px]`
-- 28px text → `leading-[28px]`
-- 30px text → `leading-[30px]`
-- 40px (large stats) → `leading-[40px]`
-
-#### Letter spacing
-- Status bar time/city: `tracking-[-0.15px]`
-- Panel headings: `tracking-[-0.44px]`
-- Bottom bar risk level: `tracking-[0.4px]` (wide, uppercase style)
-- Alert page stats: `tracking-[0.37px]`
-
-### Spacing scale
-Gaps and padding values extracted from Figma:
+```tsx
+<svg viewBox="0 0 24 24" width={24} height={24} fill="none">
+  <rect
+    width="24" height="24" rx="12"
+    style={{ fill: isApproved ? ZONE_ACCENT[label] : '#C6C7C8', transition: 'fill 0.3s ease' }}
+  />
+  <path d={svgPath} fill="white" />
+</svg>
 ```
-3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 21, 22, 24, 25, 28, 31, 32, 64
+
+- Default circle color: `#C6C7C8` (gray)
+- Approved circle color: zone accent (orange, yellow, rose, blue, green)
+- White icon path sits on top of the circle
+- Transition: `fill 0.3s ease` on the `<rect>`
+
+### In map tabs
+Zone tabs use `<img src="/icons/tab-*.svg">` at 32×32px. Icon has colored circle baked into the SVG (not dynamic).
+
+### In detail screen map overlay
+Each detail screen shows a circular icon in the map area: small pill (bg white 90%, borderRadius 9999px, padding 4px 10px 4px 4px) with `<img>` icon 27×27 + mini title (9px/600/`#101828`) and subtitle (9px/500/`#505153`).
+
+---
+
+## L. Map Connector (Line + Dot)
+
+Between a zone tab and its anchor point on the map:
 ```
-Common patterns:
-- Panel outer padding: `px-[9px] py-[4px]` (scale legend) or `px-[13px]` (mode tab)
-- Panel inner padding: `px-[15px] py-[7px]` (stats table) or `px-[25px]` (Alert cards)
-- Gap between major panel sections: `gap-[21px]`
-- Gap between stat rows: `gap-[10px]`
-- Gap between icon and label: `gap-[8px]` or `gap-[12px]`
+Vertical line: width 2px, height 33px, background rgba(255,255,255,0.9), transformOrigin: bottom center
+Dot: width 8px, height 8px, borderRadius 50%, background rgba(255,255,255,0.9), flexShrink 0
+```
+Entrance animations (first visit only, skipped on return):
+- Line: `lineGrow 0.25s ease-out {lineDelay} both` — `scaleY(0→1)`
+- Dot: `dotPop 0.15s ease-out {dotDelay} both` — `scale(0.3→1), opacity(0→1)`
+- Stagger: `base = i × 0.3s`, dotDelay = base, lineDelay = base+0.15s
 
-### Border radius scale
-| Class | Value | Usage |
-|---|---|---|
-| `rounded-sm` (custom) | 10px | Metric boxes, district rows, nav buttons |
-| `rounded-md` (custom) | 14px | Alert page card containers |
-| `rounded-lg` (custom) | 16px | All glass panels, sub-cards |
-| `rounded-pill` (custom) | 46px | Mode Selector outer pill |
-| `rounded-full` | 9999px | Dots, badges, live pulse |
-| `rounded-[4px]` | 4px | Flood depth gradient bar |
+---
 
-These custom values are defined in `tailwind.config.js` under `theme.extend.borderRadius`.
+## M. Map Tab Hover / Expand Behavior
 
-### Shadows
+Single element with `clip-path: inset()` doing double duty (compact pill ↔ expanded card):
+
+```
+Compact:  clip-path: inset(0 0 calc(100%-45px) 0 round 100px)  ← downward tab
+          clip-path: inset(calc(100%-45px) 0 0 0 round 100px)  ← upward tab
+Expanded: clip-path: inset(0 0 0 0 round 16px)
+```
+
+Upward tabs (bottom-heavy tabs: Residential Edge, Increase pump capacity, Vulnerable Residents):
+- Anchored by `bottom: 1008 - tab.top - 45` within ScaledLayout
+- Content renders: `extraContent` above `pillRow`
+
+Downward tabs (top-heavy tabs: Costal Road Access, Electric Utility Point):
+- Anchored by `top: tab.top`
+- Content renders: `pillRow` above `extraContent`
+
+Width expands from tab-specific width to 280px on hover.
+
+Transition:
 ```css
-/* Main glass panels */
-.glass-shadow { box-shadow: 0px 4px 6px 0px rgba(0,0,0,0.1), 0px 10px 15px 0px rgba(0,0,0,0.1); }
-
-/* Mode selector / smaller panels */
-.glass-shadow-sm { box-shadow: 0px 4px 6px -4px rgba(0,0,0,0.1), 0px 10px 15px -3px rgba(0,0,0,0.1); }
-
-/* Stats table subtle inner shadow */
-filter: drop-shadow(0px -3px 8.1px rgba(0,0,0,0.03));
+clip-path 0.3s ease-out, width 0.3s ease-out, box-shadow 0.2s
 ```
 
-### Flood depth gradient
-```css
-.flood-gradient {
-  background: linear-gradient(90deg,
-    #87d6ce 0%,   /* teal — shallow/low depth */
-    #4e97d3 25%,  /* blue */
-    #f9b778 50%,  /* amber */
-    #c93232 75%,  /* red */
-    #680d0d 100%  /* dark red — very high depth */
-  );
-}
+Hover event uses a 120ms hide timer to prevent flickering when moving between pill and card.
+
+---
+
+## N. Detail Screen Left Column Patterns
+
+### Map image + marker
+```
+<img> height: 341px, borderRadius: 20px 20px 0 0, objectFit: cover
+Marker: position absolute, bottom: 30, left: varies
+  Pill: bg rgba(255,255,255,0.9), borderRadius 9999px, padding 4px 10px 4px 4px
+    Icon img 27×27 + title 9px/600 + subtitle 9px/500
+  Connector line: width 1px, height 24px, bg rgba(255,255,255,0.7), marginLeft 18
+  Anchor dot: 8×8, borderRadius 50%, bg rgba(255,255,255,0.7), marginLeft 14
 ```
 
-### Icons
-- **Library:** `lucide-react` (v0.x, whatever version npm installs)
-- **Stroke width:** `1.5` for all icons (matches Figma style)
-- **Sizes:** 14px, 16px, 20px, 24px, 48px (warning icon on Alert page)
-- **Colors:** Match surrounding text color (`text-[#505153]` for dim icons, `text-black` for primary)
-- **Style:** Line icons only, no fill (except `TriangleAlert` which uses partial fill for emphasis)
-- **Custom SVG icons:** `ModeSelector` uses three inline SVG components (`ProtectIcon`, `AdaptIcon`, `RetreatIcon`) — flat rhombus (isometric top-view layer) shapes stacked 1×, 2×, 3×. These are not from lucide-react; they match the reference image exactly. `viewBox="0 0 24 24"`, `strokeWidth="1.5"`, `fill="none"`, `stroke="currentColor"`.
-
-### Buttons
-| Type | Style | Example |
-|---|---|---|
-| Dark CTA | `bg-[rgba(16,24,40,0.80)]`, `h-[37px]`, `rounded-md`, white text | "View full analysis →" |
-| Bordered | `border border-[#d1d5dc]`, `h-[33px]`, `rounded-sm`, hover bg | "See Detailed Breakdown" |
-| Nav icon | `px-[16px] py-[8px]`, `rounded-sm`, icon + label | Bottom navigation tabs |
-
-### Cards
-| Type | Background | Border | Radius |
-|---|---|---|---|
-| Glass panel | `glass-65` or `glass-80` | `rgba(255,255,255,0.2)` | 16px |
-| Inner sub-card | `glass-40` | `#e9e9e9` | 16px |
-| Alert Overview | `#f9fafb` | `#e5e7eb` | 16px |
-| White panel | `white` | `#e5e7eb` | 14px |
-| Metric mini-card | `white` | `#f0f0f0` subtle | 10px |
-| District row | Color-bg + 4px left border | — | 10px |
-
-### Data visualization
-**Donut chart (BudgetCard):**
-- SVG `<circle>` with `stroke-dasharray` for segments
-- Outer radius: 60px, stroke width: 18px
-- Protection: `#155dfc` (dark blue), ~40% of circumference
-- Adaptation: `#51a2ff` (light blue), ~60% of circumference
-- Total label centered in the ring: `$70M`, bold 20px
-
-**Timeline scrubber (TimeView):**
-- Horizontal line: 2px height, `rgba(255,255,255,0.4)`, full width
-- Active marker: 8px yellow dot (`#ffae00`), left-anchored (= "Today")
-
-**Flood risk badges:**
-- Pills: `border-radius: full`, `padding: 4px 8px`, white text on risk color background
-- High Risk: `#d53c4b` bg
-- Medium: `#f54900` bg
-- Low: `#519bd3` bg
-
----
-
-## F. Component Architecture
-
-### `ScaledLayout`
-- **File:** `src/components/layout/ScaledLayout.tsx`
-- **Purpose:** Wraps Screen 1 and Screen 2 content. Scales the 1512×1008 design canvas to fit the actual browser viewport using `transform: scale()`.
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** `children: ReactNode`, `className?: string`
-- **Internal:** Listens to `window.resize`, computes `scale = Math.min(1.0, vw/1512, vh/1008)`, applies it via `style.transform`.
-- **Design constants:** `DESIGN_W = 1512`, `DESIGN_H = 1008` — do not change without re-verifying all absolute positions.
-- **Reusability:** Only for screens that use the full-canvas absolute layout. Do NOT use on Screen 3.
-
----
-
-### `TopStatusBar`
-- **File:** `src/components/shared/TopStatusBar.tsx`
-- **Purpose:** Top-right status block: time, city status, bell icon, hamburger menu.
-- **Used by:** `HomePage`, `HomePageAlert`, `AlertPage` (inline in AlertPage)
-- **Props:** `showBadge?: boolean`, `dark?: boolean`
-- **Key detail:** `showBadge=true` shows a red dot on the bell icon (used on S2 and S3).
-- **Position (S1/S2):** `absolute top-[29px] right-[21px]` — **viewport-relative**, outside `ScaledLayout`. Sits flush against the viewport right edge at all scale factors.
-- **Position (S3):** `absolute top-[29px] right-[21px]` within the white panel (not ScaledLayout).
-- **Dividers:** `w-px h-[37px]` in dark or glass color.
-
----
-
-### `FloodDepthScale`
-- **File:** `src/components/shared/FloodDepthScale.tsx`
-- **Purpose:** Top-left legend showing flood depth color ramp.
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** None
-- **Position:** `absolute left-[21px] top-[25px] w-[326px] h-[65px]`
-- **Key visual:** `.flood-gradient` CSS class for the color bar, `.glass-30` background.
-
----
-
-### `ModeSelector`
-- **File:** `src/components/shared/ModeSelector.tsx`
-- **Purpose:** Top-center pill selector for Protect / Adapt / Retreat mode.
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** `active?: Mode` (defaults to `'Protect'`)
-- **Position:** `absolute left-1/2 -translate-x-1/2 top-[25px]` — **viewport-relative**, outside `ScaledLayout`. `left-1/2` resolves to the viewport center, keeping it visually balanced between FloodDepthScale (left) and TopStatusBar (right) at all scale factors.
-- **Active tab:** `.glass-53` background on the active tab.
-- **Icons:** Custom inline SVG components — `ProtectIcon` (1 rhombus layer), `AdaptIcon` (2 stacked), `RetreatIcon` (3 stacked). Each uses `viewBox="0 0 24 24"`, `width={18}`, `strokeWidth={1.5}`, `stroke="currentColor"`, no fill. Wrapped in a `div` with `opacity-70` to match reference. Lucide `Layers2`/`Layers`/`Layers3` are no longer used.
-
----
-
-### `LiveMonitoringPanel`
-- **File:** `src/components/dashboard/LiveMonitoringPanel.tsx`
-- **Purpose:** Main left glass panel. Contains the Live Monitoring header, City Overview title, status sub-card, stats table, and CTA button.
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** None (all content from `mockData.ts`)
-- **Position:** `absolute left-[21px] top-[119px] w-[326px]`
-- **Approximate height:** ~488px (ends at design-space y ≈ 607px)
-- **Internal sections:**
-  1. Live Monitoring header (`Radio` lucide icon + "Live" green dot)
-  2. Horizontal divider
-  3. "City Overview" heading
-  4. City status sub-card (glass-40, `h-[139px]`): yellow dot, "Moderate", description
-  5. Stats table: Sea Level / Wave Activity / Vulnerable Districts / Tide rows
-  6. "View full analysis →" dark button
-- **Reusability:** Refactor into sub-components if stats become dynamic.
-
----
-
-### `TimeView`
-- **File:** `src/components/dashboard/TimeView.tsx`
-- **Purpose:** Shows the temporal projection selector (Today → 2090).
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** None
-- **Position:** `absolute left-[20px] top-[754px] w-[317px]`
-- **Design:** White text on transparent background, semi-opaque scrubber line, yellow marker dot.
-- **Note:** Not yet interactive. Future: clicking a year changes the projected data shown.
-
----
-
-### `BottomSummaryBar`
-- **File:** `src/components/dashboard/BottomSummaryBar.tsx`
-- **Purpose:** Full-width glass bar at the bottom. Left: 4 stat blocks (Risk Level, Affected Districts, Population at Risk, Active Alerts). Right: 5 navigation icon buttons.
-- **Used by:** `HomePage`, `HomePageAlert`
-- **Props:** None (content from `mockData.ts`)
-- **Position:** `absolute bottom-0 left-0 right-0 h-[138px]` — viewport-relative, NOT inside ScaledLayout. Always spans 100% viewport width regardless of canvas scale.
-- **Background:** `.glass-80` (most opaque glass)
-- **Padding:** `px-[40px]`
-- **Stats:** Risk Level text in `#ffae00`, Districts change indicator in `#fb2c36`, Active Alerts link in `#51a2ff`
-- **Navigation:** `lucide-react` icons: `LayoutDashboard`, `GitBranch`, `ArrowLeftRight`, `FileText`, `Share2`
-
----
-
-### `NewAlertCard`
-- **File:** `src/components/dashboard/NewAlertCard.tsx`
-- **Purpose:** Red alert card shown on S2. Clickable CTA to navigate to S3.
-- **Used by:** `HomePageAlert` only
-- **Props:** `onClick: () => void`
-- **Position:** `absolute left-[21px] top-[620px] w-[326px]` — sits 13px below the LiveMonitoringPanel bottom (≈607px).
-- **Background:** `rgba(180, 30, 40, 0.92)` with `backdrop-filter: blur(8px)`
-- **Animation:** `.alert-card-enter` (fadeInUp 0.5s ease)
-- **Structure:** Left: "New Alert" headline + body text. Right: circle arrow button.
-- **Gap from TimeView:** Card ends ≈ 688px; TimeView starts at 754px → 66px gap (no overlap).
-
----
-
-### `HomePage`
-- **File:** `src/screens/HomePage.tsx`
-- **Purpose:** Composes all S1 components. Canvas-space panels inside `ScaledLayout`; viewport-level elements as siblings.
-- **Props:** None
-- **Renders (Fragment):**
-  - `<ScaledLayout className="screen-enter">` → `FloodDepthScale`, `LiveMonitoringPanel`, `TimeView`
-  - `<ModeSelector />` (viewport-level sibling)
-  - `<TopStatusBar />` (viewport-level sibling)
-  - `<BottomSummaryBar />` (viewport-level sibling)
-- **Animation:** `className="screen-enter"` on ScaledLayout
-
----
-
-### `HomePageAlert`
-- **File:** `src/screens/HomePageAlert.tsx`
-- **Purpose:** Composes all S2 components. Same structure as `HomePage` but adds `NewAlertCard` inside ScaledLayout and `showBadge` on the bell.
-- **Props:** `onAlertClick: () => void`
-- **Renders (Fragment):**
-  - `<ScaledLayout className="screen-enter">` → `FloodDepthScale`, `LiveMonitoringPanel`, `NewAlertCard`, `TimeView`
-  - `<ModeSelector />` (viewport-level sibling)
-  - `<TopStatusBar showBadge />` (viewport-level sibling)
-  - `<BottomSummaryBar />` (viewport-level sibling)
-
----
-
-### `AlertPage`
-- **File:** `src/screens/AlertPage.tsx`
-- **Purpose:** Full-page detail view for the alert. Uses its own internal white panel layout (NOT ScaledLayout).
-- **Props:** `onBack: () => void`
-- **Layout:** `<div className="absolute inset-[20px] rounded-lg overflow-y-auto">` — the white panel fills the viewport with 20px margins on all sides.
-- **IMPORTANT:** Do not add ScaledLayout to this screen. It has its own internal layout strategy.
-- **Internal positioning:** All Alert sub-components use absolute positioning relative to the white panel container.
-- **Scroll:** The white panel is `overflow-y: auto`, allowing scroll on short screens.
-
----
-
-### `AlertOverviewCard`
-- **File:** `src/components/alert/AlertOverviewCard.tsx`
-- **Purpose:** 3-column stats card at the top of the Alert page (Sea Level Rise / First Expected Impact / With Action).
-- **Position:** `absolute left-[86px] top-[153px] w-[813px] h-[144px]`
-- **Data from:** `mockData.alertOverview`
-- **Colors:** Sea Level in `#519bd3`, First Impact in `#d53c4b`, With Action in `#00a63e`
-
----
-
-### `StrategyCard`
-- **File:** `src/components/alert/StrategyCard.tsx`
-- **Purpose:** Strategy description + 4 metric boxes + key components checklist.
-- **Renders:** Multiple `absolute` blocks (header at 334px, description at 385px, metrics at 443px, key components label at 524px, left list at 553px, right list at 553px col2, compare link at 645px)
-- **Data from:** `mockData.strategy`
-- **Icon:** `ShieldCheck` from lucide-react in blue `#519bd3` badge
-
----
-
-### `DistrictRiskList`
-- **File:** `src/components/alert/DistrictRiskList.tsx`
-- **Purpose:** Right-column card listing 4 districts with risk-colored rows.
-- **Position:** `absolute right-[21px] top-[153px] w-[531px] h-[446px]`
-- **Data from:** `mockData.districts` (4 items)
-- **Risk color map:** red/orange/blue for high/medium/low (bg color, left border, badge bg)
-
----
-
-### `BudgetCard`
-- **File:** `src/components/alert/BudgetCard.tsx`
-- **Purpose:** Budget donut chart + breakdown. Right column, below DistrictRiskList.
-- **Position:** `absolute, left: 930px, top: 669px, w: 533px, h: 276px`
-- **Donut:** SVG `<circle>` with `stroke-dasharray` segments (protection 40%, adaptation 60%)
-- **Data from:** `mockData.budget`
-
----
-
-### `AffectionsTable`
-- **File:** `src/components/alert/AffectionsTable.tsx`
-- **Purpose:** 2-column table: Infrastructure items (left) and Population items (right).
-- **Position:** `absolute, left: 86px, top: 690px, w: 816px, h: 255px`
-- **Data from:** `mockData.affectionsInfrastructure`, `mockData.affectionsPopulation`
-
----
-
-## G. Code Architecture
-
-### Project stack
-| Tool | Version | Purpose |
-|---|---|---|
-| Vite | 8.x | Build tool, dev server |
-| React | 19.x | UI framework |
-| TypeScript | 5.x | Type safety |
-| Tailwind CSS | 3.x | Utility-first styling |
-| lucide-react | latest | Icon library |
-
-### Folder structure
+### White action plan card
+Immediately below map image, shares border-radius continuation:
 ```
-flood-dashboard/
-├── public/
-│   └── coastal-background.png      ← background image (served as /coastal-background.png)
-├── src/
-│   ├── App.tsx                      ← screen state machine + 10s timer
-│   ├── main.tsx                     ← React root mount
-│   ├── index.css                    ← Google Fonts import, Tailwind directives, utility classes
-│   ├── mockData.ts                  ← all static content (text, numbers, lists)
-│   ├── components/
-│   │   ├── layout/
-│   │   │   └── ScaledLayout.tsx     ← viewport scaling wrapper (S1, S2 only)
-│   │   ├── shared/
-│   │   │   ├── TopStatusBar.tsx
-│   │   │   ├── FloodDepthScale.tsx
-│   │   │   └── ModeSelector.tsx
-│   │   ├── dashboard/
-│   │   │   ├── LiveMonitoringPanel.tsx
-│   │   │   ├── TimeView.tsx
-│   │   │   ├── BottomSummaryBar.tsx
-│   │   │   └── NewAlertCard.tsx
-│   │   └── alert/
-│   │       ├── AlertOverviewCard.tsx
-│   │       ├── StrategyCard.tsx
-│   │       ├── DistrictRiskList.tsx
-│   │       ├── BudgetCard.tsx
-│   │       └── AffectionsTable.tsx
-│   └── screens/
-│       ├── HomePage.tsx
-│       ├── HomePageAlert.tsx
-│       └── AlertPage.tsx
-├── tailwind.config.js
-├── vite.config.ts
-├── tsconfig.json
-└── package.json
+background: white
+borderRadius: 0 0 20px 20px
+padding: 20px 24px 24px 24px
 ```
 
-### State management
-`App.tsx` owns the single piece of app state:
+### Section structure inside action plan card
+```
+Section title:  18px / fontWeight 600 / color #364153 / letterSpacing -0.31px / lineHeight 24px
+Body text:      13px / fontWeight 400 / color #505153 / lineHeight 20.8px / letterSpacing -0.08px
+Divider:        borderTop: 1px solid #cfcccc; marginTop: 20px
+Gap title→body: marginTop 8px
+Gap divider→next title: marginTop 20px
+```
+
+### Implementation step numbering
+```
+Circle: width 16, height 16, borderRadius 50%, background rgba(ACCENT,0.2)
+Number: 8.8px / fontWeight 700 / color ACCENT / letterSpacing 0.18px
+Step text: bold label (fontWeight 600, color #364153) + regular desc (fontWeight 400, color #505153)
+Gap between steps: 10px; list marginTop: 10px
+```
+
+---
+
+## O. Detail Screen Right Column Patterns
+
+### Problem Summary card
+```
+height: 151px
+flex row: [text block] [1px divider] [RiskGauge 100×82]
+Text: 18px/600 title + 13px/400 description (maxWidth ~359px)
+Divider: width 1px, height 91px, background rgba(0,0,0,0.1)
+```
+
+### Cost & Budget card
+```
+height: 286px
+DonutChart (186×186) + legend
+DonutChart: 3 segments using orange palette (zone-specific), r=55, strokeWidth=30
+Legend: 17×17 colored circles + text (13px/400 desc + fontWeight 600 value), gap 17px
+Donut center: 20px/700 total value
+```
+
+### Implementation Schedule card
+```
+height: 196px; padding 43px horizontal
+Vertical connecting line: position absolute, left 10px, top 10px, width 1.5px, height 116px, color #364153
+Nodes: 20×20, borderRadius 50%, border 1.5px solid #364153, bg white (empty circles)
+Item gap: 38px
+Label: 14px / color #505153
+Value: fontWeight 700 / color #364153
+```
+
+### Right column button pair
+```
+marginTop: 55px; display flex; gap 30px; justifyContent: center
+Edit plan (outlined): width 233px, height 40px, border 1px solid #323232, borderRadius 100px, Pencil icon 16px
+Approve area plan (filled): width 233px, height 40px, background #323232, borderRadius 100px, color #f8f8f8
+```
+
+---
+
+## P. Inline Editing Behavior
+
+When "Edit plan" is active (`isEditing = true`), all plan text blocks receive:
+```tsx
+contentEditable={isEditing}
+suppressContentEditableWarning
+style={isEditing ? {
+  outline: '1.5px dashed rgba(0,0,0,0.18)',
+  borderRadius: 4,
+  padding: '2px 4px',
+  cursor: 'text',
+} : {}}
+```
+Button label toggles: `isEditing ? 'Done' : 'Edit plan'`
+
+---
+
+## Q. Response Planning Screen Patterns
+
+### Projected Impact card (collapsible)
+- Header row: "Projected Impact" title + "When" column (red = no intervention, green = with intervention) + two stat columns + "Impact Timeline" toggle button.
+- Toggle button position: `absolute right: 49, top: 74` within the card.
+- Expands to include `ImpactTimelineChart` SVG (animated draw, red line = without protection, green line = with).
+- `isTimelineOpen` bool controls `height` between `172px` and `555px`.
+
+### Dark steps panel
+Active step (currently step 1):
+```
+height: 67px; background: white; border: 1px solid rgba(0,0,0,0.1); borderRadius: 20px
+Number: 18px/600/black; Title: 18px/600/black; Subtitle: 16px/400/black
+padding: 0 16px; gap: 17px
+```
+Inactive steps (2–5):
+```
+height: 67px; color: white; no background
+paddingLeft: 13px; paddingRight: 32px; gap: 17px
+Number: 18px/600; Title: 18px/600; Sub: 16px/400
+```
+All steps gap: 34px.
+
+### ActionCard component
+```tsx
+// Left stripe: accent color, 40×159, borderRadius 20px 0 0 20px
+// Right: 300×159, bg rgba(255,255,255,0.6), borderRadius 0 20px 20px 0
+Label: 12px/600/#364153; letterSpacing -0.44px
+Value: 30px/500/black; letterSpacing -0.44px; lineHeight 21px
+Desc: 12px/500/#505153; letterSpacing -0.44px; lineHeight 21px
+"Review & Edit": 11px/500/black; borderBottom: 1px solid black; height 23px
+```
+
+### Layout proportions (bottom section)
+Dark steps panel (542px) + flexGrow:62 spacer + left cards column + flexGrow:88 spacer + right cards column.
+Left cards: 3 ActionCards, gap 22px. Right cards: 2 ActionCards, gap 22px.
+
+---
+
+## R. Spacing Reference
+
+All critical spacing values observed across screens:
+
+| Value | Usage |
+|-------|-------|
+| 4px | padding: 2px 4px edit mode |
+| 8px | icon→text gap in small contexts |
+| 9px | "Review & Edit" link height internal |
+| 10px | step gap in left column, stat row gaps |
+| 13px | map card side padding; spacing reference |
+| 15px | zone list icon→label gap in Assess panel |
+| 16px | marginTop between header rows; detail body-to-next-section |
+| 17px | gap between step number and step content |
+| 19px | gap between ArrowLeft and title in header |
+| 20px | gap between zone list items; detail section padding |
+| 21px | gap between Menu and Bell in header |
+| 22px | ActionCard vertical gap |
+| 24px | left-column card inner padding |
+| 28px | header paddingLeft |
+| 30px | right-column card vertical gap; between button pair |
+| 33px | header paddingTop |
+| 34px | steps gap in dark panel |
+| 38px | implementation schedule node gap |
+| 42px | left-right column gap in detail screen body |
+| 43px | section title marginTop in ResponsePlanning |
+| 45px | map tab pill height |
+| 55px | bottom buttons marginTop in detail right column |
+| 62/88 | flexGrow ratio spacers in ResponsePlanning |
+| 66px | header paddingLeft in left column inner card |
+| 70px | header paddingRight; body left/right padding |
+
+---
+
+## S. Animation Inventory
+
+### Screen entrance
+`.screen-enter` — `@keyframes fadeIn { from opacity:0; to opacity:1 }` — 0.4s ease.
+
+### Map tab entrance (first visit to AssessCriticalZonesPage)
+- Downward tab: `pillEnterDown 0.3s ease-out {delay} both` — clip-path from right-hidden pill to visible pill.
+- Upward tab: `pillEnterUp 0.3s ease-out {delay} both`.
+- Line: `lineGrow 0.25s ease-out {delay} both` — `scaleY(0→1)` from bottom center.
+- Dot: `dotPop 0.15s ease-out {delay} both` — `scale(0.3→1)`.
+- Skip on return visits (`skipAnimation` prop = `assessVisited.current`).
+
+### Map tab expand/collapse
+`clip-path 0.3s ease-out, width 0.3s ease-out, box-shadow 0.2s`
+
+### Zone icon circle color on approval
+`transition: 'fill 0.3s ease'` on SVG `<rect>`.
+
+### Button opacity on all-zones-approved
+`transition: 'background 0.3s ease'`
+
+### ImpactTimeline chart line draw
+`@keyframes drawLine { from: strokeDashoffset:1; to: strokeDashoffset:0 }` — 0.7s ease-out, red line starts, green line starts at 0.1s delay.
+
+### Alert card entrance
+`.alert-card-enter` — `@keyframes fadeInUp` — 0.5s ease.
+
+### Live monitoring pulse dot
+`.live-pulse` — `@keyframes pulse-dot`.
+
+### Bell notification badge
+No animation (static red dot).
+
+---
+
+## T. Data Visualization Patterns
+
+### Risk Gauge (CoastalRoadAccessPage right panel)
+SVG `viewBox="0 0 100 82"`, arc from 215° to 145° (290° span), `fillPct = score/10`.
+- Track: `stroke #e5e7eb, strokeWidth 7, strokeLinecap round`
+- Fill: `stroke #0b1f3a, strokeWidth 7, strokeLinecap round`
+- Score text: 19px bold `#0b1f3a`
+- Label: 6.5px `#6b778a`
+
+### Donut Chart (CoastalRoadAccessPage)
+- 3 segments: 20% `#F5D4A0`, 30% `#F5A06E`, 50% `#E87840` — orange palette
+- `r=55, strokeWidth=30, cx=cy=93, viewBox 0 0 186 186`
+- Center label: 20px/700 `#323232`
+- Track: `stroke #f3f4f6`
+- Percentage labels: 12px/600/`#364153`
+
+### ImpactTimelineChart (ResponsePlanningPage)
+- Red line (without protection): rises steeply from Moderate → High
+- Green line (with protection): stays near Moderate, slight rise
+- SVG viewBox 0 0 1190 200, years Today→2090 on X axis, High/Moderate/Low on Y
+- Grid lines: dashed `stroke rgba(0,0,0,0.12) strokeDasharray 5,4`
+- Data point dots: r=6, fill `#1a1a1a`
+
+### Budget donut (AlertPage)
+- 2 segments: Protection `#155dfc`, Adaptation `#51a2ff`
+- SVG circles with `stroke-dasharray`
+
+---
+
+## U. Product Writing Tone
+
+- **Concise, factual, action-oriented.** Every sentence delivers specific information.
+- **No hedging language.** "Will" not "may"; "requires" not "might need".
+- **Data-forward.** Numbers come first or early: "15km", "620 residents", "75%".
+- **Zone labels are noun-first:** "Costal Road Access", "Electric Utility Point", "Residential Edge Blocks", "Increase pump capacity", "Vulnerable Residents".
+- **Section headers are nouns:** "Action Plan Overview", "Implementation Steps", "Problem Summary", "Implementation Approach".
+- **Step labels are verb-first:** "Raise Low Road Segments:", "Upgrade Drainage Capacity and Outfalls:", "Reinforce Shoreline Edge Protection:".
+- **Status phrases are declarative:** "Potential disruption", "Changing the defense system", "Higher exposure", "Back-flow risk", "Support planning needed".
+- **Proposed responses are short imperative clauses:** "Elevate low road segments", "Raise electrical cabinets and add protected power points."
+
+---
+
+## V. Interaction Rules
+
+1. **Back navigation always uses `onBack` prop.** Never hardcode screen names in a screen component.
+2. **Zone detail screens can be entered from two places** (AssessCriticalZonesPage or ResponsePlanningPage). `detailReturnScreen` in App.tsx determines where `onBack` goes.
+3. **"Approve area plan" adds the zone to `approvedZones` array and navigates back.** `handleApproveZone(zoneName)` in App.tsx.
+4. **"Simulate response scenarios" button is disabled** until `ZONE_LIST.every(z => approvedZones.includes(z.label))`.
+5. **Zone icon circles in Assess panel turn to accent color on approval.** Transition `fill 0.3s ease`.
+6. **AssessCriticalZonesPage entrance animation plays only on first visit.** `assessVisited = useRef(false)` persists across re-mounts. Pass `skipAnimation={assessVisited.current}`.
+7. **Hover on map tab expands it** via clip-path + width transition. 120ms delay before collapse (prevents flicker).
+8. **"Edit plan" toggles contentEditable** on all plan text. Button label changes to "Done".
+9. **"Impact Timeline" expands the Projected Impact card** and draws the SVG chart lines.
+
+---
+
+## W. Component Architecture
+
+### Shared layout components
+| Component | Path | Used by |
+|-----------|------|---------|
+| `ScaledLayout` | `components/layout/ScaledLayout.tsx` | S1, S2, S4 |
+| `HomePageHeader` | `components/shared/HomePageHeader.tsx` | S1, S2, S4 |
+| `TopStatusBar` | `components/shared/TopStatusBar.tsx` | S1, S2 |
+| `ModeSelector` | `components/shared/ModeSelector.tsx` | S1, S2 |
+| `FloodDepthScale` | `components/shared/FloodDepthScale.tsx` | S1, S2 |
+| `BottomSummaryBar` | `components/dashboard/BottomSummaryBar.tsx` | S1, S2 |
+| `LiveMonitoringPanel` | `components/dashboard/LiveMonitoringPanel.tsx` | S1, S2 |
+| `TimeView` | `components/dashboard/TimeView.tsx` | S1, S2 |
+| `NewAlertCard` | `components/dashboard/NewAlertCard.tsx` | S2 only |
+
+### Screens
+| Screen | Path | Type |
+|--------|------|------|
+| `HomePage` | `screens/HomePage.tsx` | Map canvas |
+| `HomePageAlert` | `screens/HomePageAlert.tsx` | Map canvas |
+| `AlertPage` | `screens/AlertPage.tsx` | White panel |
+| `AssessCriticalZonesPage` | `screens/AssessCriticalZonesPage.tsx` | Map + glass card |
+| `CoastalRoadAccessPage` | `screens/CoastalRoadAccessPage.tsx` | Detail screen |
+| `VulnerableResidentsPage` | `screens/VulnerableResidentsPage.tsx` | Detail screen |
+| `ElectricUtilityPage` | `screens/ElectricUtilityPage.tsx` | Detail screen |
+| `ResidentialEdgePage` | `screens/ResidentialEdgePage.tsx` | Detail screen |
+| `PumpCapacityPage` | `screens/PumpCapacityPage.tsx` | Detail screen |
+| `ResponsePlanningPage` | `screens/ResponsePlanningPage.tsx` | Planning screen |
+
+---
+
+## X. State Management
+
+`App.tsx` owns all state:
 ```typescript
-type Screen = 'home' | 'home-alert' | 'alert';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones'
+            | 'planning' | 'coastal-road' | 'vulnerable-residents'
+            | 'electric-utility' | 'residential-edge' | 'pump-capacity';
+
 const [screen, setScreen] = useState<Screen>('home');
+const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
+const [approvedZones, setApprovedZones] = useState<string[]>([]);
+const assessVisited = useRef(false);
 ```
-
-No external state library. No prop drilling past 2 levels.
-
-### 10-second transition implementation
-```typescript
-// App.tsx
-useEffect(() => {
-  if (screen !== 'home') return;   // guard: only from home state
-  const timer = setTimeout(() => setScreen('home-alert'), 10_000);
-  return () => clearTimeout(timer); // cleanup on unmount / state change
-}, [screen]);
-```
-
-### Alert card click transition
-```typescript
-// App.tsx renders:
-<HomePageAlert onAlertClick={() => setScreen('alert')} />
-
-// HomePageAlert passes to NewAlertCard:
-<NewAlertCard onClick={onAlertClick} />
-
-// NewAlertCard triggers:
-<div onClick={onClick} role="button">...</div>
-```
-
-### Asset storage
-- `public/coastal-background.png` — served at `/coastal-background.png`
-- Referenced in `App.tsx` root style: `backgroundImage: "url('/coastal-background.png')"`
-- All icons: `lucide-react` (bundled, no CDN dependency)
-- No temporary Figma CDN URLs in production code
-
-### Tailwind configuration
-`tailwind.config.js` extends Tailwind with:
-- **fontFamily:** `display`, `text`, `compact`, `inter`
-- **colors:** risk-*, alert-red, live-dot, link-blue, stat-blue, budget-*, surface-*
-- **borderRadius:** `sm` (10px), `md` (14px), `lg` (16px), `pill` (46px)
-
-### CSS utilities (index.css)
-| Class | Effect |
-|---|---|
-| `.glass-30` `.glass-65` etc. | Background opacity + backdrop-filter |
-| `.glass-shadow` | Main panel shadow |
-| `.glass-shadow-sm` | Mode selector shadow |
-| `.flood-gradient` | Color scale gradient |
-| `.screen-enter` | fadeIn animation (0.4s ease) |
-| `.alert-card-enter` | fadeInUp animation (0.5s ease) |
-| `.live-pulse` | Opacity pulse animation for live dot |
-
-### Animation strategy
-- Screen transitions: CSS `@keyframes fadeIn` on `.screen-enter` class
-- Alert card entrance: CSS `@keyframes fadeInUp` on `.alert-card-enter` class
-- Live pulse: CSS `@keyframes pulse-dot` on `.live-pulse` class
-- No JS animation libraries
-
-### Naming conventions
-- Components: PascalCase (`LiveMonitoringPanel.tsx`)
-- Screens: PascalCase, suffixed with Screen purpose (`AlertPage.tsx`)
-- Utilities: camelCase (`mockData.ts`)
-- CSS classes: kebab-case (`glass-65`, `flood-gradient`)
-- Tailwind arbitrary values: use bracket notation (`top-[21px]`, not hardcoded CSS)
 
 ---
 
-## H. Data Architecture
+## Y. Asset Management
 
-### mockData.ts structure
-
-```typescript
-cityOverview: {
-  status, riskLevel, seaLevel, seaLevelPeriod,
-  waveActivity, waveStatus, vulnerableDistricts, totalDistricts,
-  tideStatus, tideTime, description
-}
-
-summaryStats: {
-  riskLevel, affectedDistricts, totalDistricts, districtsChange,
-  populationAtRisk, populationPercent, activeAlerts
-}
-
-alertOverview: { seaLevelRise, firstImpact, withAction }
-
-strategy: {
-  title, description, timeline, investment, riskReduction, impactDelay,
-  components: string[]
-}
-
-districts: Array<{
-  name, risk, note, color: 'red' | 'orange' | 'blue'
-}>
-
-budget: {
-  total, protectionLabel, protectionAmount, adaptationLabel, adaptationAmount,
-  protectionPercent, adaptationPercent
-}
-
-affectionsInfrastructure: Array<{ name, detail }>
-affectionsPopulation: Array<{ name, detail }>
-```
-
-### Future data connection
-To connect to a real data source:
-1. Replace `mockData.ts` exports with API calls (React Query / SWR / fetch in useEffect)
-2. Pass data as props into each component (currently consumed directly from mockData)
-3. Use TypeScript interfaces (already implied by mockData shape) to type API responses
-4. Keep the same component prop signatures for zero UI changes
-
----
-
-## I. Asset Management
-
-### Local assets
-| Asset | Path | Usage |
-|---|---|---|
-| `coastal-background.png` | `public/coastal-background.png` | Full-screen background for all 3 screens |
-
-### Rebuilt in code
-| Element | Implementation |
-|---|---|
-| Flood risk zone overlays | Baked into `coastal-background.png` — no code needed |
-| Flood depth gradient | CSS `linear-gradient` in `.flood-gradient` |
-| Budget donut chart | SVG `<circle>` with `stroke-dasharray` |
-| Timeline scrubber | CSS horizontal line + yellow dot |
-| Live pulse dot | CSS `@keyframes pulse-dot` |
-| Mode selector icons | Inline SVG paths (approximated) |
-
-### Icons from lucide-react
-`Bell`, `Menu`, `ArrowLeft`, `ChevronRight`, `TrendingUp`, `Waves`, `Building2`, `Droplets`, `LayoutDashboard`, `GitBranch`, `ArrowLeftRight`, `FileText`, `Share2`, `ArrowUp`, `ShieldCheck`, `CheckCircle2`, `ChevronDown`, `TriangleAlert`, `Users`
+### Local assets in `/public/`
+| Asset | URL | Usage |
+|-------|-----|-------|
+| `coastal-background.png` | `/coastal-background.png` | Map screen background (S1/S2/S4) |
+| `costal-road-map.jpg` | `/costal-road-map.jpg` | Detail screen (S5) map image |
+| `costal-road-pile.jpg` | `/costal-road-pile.jpg` | Detail screen (S5) implementation image |
+| `icons/tab-car.svg` | `/icons/tab-car.svg` | Zone tab icon |
+| `icons/tab-electric.svg` | `/icons/tab-electric.svg` | Zone tab icon |
+| `icons/tab-building.svg` | `/icons/tab-building.svg` | Zone tab icon |
+| `icons/tab-water.svg` | `/icons/tab-water.svg` | Zone tab icon |
+| `icons/tab-people.svg` | `/icons/tab-people.svg` | Zone tab icon |
+| `icons/costal-road-access.svg` | `/icons/costal-road-access.svg` | Detail overlay + ActionCard |
+| `icons/vulnerable-residents.svg` | `/icons/vulnerable-residents.svg` | ActionCard |
+| `icons/increase-pump-capacity.svg` | `/icons/increase-pump-capacity.svg` | ActionCard |
+| `icons/residential-edge-blocks.svg` | `/icons/residential-edge-blocks.svg` | ActionCard |
+| `icons/electric-utility-point.svg` | `/icons/electric-utility-point.svg` | ActionCard |
+| `icons/notice-icon.svg` | `/icons/notice-icon.svg` | Assess panel notice row |
 
 ### Rules for new assets
-1. Place in `public/` directory (served directly, no import needed)
-2. Reference as `/filename.ext` (not `./` or `../`)
-3. Prefer local files over CDN URLs
-4. Never use temporary Figma CDN URLs (`figma.com/api/mcp/asset/...`) in committed code — they expire in 7 days
+1. Place in `public/` (no import needed, referenced as `/filename`).
+2. Never use Figma CDN URLs in committed code — they expire in 7 days.
+3. Zone list icons in the Assess panel must use **inline SVG** (not `<img>`), so fill can be controlled dynamically.
+
+### lucide-react icons used
+`Bell`, `Menu`, `ArrowLeft`, `Pencil`, `ChevronDown`, `TrendingUp`, `Waves`, `Building2`, `Droplets`, `LayoutDashboard`, `GitBranch`, `ArrowLeftRight`, `FileText`, `Share2`, `ArrowUp`, `ShieldCheck`, `CheckCircle2`, `ChevronRight`, `TriangleAlert`, `Users`, `Radio`, `Minus`, `Plus`, `Search`
 
 ---
 
-## J. Implementation Decisions & Rationale
+## Z. How to Build the Next Screen
 
-### Why state-based flow, not routing
-Three screens, linear flow, no URL-addressable states needed for a prototype. React Router would add complexity without benefit. `useState` in App.tsx is simpler and sufficient.
+### Checklist for a new screen
 
-### Why screen 3 was kept unchanged
-Screen 3's white panel with `inset: 20px` and `overflow-y: auto` already adapts well to the browser viewport. Adding ScaledLayout would interfere with its scrolling behavior and internal layout. It was not part of the reported layout problem.
-
-### Why screens 1 and 2 needed viewport-aware changes
-The Figma design used a fixed 1512×1008px canvas matching the designer's MacBook display resolution. Browser viewports are smaller (tabs + address bar consume ~80px height). Elements positioned absolutely at fixed pixel values (e.g., bottom bar at `top: 856px + height: 138px = 994px`) were cut off. The `ScaledLayout` component solves this by proportionally shrinking the entire design to fit.
-
-### Why ModeSelector and TopStatusBar are outside ScaledLayout
-When these were inside ScaledLayout, their absolute positions resolved against the 1512px canvas. At scale < 1 (e.g., 0.89 on a 14-inch MacBook), the canvas renders at ~1350px wide — narrower than the 1440px viewport. `left-1/2` of the canvas placed ModeSelector at ~675px instead of the viewport's 720px midpoint, visually off-center. `right-21px` of the canvas placed TopStatusBar ~90px short of the viewport's right edge. Moving both outside ScaledLayout makes their CSS resolve against the full viewport, so ModeSelector is truly viewport-centered and TopStatusBar is flush with the right edge at every screen size.
-
-### Why the BottomSummaryBar uses edge-to-edge width
-The original Figma spec used `w-[1469px]` centered with ~21px margins. On screen this looked like a floating panel rather than an anchoring bar. Making it `w-[1512px] left-0` with no border radius grounds the map content between the header band and the bottom bar, reducing the left-heavy perception. Padding was increased from `px-[25px]` to `px-[40px]` so content doesn't sit flush against the viewport edges.
-
-### How the red alert card overlap was fixed
-The `NewAlertCard` was at `top: 695px`, height ~80px, ending at 775px. `TimeView` started at 754px. Overlap: 21px. Fixed by moving `NewAlertCard` to `top: 620px` (13px below the LiveMonitoringPanel which ends at ~607px). Card now ends at ~688px, giving 66px gap before TimeView at 754px.
-
-### Approximations vs Figma
-| Element | Figma | Prototype |
-|---|---|---|
-| Mode selector icons | Custom vector illustrations | Custom inline SVG rhombus paths matching reference |
-| Time View scrubber | Figma image group (Group9) | CSS line + dot |
-| Live monitoring icon | Custom wave vector | SVG path approximation |
-| Bell / Menu icons | Figma vectors | lucide-react icons |
-| Nav icons | Figma custom vectors | lucide-react equivalents |
-| Budget donut | Figma vector circles | SVG stroke-dasharray |
-
-### Known limitations
-- Time View years are not clickable (not interactive yet)
-- Mode Selector tabs are visual only (no state change or data filtering)
-- "View full analysis →" button on the left panel is not wired to any screen
-- Bottom navigation icons (Dashboard, Scenarios, Compare, Reports, Share) are not wired
-- The prototype does not persist across browser refresh (always restarts at Screen 1)
-- Alert data is entirely static (mock data)
-
----
-
-## K. Future Development Guide
-
-### How to add a new screen
-
-1. Create `src/screens/NewScreenName.tsx`
-2. Add the screen state to the union type in `App.tsx`: `type Screen = 'home' | 'home-alert' | 'alert' | 'new-screen'`
-3. Add the render condition in App.tsx: `{screen === 'new-screen' && <NewScreenName onBack={() => setScreen('...')} />}`
-4. If the screen uses the full-canvas absolute layout → wrap content in `<ScaledLayout>`
-5. If the screen has its own layout (modal, overlay) → use its own container strategy
-6. Add a transition trigger (button onClick or useEffect timer) to reach the new screen
-7. Document the new screen in this file under Section B
-
-### How to add a new dashboard widget (S1/S2)
-
-1. Create `src/components/dashboard/MyWidget.tsx`
-2. Choose a position in design space (1512×1008) that does not overlap existing panels (see Section D)
-3. Add `className="absolute left-[Xpx] top-[Ypx] w-[Wpx]"` to the root element
-4. Import and add to `HomePage.tsx` and `HomePageAlert.tsx` inside ScaledLayout
-5. Add mock data to `mockData.ts` for any content it needs
-6. Document in Section F
-
-### How to add a new alert type
-
-1. Add a new entry to `mockData.districts` with `color: 'red' | 'orange' | 'blue'`
-2. Add new fields to `mockData.alertOverview` or `mockData.strategy` if needed
-3. Update `DistrictRiskList.tsx` if the new risk level needs a new color
-4. Update `NewAlertCard.tsx` content if alert message changes per type
-5. If multiple alert types need different S3 content, refactor AlertPage to accept an `alertType` prop
-
-### How to add a new bottom navigation item
-
-1. Add to the `navItems` array in `BottomSummaryBar.tsx`:
-   ```typescript
-   { icon: MyIcon, label: 'MyLabel' }
-   ```
-2. Wire the `onClick` handler to navigate to a new screen
-3. Verify the nav row still fits within the right column of the bottom bar (currently 5 items)
-
-### How to add new risk levels
-
-1. Add a color entry to `colorMap` in `DistrictRiskList.tsx`
-2. Add the corresponding Tailwind color to `tailwind.config.js`
-3. Add semantic CSS utility classes to `index.css` if needed
-
-### How to extend into a real product
-
-1. Replace `mockData.ts` with API calls (React Query recommended)
-2. Add React Router for URL-addressable screens
-3. Wrap screens in a `Layout` component that includes a persistent nav
-4. Add authentication if needed
-5. Add a real data visualization library (Recharts or D3) for more complex charts
-6. Replace SVG approximations with proper icon exports from Figma
-
----
-
-## L. Visual QA Checklist
-
-Run this checklist whenever making changes to screens 1 or 2:
-
-### Background
-- [ ] `coastal-background.png` fills the full browser viewport (no white edges)
-- [ ] Background visible behind glass panels (transparency is working)
-- [ ] Flood risk zones visible in the background image
-
-### Panel visibility
-- [ ] Flood Depth Scale visible at top-left
-- [ ] Mode Selector visible at top-center (Protect tab active)
-- [ ] Top Status Bar visible at top-right (time + city status + bell + menu)
-- [ ] Live Monitoring Panel fully visible (all rows: sea level, wave, districts, tide)
-- [ ] "View full analysis →" button visible at bottom of left panel
-
-### Overlap checks
-- [ ] FloodDepthScale does NOT overlap TopStatusBar
-- [ ] LiveMonitoringPanel does NOT overlap anything on the right
-- [ ] NewAlertCard (S2 only) does NOT overlap TimeView
-- [ ] TimeView does NOT overlap BottomSummaryBar
-- [ ] BottomSummaryBar bottom edge is visible (not cut off)
-
-### Glass opacity
-- [ ] FloodDepthScale and ModeSelector: semi-transparent (30%)
-- [ ] LiveMonitoringPanel: clearly glass (65%)
-- [ ] BottomSummaryBar: most opaque glass (80%)
-- [ ] backdrop-filter blur is visible (requires Chromium/WebKit browser)
-
-### Typography
-- [ ] "MODERATE" in yellow (#ffae00) in bottom bar
-- [ ] "12 / 28" districts in bold black
-- [ ] "128,000" population in bold black
-- [ ] Green live dot next to "Live" text
-- [ ] Red "+2 since last week" below Affected Districts
-
-### Screen transitions
-- [ ] Screen 1 loads on page open
-- [ ] After exactly 10 seconds, Screen 2 appears (red alert card + bell badge)
-- [ ] Clicking the red card transitions to Screen 3
-- [ ] Back arrow on Screen 3 returns to Screen 2
-- [ ] Each transition has a fade-in animation
-
-### Browser viewport fit (CRITICAL — run at each update)
-- [ ] At 1440×900 viewport: no content cut off at bottom
-- [ ] At 1280×800 viewport: bottom bar fully visible
-- [ ] At 1512×900 viewport: panels appear at correct scale
-- [ ] No horizontal scrollbar appears
-
-### Alert card (S2 only)
-- [ ] Red card appears below the Live Monitoring Panel
-- [ ] Red card does NOT overlap Time View
-- [ ] Red card text is readable: "New Alert" headline + body text
-- [ ] Red card is clickable (cursor: pointer, transitions to S3)
-- [ ] Bell icon has a red badge dot
-
-### Screen 3 regression
-- [ ] Screen 3 is unchanged (do not add ScaledLayout to it)
-- [ ] White panel appears with 20px margins
-- [ ] Back arrow works
-- [ ] Alert Overview 3 columns visible
-- [ ] Districts list with color-coded rows visible
-- [ ] Budget donut chart renders
-- [ ] Affections table (Infrastructure + Population) visible
-- [ ] Overflow scroll works if viewport is short
+1. Decide screen type (map canvas / detail / planning) — look at Section B.
+2. Add the new state key to the `Screen` union in `App.tsx`.
+3. Create the file in `src/screens/`.
+4. For **detail screens** — copy the header pattern from Section H and the two-column body from Section D exactly. Do NOT invent a new layout.
+5. Use only colors from Section F. Do not introduce new hex values.
+6. Use only font sizes and weights from Section G. Do not pick arbitrary sizes.
+7. Use only button styles from Section J. Do not create a new button shape.
+8. Card backgrounds must come from the surface colors in Section F.
+9. Match the letter-spacing (`-0.44px` for most text) and line-heights from Section G.
+10. Any new animation must follow the existing animation vocabulary (fade, clip-path, scaleY, strokeDashoffset) — not JS-driven timers or spring animations.
+11. Write copy matching the tone in Section U: noun-first labels, verb-first step actions, data-forward sentences.
+12. Document the new screen in Section A (screen inventory).
 
 ---
 
 ## Changelog
 
+### 2026-06-21 — Full design-system documentation update (v2.0)
+- Documented all 10 implemented screens (previously only 3 were documented).
+- Added: screen-type taxonomy, zone accent color map, detail-screen layout architecture, header patterns, card styles, button styles, zone icon system, map connector, tab hover/expand behavior, inline editing behavior, right-column proportional scaling, spacing reference, animation inventory, data viz patterns, writing tone, interaction rules, complete asset table.
+- Updated: screen inventory, navigation architecture, component list.
+- **No code was changed** — this is a documentation-only update.
+
 ### 2026-05-17 — Header restructure: viewport-level ModeSelector and TopStatusBar (Screens 1 & 2)
-- **What changed**: (1) Removed the frosted-glass header backdrop div from both screen files. (2) Moved `ModeSelector` outside `ScaledLayout` to viewport-level so `left-1/2` centers it on the viewport, not the scaled canvas. (3) Moved `TopStatusBar` outside `ScaledLayout` so `right-21px` is flush with the viewport right edge. (4) Replaced lucide `Layers2`/`Layers`/`Layers3` mode selector icons with custom inline SVG rhombus-stack icons (`ProtectIcon`, `AdaptIcon`, `RetreatIcon`) matching the reference images.
-- **Why**: At scale < 1 (14-inch MacBook ≈ 0.89), canvas-positioned elements are visually offset from viewport edges. ModeSelector appeared ~45px left of viewport center; TopStatusBar appeared ~90px from the right edge instead of flush. The header backdrop was removed as the design calls for transparent floating headers.
-- **Files affected**: `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`, `src/components/shared/ModeSelector.tsx`
-- **Sections updated**: D (Global structure, Viewport strategy, z-position table), E (Icons), F (Top Header Backdrop removed, ModeSelector, TopStatusBar, HomePage, HomePageAlert updated), J (Rationale updated, Approximations table updated)
+- Moved `ModeSelector` and `TopStatusBar` outside `ScaledLayout` to viewport-level.
+- Replaced lucide Layers icons with custom inline SVG rhombus-stack icons.
 
-### 2026-05-17 — Icon replacement, panel fixes, full-viewport bars (Screens 1 & 2)
-- **What changed**: (1) ModeSelector icons replaced with lucide Layers2/Layers/Layers3. (2) Live Monitoring icon replaced with lucide Radio. (3) Grey oval removed from City Overview sub-card. (4) Stats table right-column alignment fixed with consistent fixed-width two-column layout. (5) Top header backdrop and BottomSummaryBar moved outside ScaledLayout to viewport level so they always span 100% screen width.
-- **Why**: Icon images updated to match reference; grey oval was an artifact; stats alignment was inconsistent across rows; bars were narrower than viewport on scaled screens (14-inch MacBook at scale ≈ 0.89).
-- **Files affected**: `src/components/shared/ModeSelector.tsx`, `src/components/dashboard/LiveMonitoringPanel.tsx`, `src/components/dashboard/BottomSummaryBar.tsx`, `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`
-- **Sections updated**: D (Viewport strategy, z-position table), F (Top Header Backdrop, BottomSummaryBar, ModeSelector, LiveMonitoringPanel)
+### 2026-05-17 — Icon replacement, panel fixes, full-viewport bars
+- ModeSelector icons replaced. Live Monitoring icon → lucide Radio. Stats alignment fixed. BottomSummaryBar moved to viewport level.
 
-### 2026-05-16 — Horizontal layout balance fix (Screens 1 & 2)
-- **What changed**: Added full-width frosted-glass header backdrop to Screens 1 & 2 (inline div, `left-0 top-0 w-[1512px] h-[100px]`); extended BottomSummaryBar to full canvas width (`left-0 w-[1512px]`, removed side margins and border-radius, increased `px-[40px]`).
-- **Why**: Composition felt left-heavy; the disconnected floating pills in the header and the margined bottom bar left the layout unanchored. Edge-to-edge top and bottom bands frame the map and balance the visual weight.
-- **Files affected**: `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`, `src/components/dashboard/BottomSummaryBar.tsx`
-- **Sections updated**: D (UI Layout — z-position table, bottom bar description), F (BottomSummaryBar position, new top header backdrop entry), J (two new rationale notes)
-
-### 2026-05-16 — Viewport-aware scaling added to Screens 1 & 2
-- **What changed**: ScaledLayout component applies CSS transform scale so the 1512×1008 design canvas fits within any browser viewport without overflow.
-- **Why**: Browser chrome reduces available viewport height, causing BottomSummaryBar to be cut off on standard laptop displays.
-- **Files affected**: `src/components/layout/ScaledLayout.tsx`, `src/screens/HomePage.tsx`, `src/screens/HomePageAlert.tsx`
-- **Sections updated**: D (UI Layout), F (Components), J (Known Trade-offs)
+### 2026-05-16 — Viewport-aware scaling
+- `ScaledLayout` component added.

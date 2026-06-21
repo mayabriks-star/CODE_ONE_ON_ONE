@@ -7,15 +7,16 @@ import NewAlertCard from '../components/dashboard/NewAlertCard';
 
 interface Props {
   onRedZoneClick: (clientX: number, clientY: number) => void;
+  onAlertClick?: () => void;
 }
 
-export default function HomePageAlert({ onRedZoneClick }: Props) {
+export default function HomePageAlert({ onRedZoneClick, onAlertClick }: Props) {
   return (
     <>
       <ScaledLayout className="screen-enter">
         <FloodDepthScale positionClassName="absolute left-[21px] top-[888px]" />
         <LiveMonitoringPanel />
-        <NewAlertCard />
+        <NewAlertCard onClick={onAlertClick} />
         <TimeView />
         {/* Invisible hotspot over the red zone district on the map */}
         <div

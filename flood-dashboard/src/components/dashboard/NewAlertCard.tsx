@@ -9,7 +9,7 @@ export default function NewAlertCard({ onClick }: Props) {
     <div
       onClick={onClick}
       className="absolute left-[21px] top-[630px] w-[326px] rounded-lg cursor-pointer alert-card-enter hover:opacity-90 transition-opacity"
-      style={{ background: 'rgba(180, 30, 40, 0.92)', backdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(180, 30, 40, 0.92)', backdropFilter: 'blur(8px)', pointerEvents: 'auto' }}
       role="button"
       aria-label="View alert details"
     >

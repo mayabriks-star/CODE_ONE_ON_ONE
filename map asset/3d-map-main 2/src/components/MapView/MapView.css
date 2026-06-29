@@ -1,0 +1,14 @@
+.map-view {
+  position: absolute;
+  inset: 0;
+}
+
+.map-view__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* MapLibre paints its own attribution; keep our overlays above the canvas. */
+.map-view .maplibregl-canvas {
+  outline: none;
+}

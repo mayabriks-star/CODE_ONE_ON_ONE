@@ -1,0 +1,30 @@
+:root {
+  --ui-bg: rgba(20, 22, 28, 0.82);
+  --ui-bg-solid: #14161c;
+  --ui-fg: #f2f4f8;
+  --ui-muted: #9aa3b2;
+  --ui-accent: #4c8dff;
+  --ui-border: rgba(255, 255, 255, 0.12);
+  --ui-radius: 10px;
+  --ui-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--ui-bg-solid);
+  color: var(--ui-fg);
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+}

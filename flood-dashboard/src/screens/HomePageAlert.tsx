@@ -9,9 +9,10 @@ import NewAlertCard from '../components/dashboard/NewAlertCard';
 interface Props {
   onRedZoneClick: (clientX: number, clientY: number) => void;
   onAlertClick?: () => void;
+  map?: any;
 }
 
-export default function HomePageAlert({ onRedZoneClick, onAlertClick }: Props) {
+export default function HomePageAlert({ onRedZoneClick, onAlertClick, map }: Props) {
   const [zoneHovered, setZoneHovered] = useState(false);
 
   return (
@@ -57,7 +58,7 @@ export default function HomePageAlert({ onRedZoneClick, onAlertClick }: Props) {
         {/* Invisible hotspot over the red zone district on the map */}
         <div
           className="absolute cursor-pointer z-10"
-          style={{ left: 550, top: 110, width: 480, height: 300 }}
+          style={{ left: 550, top: 110, width: 480, height: 300, pointerEvents: 'auto' }}
           onClick={(e) => onRedZoneClick(e.clientX, e.clientY)}
           onMouseEnter={() => setZoneHovered(true)}
           onMouseLeave={() => setZoneHovered(false)}
@@ -65,7 +66,7 @@ export default function HomePageAlert({ onRedZoneClick, onAlertClick }: Props) {
         />
       </ScaledLayout>
 
-      <HomePageHeader showBadge />
+      <HomePageHeader showBadge map={map} />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import Map3DBackground from './components/Map3DBackground';
 import HomePage from './screens/HomePage';
 import HomePageAlert from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
@@ -36,7 +35,6 @@ export default function App() {
   const s3Ref = useRef<HTMLDivElement | null>(null);
   const s2BgRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number>(0);
-  const mapRef = useRef<any>(null);
 
   useEffect(() => {
     if (screen !== 'home') return;
@@ -93,6 +91,10 @@ export default function App() {
 
   function handleOpenAssessCriticalZones() {
     setScreen('assess-critical-zones');
+  }
+
+  function handleOpenPlanning() {
+    setScreen('planning');
   }
 
   function handleOpenComparison() {
@@ -165,14 +167,9 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
-      {/* 3D map — persistent background for screens 1 & 2 */}
-      {(screen === 'home' || screen === 'home-alert') && (
-        <Map3DBackground onMapReady={(m) => { mapRef.current = m; }} />
-      )}
-
-      {/* Screen 1 UI */}
+      {/* Screen 1 */}
       {screen === 'home' && (
-        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+        <div className="absolute inset-0" style={{ ...bgBase, backgroundImage: "url('/home-page-new-map.png')" }}>
           <HomePage />
         </div>
       )}
@@ -182,7 +179,7 @@ export default function App() {
         <div
           ref={s3BgRef}
           className="absolute inset-0"
-          style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')", opacity: 0, zIndex: 5 }}
+          style={{ ...bgBase, backgroundImage: "url('/harbor-district-bg.png')", opacity: 0 }}
         />
       )}
 
@@ -191,12 +188,9 @@ export default function App() {
         <div
           ref={s2Ref}
           className="absolute inset-0"
-          style={transiting === 'zoom-in'
-            ? { ...bgBase, backgroundImage: "url('/coastal-background.png')", zIndex: 6 }
-            : { zIndex: 10, pointerEvents: 'none' }
-          }
+          style={{ ...bgBase, backgroundImage: "url('/coastal-background.png')" }}
         >
-          <HomePageAlert onRedZoneClick={handleRedZoneClick} onAlertClick={() => setScreen('alert')} map={mapRef.current} />
+          <HomePageAlert onRedZoneClick={handleRedZoneClick} onAlertClick={() => setScreen('alert')} />
         </div>
       )}
 

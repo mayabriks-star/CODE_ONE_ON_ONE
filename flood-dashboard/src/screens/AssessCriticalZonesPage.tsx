@@ -12,6 +12,7 @@ interface Props {
   onPumpCapacity: () => void;
   skipAnimation?: boolean;
   approvedZones: string[];
+  map?: any;
 }
 
 const ZONE_ACCENT: Record<string, string> = {
@@ -45,37 +46,41 @@ const ZONE_LIST = [
   },
 ];
 
+// Anchored to real lng/lat (geo-anchored, same pattern as the hazard-zone
+// polygon) so these tabs move together with the map instead of staying fixed
+// in screen-space when panning/zooming. Positioned by the user via the
+// drag-to-place debug tool.
 const MAP_TABS = [
   {
-    left: 713, top: 172, width: 190,
+    lngLat: [-80.190393, 25.764016] as [number, number], width: 190,
     icon: '/icons/tab-car.svg',
     title: 'Costal Road Access',
     subtitle: 'Potential disruption',
     action: 'coastal' as const,
   },
   {
-    left: 1184, top: 392, width: 242,
+    lngLat: [-80.193672, 25.769357] as [number, number], width: 242,
     icon: '/icons/tab-electric.svg',
     title: 'Electric Utility Point',
     subtitle: 'Changing the defense system',
     action: 'electric' as const,
   },
   {
-    left: 610, top: 527, width: 211,
+    lngLat: [-80.189007, 25.76613] as [number, number], width: 211,
     icon: '/icons/tab-building.svg',
     title: 'Residential Edge Blocks',
     subtitle: 'Higher exposure',
     action: 'residential' as const,
   },
   {
-    left: 488, top: 718, width: 208,
+    lngLat: [-80.192295, 25.762711] as [number, number], width: 208,
     icon: '/icons/tab-water.svg',
     title: 'Increase pump capacity',
     subtitle: 'Back-flow risk',
     action: 'pump' as const,
   },
   {
-    left: 1066, top: 814, width: 215,
+    lngLat: [-80.195504, 25.765652] as [number, number], width: 215,
     icon: '/icons/tab-people.svg',
     title: 'Vulnerable Residents',
     subtitle: 'Support planning needed',
@@ -121,7 +126,7 @@ const HOVER_DATA: Record<string, {
   },
 };
 
-export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, approvedZones }: Props) {
+export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, map }: Props) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [animDone, setAnimDone] = useState(skipAnimation ?? false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,7 +137,24 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     return () => clearTimeout(t);
   }, []);
 
-  const allApproved = ZONE_LIST.every(({ label }) => approvedZones.includes(label));
+  // Geo-anchored tab positions — recomputed from each tab's lngLat via
+  // map.project() so they move together with the map on pan/zoom, the same
+  // pattern used for the hazard-zone hover card in HomePageAlert.tsx.
+  const [tabPositions, setTabPositions] = useState<{ x: number; y: number }[] | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    const updatePositions = () => {
+      setTabPositions(MAP_TABS.map((tab) => map.project(tab.lngLat)));
+    };
+    updatePositions();
+    map.on('move', updatePositions);
+    window.addEventListener('resize', updatePositions);
+    return () => {
+      map.off('move', updatePositions);
+      window.removeEventListener('resize', updatePositions);
+    };
+  }, [map]);
 
   function handleEnter(title: string) {
     if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -217,41 +239,37 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 437, left: 13, right: 13, height: 1 }} />
 
           <div className="absolute flex flex-col" style={{ left: 19, top: 463, gap: 20 }}>
-            {ZONE_LIST.map(({ label, svgPath }) => {
-              const isApproved = approvedZones.includes(label);
-              return (
-                <div key={label} className="flex items-end" style={{ gap: 15 }}>
-                  <svg viewBox="0 0 24 24" width={24} height={24} fill="none" style={{ flexShrink: 0 }}>
-                    <rect
-                      width="24" height="24" rx="12"
-                      style={{ fill: isApproved ? ZONE_ACCENT[label] : '#C6C7C8', transition: 'fill 0.3s ease' }}
-                    />
-                    <path d={svgPath} fill="white" />
-                  </svg>
-                  <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
-                    {label}
-                  </p>
-                </div>
-              );
-            })}
+            {ZONE_LIST.map(({ label, svgPath }) => (
+              <div key={label} className="flex items-end" style={{ gap: 15 }}>
+                <svg viewBox="0 0 24 24" width={24} height={24} fill="none" style={{ flexShrink: 0 }}>
+                  <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
+                  <path d={svgPath} fill="white" />
+                </svg>
+                <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+                  {label}
+                </p>
+              </div>
+            ))}
           </div>
 
           <button
-            onClick={allApproved ? onPlan : undefined}
+            onClick={onPlan}
             className="absolute w-[313px] h-[37px] rounded-[14px] flex items-center justify-center"
             style={{
               left: 41, top: 722,
-              background: allApproved ? 'rgba(16,24,40,0.9)' : 'rgba(16,24,40,0.3)',
-              cursor: allApproved ? 'pointer' : 'default',
-              transition: 'background 0.3s ease',
+              background: 'rgba(16,24,40,0.9)',
+              cursor: 'pointer',
             }}
           >
             <span className="font-medium text-[14px] text-white">Simulate response scenarios</span>
           </button>
         </div>
+      </ScaledLayout>
 
-        {/* Map tabs — each is a single expanding element */}
-        {MAP_TABS.map((tab, i) => {
+      {/* Map tabs — geo-anchored via map.project(), rendered in raw viewport
+          pixels outside ScaledLayout so they track the map on pan/zoom. */}
+      {tabPositions && MAP_TABS.map((tab, i) => {
+          const pos = tabPositions[i];
           const handler =
             tab.action === 'coastal' ? onCoastalRoad
             : tab.action === 'vulnerable' ? onVulnerableResidents
@@ -280,11 +298,11 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
           const containerStyle: React.CSSProperties = {
             position: 'absolute',
-            left: tab.left,
+            left: pos.x,
             // For upward tabs, anchor the bottom edge at the pill's bottom so content grows up
             ...(isUpward
-              ? { bottom: 1008 - tab.top - 45 }
-              : { top: tab.top }),
+              ? { bottom: window.innerHeight - pos.y - 45 }
+              : { top: pos.y }),
             width: animDone ? (isOpen ? 280 : tab.width) : tab.width,
             animation: !animDone ? entranceAnim : undefined,
             clipPath: animDone ? (isOpen ? expandedClip : compactClip) : undefined,
@@ -379,8 +397,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               {/* Connector: line grows up from dot */}
               <div style={{
                 position: 'absolute',
-                left: tab.left + 32,
-                top: tab.top + 45,
+                left: pos.x + 32,
+                top: pos.y + 45,
                 width: 10,
                 height: 33,
                 display: 'flex',
@@ -406,7 +424,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             </div>
           );
         })}
-      </ScaledLayout>
     </>
   );
 }

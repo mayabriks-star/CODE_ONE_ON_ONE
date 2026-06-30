@@ -29,6 +29,7 @@ export default function App() {
   const s3Ref = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number>(0);
   const mapRef = useRef<any>(null);
+  const cameraRef = useRef<{ center: [number, number]; zoom: number; pitch: number; bearing: number } | null>(null);
 
   useEffect(() => {
     if (screen !== 'home') return;
@@ -41,6 +42,16 @@ export default function App() {
   useEffect(() => {
     if (screen === 'assess-critical-zones' && !assessVisited.current) {
       assessVisited.current = true;
+    }
+  }, [screen]);
+
+  // Defensive camera-restore: explicitly snapshot the camera on every move
+  // and re-apply it whenever returning to assess-critical-zones, so the map
+  // is guaranteed to look exactly as it did before leaving — regardless of
+  // any incidental camera change while a zone-detail screen was showing.
+  useEffect(() => {
+    if (screen === 'assess-critical-zones' && mapRef.current && cameraRef.current) {
+      mapRef.current.jumpTo(cameraRef.current);
     }
   }, [screen]);
 
@@ -145,8 +156,20 @@ export default function App() {
   return (
     <div className="w-screen h-screen overflow-hidden relative">
       {/* 3D map — persistent background for all map-based screens */}
-      {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones') && (
-        <Map3DBackground onMapReady={(m) => { mapRef.current = m; }} />
+      {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones'
+        || screen === 'coastal-road' || screen === 'vulnerable-residents' || screen === 'electric-utility'
+        || screen === 'residential-edge' || screen === 'pump-capacity') && (
+        <Map3DBackground onMapReady={(m) => {
+          mapRef.current = m;
+          m.on('moveend', () => {
+            cameraRef.current = {
+              center: m.getCenter().toArray(),
+              zoom: m.getZoom(),
+              pitch: m.getPitch(),
+              bearing: m.getBearing(),
+            };
+          });
+        }} />
       )}
 
       {/* Screen 1 UI */}
@@ -193,6 +216,7 @@ export default function App() {
             onPumpCapacity={handleOpenPumpCapacity}
             skipAnimation={assessVisited.current}
             approvedZones={approvedZones}
+            map={mapRef.current}
           />
         </div>
       )}

@@ -818,10 +818,54 @@ const assessVisited = useRef(false);
 10. Any new animation must follow the existing animation vocabulary (fade, clip-path, scaleY, strokeDashoffset) — not JS-driven timers or spring animations.
 11. Write copy matching the tone in Section U: noun-first labels, verb-first step actions, data-forward sentences.
 12. Document the new screen in Section A (screen inventory).
+13. Run the self-check in Section AA (spacing grid, type hierarchy, row alignment, overflow safety) before considering the screen done.
+
+---
+
+## AA. UX/UI Engineering Standards
+
+Rules that distinguish a polished product surface from an ad-hoc one. Apply these on top of Sections F–K (colors/type/cards/buttons) for every new panel, card, or list — they're the difference between "technically matches the palette" and "actually reads as a real product."
+
+### 1. 8pt spacing grid
+Every padding, gap, and margin should be a multiple of ~4px (ideally 8px): `4, 8, 12, 16, 20, 24, 32, 40`. Avoid odd one-off values like `13px` or `18px` unless matching an already-established token in Section R. Inconsistent spacing (some panels at 13px gap, others at 14px, others at 16px) is the single most common signal of an un-systematic UI — pick one rhythm per panel and stay on it.
+
+### 2. Type hierarchy contrast
+Within one card or panel, there should be a clear, deliberate jump between heading / value / label / caption — not a flat staircase of 1-2px increments. Target ratios:
+- Heading vs. body: at least 4-6px difference (e.g. 18px heading / 13px body, not 16px / 14px).
+- Primary value (the number the user actually came to see — a metric, a total, a count) should be the visually loudest element in its card: largest size and/or heaviest weight, often the only black/near-black text against secondary gray text around it.
+- No more than 3 distinct font sizes per card. If a 4th size feels needed, it usually means two of the existing roles should collapse into one.
+
+### 3. Alignment across repeated rows
+Whenever a list of rows shares a control (toggle, button, value, icon), that control must land in the same vertical column for every row — never let it drift based on label length. Pattern: give the label `flex: 1` and let the trailing control be `flexShrink: 0`, so it's pinned to the same right edge regardless of text length (see `ToggleRow` in `SimulateResponseScenariosPage.tsx` for the reference implementation).
+
+### 4. Overflow safety for fixed-position panels
+Any `position: fixed` panel anchored with both a `top` and implicit bottom extent (i.e. its height is driven by content, not explicitly capped) is a future overflow bug waiting to happen on shorter viewports. Before shipping:
+- Estimate total content height (padding + line-heights + gaps, top to bottom) against a realistic minimum viewport height (~800–900px), not just the design canvas.
+- Prefer compact padding/gaps (Section R values) over enlarging a panel indefinitely — a glass panel that competes with the map for space defeats the "map-first" principle (Section E).
+- Never solve overflow by adding scroll to a panel that's supposed to be fully visible at a glance (status/summary panels) — scroll is for content the user is expected to browse, not for a dashboard readout. If it doesn't fit, compress the panel, don't hide half of it behind a scrollbar.
+
+### 5. Whitespace and breathing room
+Cards should never feel edge-to-edge. Minimum internal padding for any glass/white card: 14px on the tightest axis, 16-20px typical (Section R). Text blocks inside a card should never touch the card's border-radius corner — padding must always exceed the border-radius value.
+
+### 6. Visual weight balance
+Don't let secondary information (labels, captions, helper text) compete in size or color saturation with primary information (values, headlines, CTAs). Secondary text uses the muted palette only (`#505153`, `#6b778a` — Section F text colors), never `black` or `#1e2939`.
+
+### 7. Self-check before calling a screen done
+Before treating a UI round as finished, verify:
+- [ ] Every spacing value used traces to the 8pt grid or an existing Section R token.
+- [ ] The primary value in each card is unambiguously the loudest element.
+- [ ] Repeated-row controls (toggles, buttons, icons) are column-aligned, not label-length-dependent.
+- [ ] Fixed-position panels fit a realistic minimum viewport height without scrolling, with margin to spare — verified by rough height math, not just "looks fine in the screenshot I happened to test."
+- [ ] No more than 3 font sizes and 2 font weights per card.
 
 ---
 
 ## Changelog
+
+### 2026-06-30 — Added UX/UI Engineering Standards (Section AA)
+- Codified explicit, checkable rules: 8pt spacing grid, type hierarchy contrast, row alignment for repeated controls, overflow-safety for fixed-position panels, whitespace minimums, visual weight balance.
+- Motivated by recurring fixable-in-advance issues during the Simulate Response Scenarios screen rounds (toggle misalignment, panel overflow, ad-hoc font sizing) — this section turns those one-off corrections into a standing checklist (Section Z step 13).
+- **No code was changed** — documentation-only update.
 
 ### 2026-06-21 — Full design-system documentation update (v2.0)
 - Documented all 10 implemented screens (previously only 3 were documented).

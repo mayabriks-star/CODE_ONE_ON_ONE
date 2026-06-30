@@ -11,8 +11,9 @@ import ElectricUtilityPage from './screens/ElectricUtilityPage';
 import ResidentialEdgePage from './screens/ResidentialEdgePage';
 import PumpCapacityPage from './screens/PumpCapacityPage';
 import CompareResponseScenariosPage from './screens/CompareResponseScenariosPage';
+import SimulateResponseScenariosPage from './screens/SimulateResponseScenariosPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'planning' | 'compare-scenarios' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'simulate-scenarios' | 'planning' | 'compare-scenarios' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
 
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 3);
@@ -86,6 +87,10 @@ export default function App() {
     setScreen('compare-scenarios');
   }
 
+  function handleOpenSimulateScenarios() {
+    setScreen('simulate-scenarios');
+  }
+
   function handleOpenCoastalRoad(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
     setDetailReturnScreen(from);
     setScreen('coastal-road');
@@ -157,6 +162,7 @@ export default function App() {
     <div className="w-screen h-screen overflow-hidden relative">
       {/* 3D map — persistent background for all map-based screens */}
       {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones'
+        || screen === 'simulate-scenarios'
         || screen === 'coastal-road' || screen === 'vulnerable-residents' || screen === 'electric-utility'
         || screen === 'residential-edge' || screen === 'pump-capacity') && (
         <Map3DBackground onMapReady={(m) => {
@@ -208,7 +214,7 @@ export default function App() {
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AssessCriticalZonesPage
             onBack={() => setScreen('alert')}
-            onPlan={handleOpenComparison}
+            onPlan={handleOpenSimulateScenarios}
             onCoastalRoad={() => handleOpenCoastalRoad('assess-critical-zones')}
             onVulnerableResidents={() => handleOpenVulnerableResidents('assess-critical-zones')}
             onElectricUtility={handleOpenElectricUtility}
@@ -216,6 +222,16 @@ export default function App() {
             onPumpCapacity={handleOpenPumpCapacity}
             skipAnimation={assessVisited.current}
             approvedZones={approvedZones}
+            map={mapRef.current}
+          />
+        </div>
+      )}
+      {/* Screen — Simulate Response Scenarios */}
+      {screen === 'simulate-scenarios' && (
+        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+          <SimulateResponseScenariosPage
+            onBack={() => setScreen('assess-critical-zones')}
+            onCompare={handleOpenComparison}
             map={mapRef.current}
           />
         </div>

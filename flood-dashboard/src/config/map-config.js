@@ -2,7 +2,7 @@
 
 // Places you can jump between. Each becomes a bounded, cacheable area.
 export const PLACES = [
-  { id: 'miami', name: 'Miami', center: [-80.1918, 25.765], zoom: 16, pitch: 50, bearing: -20 },
+  { id: 'miami', name: 'Miami', center: [-80.1918, 25.765], zoom: 15.3, pitch: 50, bearing: -20 },
   { id: 'nyc', name: 'New York', center: [-73.9857, 40.7484], zoom: 16, pitch: 50, bearing: 0 },
   { id: 'sf', name: 'San Francisco', center: [-122.4012, 37.7946], zoom: 16, pitch: 50, bearing: 0 },
   { id: 'london', name: 'London', center: [-0.1246, 51.5007], zoom: 16, pitch: 50, bearing: 30 },

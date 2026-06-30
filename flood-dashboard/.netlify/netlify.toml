@@ -1,0 +1,28 @@
+plugins = []
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "/Users/mayabriks/Desktop/שנקר/כלי עיצוב/Code_one_on_One/flood-dashboard/dist"
+publishOrigin = "ui"
+commandOrigin = "ui"
+base = "/Users/mayabriks/Desktop/שנקר/כלי עיצוב/Code_one_on_One/flood-dashboard"
+command = "npm run build"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]

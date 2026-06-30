@@ -29,7 +29,7 @@ const HAZARD_ZONE_RING: [number, number][] = [
   [-80.18869, 25.762004], [-80.188599, 25.762642], [-80.188588, 25.762877],
 ];
 
-const HAZARD_ZONE_CENTROID: [number, number] = (() => {
+export const HAZARD_ZONE_CENTROID: [number, number] = (() => {
   const sum = HAZARD_ZONE_RING.reduce((acc, [lng, lat]) => [acc[0] + lng, acc[1] + lat], [0, 0]);
   return [sum[0] / HAZARD_ZONE_RING.length, sum[1] / HAZARD_ZONE_RING.length];
 })();

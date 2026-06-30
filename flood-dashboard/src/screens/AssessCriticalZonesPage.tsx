@@ -169,7 +169,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         <button
           onClick={onBack}
           className="absolute flex items-center gap-[10px] left-[32px] top-[99px]"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', pointerEvents: 'auto' }}
         >
           <span className="font-semibold text-[26px] leading-[28px] text-white">←</span>
           <span className="font-semibold text-[26px] leading-[28px] tracking-[-0.44px] text-white">Harbor District</span>
@@ -183,6 +183,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             borderRadius: 16,
             background: 'rgba(255,255,255,0.85)',
             border: '1px solid rgba(255,255,255,0.3)',
+            pointerEvents: 'auto',
           }}
         >
           <p
@@ -296,6 +297,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               : '0 2px 8px rgba(0,0,0,0.08)',
             zIndex: isOpen ? 30 : 5,
             cursor: handler ? 'pointer' : 'default',
+            pointerEvents: 'auto',
           };
 
           const pillRow = (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Map3DBackground from './components/Map3DBackground';
 import HomePage from './screens/HomePage';
-import HomePageAlert from './screens/HomePageAlert';
+import HomePageAlert, { HAZARD_ZONE_CENTROID } from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
 import AssessCriticalZonesPage from './screens/AssessCriticalZonesPage';
 import ResponsePlanningPage from './screens/ResponsePlanningPage';
@@ -51,8 +51,8 @@ export default function App() {
     const map = mapRef.current;
     if (map) {
       map.flyTo({
-        center: [-80.185, 25.775],
-        zoom: 18.4,
+        center: HAZARD_ZONE_CENTROID,
+        zoom: 19.0,
         pitch: 72,
         bearing: -10,
         duration: 2200,
@@ -175,14 +175,14 @@ export default function App() {
         <div
           ref={s3Ref}
           className="absolute inset-0"
-          style={{ zIndex: 10 }}
+          style={{ zIndex: 10, pointerEvents: 'none' }}
         >
           <AlertPage onZoomOut={handleZoomOut} onPlan={handleOpenAssessCriticalZones} />
         </div>
       )}
       {/* Screen 4 — Assess Critical Zones */}
       {screen === 'assess-critical-zones' && (
-        <div className="absolute inset-0" style={{ zIndex: 10 }}>
+        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AssessCriticalZonesPage
             onBack={() => setScreen('alert')}
             onPlan={handleOpenComparison}

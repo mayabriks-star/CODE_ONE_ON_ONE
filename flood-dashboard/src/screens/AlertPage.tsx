@@ -35,6 +35,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
             borderRadius: 16,
             background: 'rgba(255,255,255,0.85)',
             border: '1px solid rgba(255,255,255,0.3)',
+            pointerEvents: 'auto',
           }}
         >
           {/* Header */}
@@ -139,6 +140,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               justifyContent: 'center',
               alignItems: 'flex-start',
               gap: 20,
+              pointerEvents: 'auto',
             }}
           >
             {/* X close button — Figma node 396:1307, absolute x:9 y:8, 23×23 */}

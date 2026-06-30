@@ -19,7 +19,7 @@ export const CITY = PLACES[0]
 export const VIEW_LIMITS = {
   radiusKm: 3,
   minZoom: 14,
-  maxZoom: 18.5,
+  maxZoom: 19.2,
 }
 
 // Axis-aligned bounds box around a center point, for map.setMaxBounds().

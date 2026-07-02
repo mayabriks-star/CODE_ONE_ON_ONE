@@ -97,19 +97,38 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               </button>
               <div>
                 <p className="font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#1e2939] ml-[13px]">
-                  Program stages:
+                  Program stages
                 </p>
-                <div className="relative mt-[14px]" style={{ height: 178, width: 289 }}>
-                  {STEPS.map((step, i) => (
-                    <div
-                      key={i}
-                      className="absolute flex gap-[17px] items-center"
-                      style={{ left: 0, right: 0, top: i * 32, height: 67, paddingLeft: 13, paddingRight: 32, borderRadius: 20 }}
-                    >
-                      <span className="font-medium text-[16px] text-[#505153] leading-[1.25] flex-shrink-0">{i + 1}</span>
-                      <span className="font-medium text-[16px] text-[#505153] leading-[1.3]">{step}</span>
-                    </div>
-                  ))}
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px', marginLeft: '13px' }}>
+                  {/* Vertical connecting line — same token values as the
+                      Implementation Schedule stepper used on the zone detail
+                      screens (e.g. CoastalRoadAccessPage.tsx). */}
+                  <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: `${(STEPS.length - 1) * 40}px`, background: '#364153', zIndex: 0 }} />
+                  {STEPS.map((step, i) => {
+                    const isActive = i === 0;
+                    return (
+                      <div key={step} style={{ display: 'flex', gap: '15px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                        <div
+                          style={{
+                            width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: isActive ? '#364153' : 'white',
+                            border: '1.5px solid #364153',
+                          }}
+                        >
+                          <span style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : '#364153' }}>{i + 1}</span>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 15, fontWeight: isActive ? 600 : 500,
+                            color: isActive ? '#1e2939' : '#505153',
+                          }}
+                        >
+                          {step}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

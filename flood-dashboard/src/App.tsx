@@ -12,8 +12,9 @@ import ResidentialEdgePage from './screens/ResidentialEdgePage';
 import PumpCapacityPage from './screens/PumpCapacityPage';
 import CompareResponseScenariosPage from './screens/CompareResponseScenariosPage';
 import SimulateResponseScenariosPage from './screens/SimulateResponseScenariosPage';
+import AllocateBudgetTeamsPage from './screens/AllocateBudgetTeamsPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'simulate-scenarios' | 'planning' | 'compare-scenarios' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'simulate-scenarios' | 'planning' | 'compare-scenarios' | 'allocate-budget-teams' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
 
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 3);
@@ -85,6 +86,10 @@ export default function App() {
 
   function handleOpenComparison() {
     setScreen('compare-scenarios');
+  }
+
+  function handleOpenAllocateBudget() {
+    setScreen('allocate-budget-teams');
   }
 
   function handleOpenSimulateScenarios() {
@@ -162,7 +167,7 @@ export default function App() {
     <div className="w-screen h-screen overflow-hidden relative">
       {/* 3D map — persistent background for all map-based screens */}
       {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones'
-        || screen === 'simulate-scenarios'
+        || screen === 'simulate-scenarios' || screen === 'compare-scenarios' || screen === 'allocate-budget-teams'
         || screen === 'coastal-road' || screen === 'vulnerable-residents' || screen === 'electric-utility'
         || screen === 'residential-edge' || screen === 'pump-capacity') && (
         <Map3DBackground onMapReady={(m) => {
@@ -195,7 +200,7 @@ export default function App() {
             : { zIndex: 10, pointerEvents: 'none' }
           }
         >
-          <HomePageAlert onRedZoneClick={handleRedZoneClick} onAlertClick={() => setScreen('alert')} map={mapRef.current} />
+          <HomePageAlert onRedZoneClick={handleRedZoneClick} map={mapRef.current} />
         </div>
       )}
 
@@ -248,8 +253,18 @@ export default function App() {
       )}
       {/* Screen — Compare Response Scenarios */}
       {screen === 'compare-scenarios' && (
-        <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
-          <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} />
+        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+          <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} onContinue={handleOpenAllocateBudget} />
+        </div>
+      )}
+      {/* Screen — Allocate Budget & Teams */}
+      {screen === 'allocate-budget-teams' && (
+        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+          <AllocateBudgetTeamsPage
+            onBack={() => setScreen('compare-scenarios')}
+            onContinue={() => setScreen('planning')}
+            map={mapRef.current}
+          />
         </div>
       )}
       {/* Screen 6 — Costal Road Access detail */}

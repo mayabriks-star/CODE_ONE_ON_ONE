@@ -1,7 +1,24 @@
 import { TrendingUp, Waves, Building2, Droplets, Radio, ArrowUp } from 'lucide-react';
 import { cityOverview } from '../../mockData';
 
-export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDistrictsProp }: { vulnerableDistricts?: string }) {
+interface Props {
+  vulnerableDistricts?: string;
+  // When true, the panel reflects the live alert state instead of the
+  // baseline "Moderate" overview — same data/copy established on the Alert
+  // screen and the hazard-zone hover card, kept consistent rather than
+  // inventing new alert language here.
+  alert?: boolean;
+}
+
+export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDistrictsProp, alert }: Props) {
+  const status = alert ? 'Severe' : cityOverview.status;
+  const statusColor = alert ? '#b91d1d' : '#ffae00';
+  const description = alert
+    ? 'Sea level has reached a level that requires preventive action.'
+    : cityOverview.description;
+  const seaLevel = alert ? '+46 mm' : cityOverview.seaLevel;
+  const seaLevelPeriod = alert ? '(1h)' : cityOverview.seaLevelPeriod;
+
   return (
     <div className="absolute left-[21px] top-[119px] w-[326px] glass-65 glass-shadow rounded-[16px] py-[10px] flex flex-col gap-[11px]">
       {/* Live Monitoring header */}
@@ -24,19 +41,19 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
         City Overview
       </span>
 
-      {/* City Overview container: Moderate status + description grouped */}
+      {/* City Overview container: status + description grouped */}
       <div className="flex flex-col gap-[3px] w-full px-[11px] py-[6px]">
         <div className="flex items-center gap-[15px]">
-          <div className="w-[24px] h-[24px] rounded-full bg-[#ffae00] flex-shrink-0" />
+          <div className="w-[24px] h-[24px] rounded-full flex-shrink-0" style={{ background: statusColor }} />
           <div className="flex flex-col">
-            <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">Moderate</span>
+            <span className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">{status}</span>
             <span className="font-medium text-[14px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</span>
           </div>
         </div>
         <div className="flex gap-[15px] items-center">
           <div className="w-[24px] h-[14px] flex-shrink-0" />
           <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
-            {cityOverview.description}
+            {description}
           </p>
         </div>
       </div>
@@ -55,10 +72,10 @@ export default function LiveMonitoringPanel({ vulnerableDistricts: vulnerableDis
           <div style={{ width: '155px', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <div style={{ width: '68px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
               <ArrowUp size={9} className="text-[#d53c4b]" strokeWidth={2.5} />
-              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{cityOverview.seaLevel}</span>
+              <span className="font-semibold text-[14px] leading-[21px] tracking-[-0.44px] text-black">{seaLevel}</span>
             </div>
             <div style={{ width: '87px', flexShrink: 0, textAlign: 'right' }}>
-              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">{cityOverview.seaLevelPeriod}</span>
+              <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px] text-[#505153]">{seaLevelPeriod}</span>
             </div>
           </div>
         </div>

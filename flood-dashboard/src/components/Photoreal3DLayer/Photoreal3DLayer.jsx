@@ -5,6 +5,11 @@ import { useMap } from '../MapView/map-context.js'
 import { flyToLngLat } from '../MapView/fly-to.js'
 import { GOOGLE_3D_TILES_URL, KEYS, PHOTOREAL } from '../../config/map-config.js'
 
+// ?debug=1 disables the click-to-zoom-into-building behavior below, so a
+// debug click-to-pin tool elsewhere (e.g. HomePageAlert.tsx) can capture a
+// clean click without the camera flying away first.
+const DEBUG_MODE = new URLSearchParams(window.location.search).get('debug') === '1'
+
 // Overlays Google Photorealistic 3D Tiles ON the existing MapLibre map using an
 // interleaved deck.gl overlay (correct depth occlusion with the basemap labels).
 // Only mounted in 'photoreal' mode, which itself requires a Google key.
@@ -35,6 +40,7 @@ const Photoreal3DLayer = ({ onAttribution }) => {
       pickable: true,
       autoHighlight: false,
       onClick: (info) => {
+        if (DEBUG_MODE) return
         if (info?.coordinate) flyToLngLat(map, info.coordinate)
       },
     })

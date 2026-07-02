@@ -8,7 +8,7 @@ export const cityOverview = {
   vulnerableDistricts: '12',
   totalDistricts: '28',
   tideStatus: 'Incoming',
-  tideTime: 'Hight in 2h 18m',
+  tideTime: 'High in 2h 18m',
   description:
     'Sea conditions are stable with moderate risk along the coastline. Protection systems are operational and effective.',
 };

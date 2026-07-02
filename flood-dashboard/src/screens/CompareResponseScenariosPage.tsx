@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Menu, Bell } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import HomePageHeader from '../components/shared/HomePageHeader';
 
 interface Props {
   onBack: () => void;
+  onContinue?: () => void;
 }
 
 type MeasureValue = 'yes' | 'no' | 'partial';
 type EffortLevel = 'high' | 'moderate' | 'low';
 
-interface ScenarioData {
+export interface ScenarioData {
   id: string;
   roleLabel: string;
   name: string;
@@ -30,7 +32,7 @@ interface ScenarioData {
   mainTradeoff: string;
 }
 
-const AVAILABLE_BUDGET = 24_000_000;
+export const AVAILABLE_BUDGET = 24_000_000;
 
 const SCENARIOS: ScenarioData[] = [
   {
@@ -98,6 +100,10 @@ const SCENARIOS: ScenarioData[] = [
   },
 ];
 
+// Reused by AllocateBudgetTeamsPage so its budget total/measures match
+// exactly what was selected on this screen, instead of new arbitrary numbers.
+export const SELECTED_SCENARIO = SCENARIOS.find((s) => s.id === 'selected')!;
+
 function CheckCell({ v }: { v: MeasureValue }) {
   if (v === 'yes') return <span style={{ color: '#00a63e', fontSize: 17, fontWeight: 700, lineHeight: 1 }}>✓</span>;
   if (v === 'no') return <span style={{ color: '#b91d1d', fontSize: 17, fontWeight: 700, lineHeight: 1 }}>✗</span>;
@@ -128,26 +134,26 @@ function MiniBar({ pct, isOver }: { pct: number; isOver: boolean }) {
   );
 }
 
-function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
+export function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
   usedPct: number; costLabel: string; availLabel: string; remainLabel: string;
 }) {
-  const r = 36, cx = 46, cy = 46;
+  const size = 76, r = 30, cx = 38, cy = 38;
   const circum = 2 * Math.PI * r;
   const usedDash = (usedPct / 100) * circum;
   const remainDash = circum - usedDash;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-      <div style={{ position: 'relative', width: 92, height: 92, flexShrink: 0 }}>
-        <svg viewBox="0 0 92 92" width={92} height={92}>
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth={11} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+        <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth={9} />
           <circle
-            cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth={11}
+            cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth={9}
             strokeDasharray={`${remainDash} ${usedDash}`}
             transform={`rotate(${-90 + (usedPct / 100) * 360} ${cx} ${cy})`}
           />
           <circle
-            cx={cx} cy={cy} r={r} fill="none" stroke="#364153" strokeWidth={11}
+            cx={cx} cy={cy} r={r} fill="none" stroke="#364153" strokeWidth={9}
             strokeDasharray={`${usedDash} ${remainDash}`}
             transform={`rotate(-90 ${cx} ${cy})`}
           />
@@ -156,28 +162,28 @@ function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none',
         }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#364153', lineHeight: 1 }}>{usedPct}%</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#364153', lineHeight: 1 }}>{usedPct}%</div>
           <div style={{ fontSize: 8, color: '#6b778a', marginTop: 2 }}>used</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px', marginBottom: 3 }}>Selected cost</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px', lineHeight: 1 }}>{costLabel}</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px', marginBottom: 2 }}>Selected cost</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px', lineHeight: 1 }}>{costLabel}</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#364153', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px' }}>Budget used · {usedPct}%</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#e5e7eb', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px' }}>Remaining · {remainLabel}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, flexShrink: 0 }} />
-            <span style={{ fontSize: 11, color: '#6b778a', letterSpacing: '-0.2px' }}>Available budget · {availLabel}</span>
+            <span style={{ fontSize: 12, color: '#6b778a', letterSpacing: '-0.2px' }}>Available budget · {availLabel}</span>
           </div>
         </div>
       </div>
@@ -185,18 +191,8 @@ function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
   );
 }
 
-export default function CompareResponseScenariosPage({ onBack }: Props) {
-  const DESIGN_PAGE_HEIGHT = 900;
-  const [pageScale, setPageScale] = useState(() =>
-    Math.min(1, window.innerHeight / DESIGN_PAGE_HEIGHT)
-  );
+export default function CompareResponseScenariosPage({ onBack, onContinue }: Props) {
   const [hoveredCol, setHoveredCol] = useState<string | null>(null);
-
-  useEffect(() => {
-    const update = () => setPageScale(Math.min(1, window.innerHeight / DESIGN_PAGE_HEIGHT));
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   const activeCol = hoveredCol ?? 'selected';
   const sel = SCENARIOS.find(s => s.id === 'selected')!;
@@ -214,13 +210,13 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
   ];
 
   const outcomeRows: { label: string; render: (s: ScenarioData) => React.ReactNode }[] = [
-    { label: 'Total cost', render: s => <span style={{ fontSize: 14, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px' }}>{s.totalCost}</span> },
+    { label: 'Total cost', render: s => <span style={{ fontSize: 13, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px' }}>{s.totalCost}</span> },
     { label: 'Budget used', render: s => <MiniBar pct={s.budgetPct} isOver={s.budgetPct > 100} /> },
-    { label: 'Residents protected', render: s => <span style={{ fontSize: 14, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px' }}>{s.residentsProtected.toLocaleString()}</span> },
+    { label: 'Residents protected', render: s => <span style={{ fontSize: 13, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px' }}>{s.residentsProtected.toLocaleString()}</span> },
     { label: 'Flood-risk reduction', render: s => <RiskBar pct={s.floodRiskReduction} /> },
-    { label: 'Delay to first impact', render: s => <span style={{ fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
-    { label: 'Implementation time', render: s => <span style={{ fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.implementationTime}</span> },
-    { label: 'Main trade-off', render: s => <span style={{ fontSize: 13, color: '#505153', letterSpacing: '-0.2px', lineHeight: 1.4 }}>{s.mainTradeoff}</span> },
+    { label: 'Delay to first impact', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
+    { label: 'Implementation time', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.implementationTime}</span> },
+    { label: 'Main trade-off', render: s => <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px', lineHeight: 1.4 }}>{s.mainTradeoff}</span> },
   ];
 
   const tableSections = [
@@ -232,7 +228,7 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
     const active = s.id === activeCol;
     return {
       flex: 1,
-      padding: '9px 13px',
+      padding: '8px 12px',
       background: active ? '#364153' : 'transparent',
       borderTop: `2px solid ${active ? '#364153' : 'transparent'}`,
       borderLeft: '1px solid rgba(0,0,0,0.06)',
@@ -249,7 +245,7 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
     const active = s.id === activeCol;
     return {
       flex: 1,
-      padding: '8px 13px',
+      padding: '5px 12px',
       background: active ? 'rgba(54,65,83,0.05)' : 'transparent',
       boxShadow: active ? 'inset 1px 0 0 rgba(54,65,83,0.18), inset -1px 0 0 rgba(54,65,83,0.18)' : undefined,
       display: 'flex',
@@ -260,46 +256,38 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
   }
 
   return (
-    <div
-      className="screen-enter"
-      style={{ width: '100vw', height: '100vh', overflowY: 'auto', background: '#f8f8f8' }}
-    >
-      <div style={{ marginTop: '6px', zoom: pageScale }}>
+    <div className="screen-enter">
+      <HomePageHeader />
 
-        {/* Header */}
-        <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-              <Menu size={20} />
-            </button>
-            <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Bell size={20} color="#364153" />
-            </div>
-          </div>
-          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
-            <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-              <ArrowLeft size={20} />
-            </button>
-            <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-              Compare Response Scenarios
-            </span>
-          </div>
-        </div>
+      {/* Back arrow + title — sits directly over the map, white text for
+          contrast (same convention as the back button on AssessCriticalZonesPage,
+          Section H in the design doc). */}
+      <div style={{ position: 'fixed', left: 32, top: 99, display: 'flex', alignItems: 'center', gap: 16, pointerEvents: 'auto' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+          <ArrowLeft size={26} color="white" />
+        </button>
+        <span style={{ fontSize: 22, fontWeight: 600, color: 'white', letterSpacing: '-0.44px', lineHeight: '26px' }}>
+          Compare Response Scenarios
+        </span>
+      </div>
 
-        {/* Content */}
-        <div style={{ paddingLeft: '70px', paddingRight: '70px', boxSizing: 'border-box' as const }}>
-          <div style={{ paddingBottom: '20px' }}>
-
-            {/* Step label */}
-            <p style={{ margin: '12px 0 0', fontSize: '13px', fontWeight: 500, color: '#6b778a', letterSpacing: '-0.44px' }}>
-              Step 2 · Simulate Response Scenarios
-            </p>
-
+      {/* Large card floating over the map — leaves a visible map margin on
+          all sides instead of painting over the whole viewport. */}
+      <div
+        className="glass-shadow"
+        style={{
+          position: 'fixed', left: 32, right: 32, top: 100, bottom: 32,
+          background: 'rgba(255,255,255,0.92)', borderRadius: 20,
+          padding: '24px 28px', boxSizing: 'border-box' as const,
+          display: 'flex', flexDirection: 'column', gap: 8,
+          overflow: 'hidden', pointerEvents: 'auto',
+        }}
+      >
             {/* Top summary */}
             <div style={{
-              marginTop: '12px', background: 'white', borderRadius: '16px',
-              padding: '14px 20px', display: 'flex', alignItems: 'center',
-              gap: 0, boxSizing: 'border-box' as const,
+              background: 'white', borderRadius: '16px',
+              padding: '10px 20px', display: 'flex', alignItems: 'center',
+              gap: 0, boxSizing: 'border-box' as const, flexShrink: 0,
             }}>
               {/* Budget donut */}
               <div style={{ paddingRight: 28, marginRight: 28, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
@@ -337,11 +325,11 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
             </div>
 
             {/* Comparison table */}
-            <div style={{ marginTop: '12px', background: 'white', borderRadius: '20px', overflow: 'hidden' }}>
+            <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', flexShrink: 1, minHeight: 0 }}>
 
               {/* Column headers */}
               <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-                <div style={{ width: 168, flexShrink: 0, padding: '14px 16px', display: 'flex', alignItems: 'flex-end' }}>
+                <div style={{ width: 168, flexShrink: 0, padding: '8px 14px', display: 'flex', alignItems: 'flex-end' }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#6b778a', letterSpacing: '0.4px', textTransform: 'uppercase' as const }}>Factors</span>
                 </div>
                 {SCENARIOS.map(s => (
@@ -382,7 +370,7 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
               {/* Sections */}
               {tableSections.map((section, sIdx) => (
                 <div key={section.title}>
-                  <div style={{ display: 'flex', background: 'rgba(0,0,0,0.025)', padding: '5px 14px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                  <div style={{ display: 'flex', background: 'rgba(0,0,0,0.025)', padding: '3px 14px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: '#6b778a', letterSpacing: '0.7px', textTransform: 'uppercase' as const }}>
                       {section.title}
                     </span>
@@ -398,8 +386,8 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
                           borderBottom: isLastRow && isLastSection ? undefined : '1px solid rgba(0,0,0,0.05)',
                         }}
                       >
-                        <div style={{ width: 168, flexShrink: 0, padding: '10px 16px', display: 'flex', alignItems: 'center' }}>
-                          <span style={{ fontSize: 13, fontWeight: 400, color: '#505153', letterSpacing: '-0.3px' }}>
+                        <div style={{ width: 168, flexShrink: 0, padding: '6px 14px', display: 'flex', alignItems: 'center' }}>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>
                             {row.label}
                           </span>
                         </div>
@@ -421,8 +409,8 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
             </div>
 
             {/* Continue */}
-            <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end' }}>
-              <button style={{
+            <div style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
+              <button onClick={onContinue} style={{
                 width: '223px', height: '40px',
                 background: '#323232', borderRadius: '100px', border: 'none',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -431,9 +419,6 @@ export default function CompareResponseScenariosPage({ onBack }: Props) {
                 Continue
               </button>
             </div>
-
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -52,35 +52,35 @@ const ZONE_LIST = [
 // drag-to-place debug tool.
 const MAP_TABS = [
   {
-    lngLat: [-80.190393, 25.764016] as [number, number], width: 190,
+    lngLat: [-80.190072, 25.762479] as [number, number], width: 190,
     icon: '/icons/tab-car.svg',
     title: 'Costal Road Access',
     subtitle: 'Potential disruption',
     action: 'coastal' as const,
   },
   {
-    lngLat: [-80.193672, 25.769357] as [number, number], width: 242,
+    lngLat: [-80.193974, 25.768884] as [number, number], width: 242,
     icon: '/icons/tab-electric.svg',
     title: 'Electric Utility Point',
     subtitle: 'Changing the defense system',
     action: 'electric' as const,
   },
   {
-    lngLat: [-80.189007, 25.76613] as [number, number], width: 211,
+    lngLat: [-80.189149, 25.766935] as [number, number], width: 211,
     icon: '/icons/tab-building.svg',
     title: 'Residential Edge Blocks',
     subtitle: 'Higher exposure',
     action: 'residential' as const,
   },
   {
-    lngLat: [-80.192295, 25.762711] as [number, number], width: 208,
+    lngLat: [-80.191864, 25.759567] as [number, number], width: 208,
     icon: '/icons/tab-water.svg',
     title: 'Increase pump capacity',
     subtitle: 'Back-flow risk',
     action: 'pump' as const,
   },
   {
-    lngLat: [-80.195504, 25.765652] as [number, number], width: 215,
+    lngLat: [-80.194403, 25.762863] as [number, number], width: 215,
     icon: '/icons/tab-people.svg',
     title: 'Vulnerable Residents',
     subtitle: 'Support planning needed',
@@ -108,7 +108,7 @@ const HOVER_DATA: Record<string, {
   },
   'Residential Edge Blocks': {
     accent: '#bf5761',
-    opensAbove: true,
+    opensAbove: false,
     description: 'Residential edges near the shoreline may face repeated water intrusion, access limitations, and damage to shared ground-floor areas.',
     proposed: 'Adapt ground-floor access points.',
   },
@@ -120,16 +120,57 @@ const HOVER_DATA: Record<string, {
   },
   'Vulnerable Residents': {
     accent: '#84af79',
-    opensAbove: true,
+    opensAbove: false,
     description: 'Low-lying residential blocks include residents who may need assisted access, clearer alerts, and continuity of daily services during flood events.',
     proposed: 'Improve building access and resident support.',
   },
 };
 
+const IS_DEBUG = new URLSearchParams(window.location.search).has('debug');
+
 export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, map }: Props) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [animDone, setAnimDone] = useState(skipAnimation ?? false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debug drag state — only active when ?debug is in the URL
+  const [debugLngLats, setDebugLngLats] = useState<[number, number][]>(() => {
+    if (IS_DEBUG) {
+      try {
+        const saved = localStorage.getItem('tab-debug-positions');
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return MAP_TABS.map(t => t.lngLat);
+  });
+  const dragState = useRef<{ idx: number; startClientX: number; startClientY: number; startPx: number; startPy: number } | null>(null);
+
+  // Persist debug positions to localStorage so they survive page refresh
+  useEffect(() => {
+    if (!IS_DEBUG) return;
+    localStorage.setItem('tab-debug-positions', JSON.stringify(debugLngLats));
+  }, [debugLngLats]);
+
+  useEffect(() => {
+    if (!IS_DEBUG) return;
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragState.current || !map) return;
+      const dx = e.clientX - dragState.current.startClientX;
+      const dy = e.clientY - dragState.current.startClientY;
+      const newPx = dragState.current.startPx + dx;
+      const newPy = dragState.current.startPy + dy;
+      const ll = map.unproject([newPx, newPy]);
+      setDebugLngLats(prev => {
+        const next = [...prev] as [number, number][];
+        next[dragState.current!.idx] = [ll.lng, ll.lat];
+        return next;
+      });
+    };
+    const onMouseUp = () => { dragState.current = null; };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); };
+  }, [map]);
 
   useEffect(() => {
     if (skipAnimation) return;
@@ -144,8 +185,9 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
   useEffect(() => {
     if (!map) return;
+    const effectiveLngLats = IS_DEBUG ? debugLngLats : MAP_TABS.map(t => t.lngLat);
     const updatePositions = () => {
-      setTabPositions(MAP_TABS.map((tab) => map.project(tab.lngLat)));
+      setTabPositions(effectiveLngLats.map((ll) => map.project(ll)));
     };
     updatePositions();
     map.on('move', updatePositions);
@@ -154,7 +196,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
       map.off('move', updatePositions);
       window.removeEventListener('resize', updatePositions);
     };
-  }, [map]);
+  }, [map, debugLngLats]);
 
   function handleEnter(title: string) {
     if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -186,25 +228,13 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         }
       `}</style>
       <ScaledLayout className="screen-enter">
-        <HomePageHeader />
-
-        <button
-          onClick={onBack}
-          className="absolute flex items-center gap-[10px] left-[32px] top-[99px]"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          <span className="font-semibold text-[26px] leading-[28px] text-white">←</span>
-          <span className="font-semibold text-[26px] leading-[28px] tracking-[-0.44px] text-white">Harbor District</span>
-        </button>
 
         {/* Left info card */}
         <div
-          className="absolute glass-shadow"
+          className="absolute glass-65 glass-shadow"
           style={{
-            left: 16, top: 138, width: 386, height: 778,
+            left: 16, top: 80, width: 386, height: 912,
             borderRadius: 16,
-            background: 'rgba(255,255,255,0.85)',
-            border: '1px solid rgba(255,255,255,0.3)',
             pointerEvents: 'auto',
           }}
         >
@@ -254,17 +284,19 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
           <button
             onClick={onPlan}
-            className="absolute w-[313px] h-[37px] rounded-[14px] flex items-center justify-center"
+            className="absolute w-[354px] h-[44px] rounded-[12px] flex items-center justify-center"
             style={{
-              left: 41, top: 722,
+              left: 16, bottom: 16,
               background: 'rgba(16,24,40,0.9)',
               cursor: 'pointer',
             }}
           >
-            <span className="font-medium text-[14px] text-white">Simulate response scenarios</span>
+            <span className="font-semibold text-[15px] text-white tracking-[-0.3px]">Simulate response scenarios</span>
           </button>
         </div>
       </ScaledLayout>
+
+      <HomePageHeader />
 
       {/* Map tabs — geo-anchored via map.project(), rendered in raw viewport
           pixels outside ScaledLayout so they track the map on pan/zoom. */}
@@ -314,8 +346,9 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               ? '0 4px 24px rgba(0,0,0,0.15)'
               : '0 2px 8px rgba(0,0,0,0.08)',
             zIndex: isOpen ? 30 : 5,
-            cursor: handler ? 'pointer' : 'default',
+            cursor: IS_DEBUG ? 'grab' : (handler ? 'pointer' : 'default'),
             pointerEvents: 'auto',
+            outline: IS_DEBUG ? '2px dashed rgba(255,100,0,0.5)' : undefined,
           };
 
           const pillRow = (
@@ -376,9 +409,13 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             <div key={tab.title}>
               {/* Single container: compact pill ↔ expanded card */}
               <div
-                onClick={handler}
+                onClick={IS_DEBUG ? undefined : handler}
                 onMouseEnter={() => handleEnter(tab.title)}
                 onMouseLeave={handleLeave}
+                onMouseDown={IS_DEBUG ? (e) => {
+                  dragState.current = { idx: i, startClientX: e.clientX, startClientY: e.clientY, startPx: pos.x, startPy: pos.y };
+                  e.preventDefault();
+                } : undefined}
                 style={containerStyle}
               >
                 {isUpward ? (
@@ -424,6 +461,37 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             </div>
           );
         })}
+      {/* Debug position overlay — visible only with ?debug in URL */}
+      {IS_DEBUG && (
+        <div style={{
+          position: 'fixed', bottom: 16, right: 16, zIndex: 9999,
+          background: 'rgba(0,0,0,0.88)', color: '#0f0', fontFamily: 'monospace',
+          fontSize: 11, borderRadius: 8, padding: '10px 14px', maxWidth: 440,
+          userSelect: 'text', pointerEvents: 'auto',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontWeight: 700, color: 'white' }}>🔧 Tab positions — drag to move</span>
+            <button
+              onClick={() => {
+                const txt = MAP_TABS.map((tab, i) =>
+                  `  { lngLat: [${debugLngLats[i][0].toFixed(6)}, ${debugLngLats[i][1].toFixed(6)}] as [number,number], ... }, // ${tab.title}`
+                ).join('\n');
+                navigator.clipboard.writeText(txt);
+              }}
+              style={{ marginLeft: 12, padding: '2px 8px', background: '#333', border: '1px solid #555', borderRadius: 4, color: 'white', cursor: 'pointer', fontSize: 11 }}
+            >
+              Copy
+            </button>
+          </div>
+          {MAP_TABS.map((tab, i) => (
+            <div key={tab.title} style={{ marginBottom: 3 }}>
+              <span style={{ color: '#aaa' }}>{tab.title.slice(0, 22).padEnd(24)}</span>
+              <span style={{ color: '#0f0' }}>[{debugLngLats[i][0].toFixed(6)}, {debugLngLats[i][1].toFixed(6)}]</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 8, color: '#666', fontSize: 10 }}>Positions auto-saved · refresh safe</div>
+        </div>
+      )}
     </>
   );
 }

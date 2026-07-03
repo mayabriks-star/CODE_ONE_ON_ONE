@@ -50,12 +50,10 @@ export default function App() {
     }
   }, [screen]);
 
-  // Defensive camera-restore: explicitly snapshot the camera on every move
-  // and re-apply it whenever returning to assess-critical-zones, so the map
-  // is guaranteed to look exactly as it did before leaving — regardless of
-  // any incidental camera change while a zone-detail screen was showing.
+  // On return visits from detail screens, restore the map to where it was.
+  // On first visit the map stays exactly as it was on the Alert screen — no camera change.
   useEffect(() => {
-    if (screen === 'assess-critical-zones' && mapRef.current && cameraRef.current) {
+    if (screen === 'assess-critical-zones' && assessVisited.current && mapRef.current && cameraRef.current) {
       mapRef.current.jumpTo(cameraRef.current);
     }
   }, [screen]);

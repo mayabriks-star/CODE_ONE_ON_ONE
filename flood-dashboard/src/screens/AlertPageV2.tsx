@@ -1,37 +1,75 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
-import { TriangleAlert, MapPin, Star } from 'lucide-react';
+import { TriangleAlert, MapPin, X, Search, BarChart2, Scale, Users, Rocket, ChevronRight } from 'lucide-react';
 
 interface Props {
   onZoomOut: () => void;
   onPlan: () => void;
 }
 
-const STEPS = [
-  'Assess critical zones',
-  'Simulate response scenarios',
-  'Compare intervention options',
-  'Allocate budget & teams',
-  'Launch action plan',
+const PLAN_STEPS = [
+  {
+    icon: Search,
+    title: 'Assess Critical Zones',
+    description: 'Identify the highest-risk areas in Harbor District before taking action.',
+    points: ['Review flood depth projections', 'Map vulnerable infrastructure', 'Rank zones by impact severity'],
+  },
+  {
+    icon: BarChart2,
+    title: 'Simulate Scenarios',
+    description: 'Model different protection strategies and compare projected outcomes.',
+    points: ['Run barrier vs. drainage models', 'Compare 3 and 10-year projections', 'Estimate cost per scenario'],
+  },
+  {
+    icon: Scale,
+    title: 'Compare Options',
+    description: 'Weigh each option against budget constraints and community impact.',
+    points: ['Short-term vs. long-term plans', 'Budget feasibility analysis', 'Risk-benefit comparison'],
+  },
+  {
+    icon: Users,
+    title: 'Assign Teams & Tasks',
+    description: 'Match tasks to response teams and set clear ownership per zone.',
+    points: ['Match tasks to expert teams', 'Set team leads per zone', 'Define deliverables & deadlines'],
+  },
+  {
+    icon: Rocket,
+    title: 'Launch Action Plan',
+    description: 'Deploy the approved plan and begin active flood protection.',
+    points: ['Activate first-response teams', 'Begin zone protections', 'Set monitoring checkpoints'],
+  },
 ];
 
 const X_LABELS = ['Today', '2030', '2040', '2050', '2060', '2070', '2080', '2090'];
 const X_POSITIONS = [107, 207, 329, 451, 573, 695, 817, 939];
 
-// Layout constants
+// Layout constants (design canvas pixels)
 const LEFT = 16;
 const W = 386;
 const GAP = 12;
 const CHIP_TOP = 93;
 const CARD1_TOP = 140;
 
+type Phase = 'collapsed' | 'expanded';
+
 export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [showCard2, setShowCard2] = useState(false);
-  const card1Ref = useRef<HTMLDivElement>(null);
-  const [card2Top, setCard2Top] = useState(CARD1_TOP + 292 + GAP);
+  const [phase, setPhase] = useState<Phase>('collapsed');
+  const [stepsVisible, setStepsVisible] = useState(false);
+  const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
+  const card1Ref = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const [card2Top, setCard2Top] = useState(CARD1_TOP + 292 + GAP);
+  const [collapsedH, setCollapsedH] = useState<number | null>(null);
+  const [vpScale, setVpScale] = useState(() =>
+    Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008)
+  );
+
+  // Measure Card 1 height to position the action card
   useEffect(() => {
     if (card1Ref.current) {
       setCard2Top(CARD1_TOP + card1Ref.current.offsetHeight + GAP);
@@ -40,29 +78,69 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
     return () => clearTimeout(t);
   }, []);
 
+  // Measure action card collapsed height once visible
+  useEffect(() => {
+    if (!showCard2 || collapsedH !== null) return;
+    const t = setTimeout(() => {
+      if (panelRef.current) setCollapsedH(panelRef.current.offsetHeight);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [showCard2, collapsedH]);
+
+  useEffect(() => {
+    const onResize = () =>
+      setVpScale(Math.min(1.0, window.innerWidth / 1512, window.innerHeight / 1008));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleOpenPlan = useCallback(() => {
+    if (phase !== 'collapsed') return;
+    if (panelRef.current && collapsedH === null) {
+      setCollapsedH(panelRef.current.offsetHeight);
+    }
+    setPhase('expanded');
+    setTimeout(() => setStepsVisible(true), 380);
+  }, [phase, collapsedH]);
+
+  const handleClosePlan = useCallback(() => {
+    setStepsVisible(false);
+    setTimeout(() => setPhase('collapsed'), 180);
+  }, []);
+
+  // Viewport pixel dimensions
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const panelLeft = LEFT * vpScale;
+  const panelTop = card2Top * vpScale;
+  const collapsedW = W * vpScale;
+  const fullW = vw - panelLeft - 16 * vpScale;
+  const fullH = vh - panelTop - 16 * vpScale;
+
+  const panelW = phase === 'expanded' ? fullW : collapsedW;
+  const panelH = phase === 'collapsed' ? (collapsedH ?? 'auto') : fullH;
+
+  const isOpen = phase !== 'collapsed';
+
+  // s = vpScale shorthand for inline sizes
+  const s = vpScale;
+
   return (
     <>
       <ScaledLayout className="screen-enter">
 
-        {/* ── Location chip — identical style to HomePageAlert chip ── */}
+        {/* ── Location chip ── */}
         <div
           className="absolute glass-65 glass-shadow flex items-center gap-[8px]"
           style={{
-            left: LEFT, top: CHIP_TOP,
-            width: W,
-            borderRadius: 100,
-            padding: '7px 14px 7px 16px',
-            pointerEvents: 'auto',
+            left: LEFT, top: CHIP_TOP, width: W,
+            borderRadius: 100, padding: '7px 14px 7px 16px', pointerEvents: 'auto',
           }}
         >
           <MapPin size={17} color="#1e2939" strokeWidth={2} style={{ flexShrink: 0 }} />
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>
-            Harbor District
-          </span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>Harbor District</span>
           <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.35)' }}>,</span>
-          <span style={{ fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.2px' }}>
-            Miami Beach, FL
-          </span>
+          <span style={{ fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.2px' }}>Miami Beach, FL</span>
         </div>
 
         {/* ── Card 1: Risk Status ── */}
@@ -71,7 +149,6 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
           className="absolute glass-65 glass-shadow"
           style={{ left: LEFT, top: CARD1_TOP, width: W, borderRadius: 16, pointerEvents: 'auto' }}
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-[16px] pt-[13px] pb-[12px]">
             <div className="flex items-center gap-[8px]">
               <TriangleAlert size={17} color="#1e2939" strokeWidth={2} />
@@ -79,14 +156,10 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                 Early Warning
               </span>
             </div>
-            {/* HIGH RISK tab badge */}
             <span style={{
-              fontSize: 12, fontWeight: 700, letterSpacing: '0.1px',
-              color: '#b91d1d',
-              background: 'rgba(185,29,29,0.10)',
-              border: '1px solid rgba(185,29,29,0.20)',
-              borderRadius: 100,
-              padding: '4px 11px',
+              fontSize: 12, fontWeight: 700, letterSpacing: '0.1px', color: '#b91d1d',
+              background: 'rgba(185,29,29,0.10)', border: '1px solid rgba(185,29,29,0.20)',
+              borderRadius: 100, padding: '4px 11px',
             }}>
               High Risk
             </span>
@@ -94,113 +167,27 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
 
           <div className="h-px bg-[rgba(0,0,0,0.07)] mx-[12px]" />
 
-          {/* Description */}
-          <p style={{
-            margin: '12px 16px 12px',
-            fontSize: 17, fontWeight: 500, color: '#6b7280',
-            lineHeight: '24px', letterSpacing: '-0.44px',
-          }}>
+          <p style={{ margin: '12px 16px 12px', fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
             Harbor District's sea level has breached the critical threshold, placing the area at immediate risk of coastal flooding.
           </p>
 
-          {/* Stat grid 2×2 */}
           <div className="grid grid-cols-2 gap-[10px] mx-[16px] mb-[16px]">
-
-            {/* 1 — When */}
-            <div className="rounded-[11px] flex flex-col gap-[4px]"
-              style={{ background: 'rgba(185,29,29,0.07)', padding: '10px 13px' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#b91d1d', letterSpacing: '-0.1px' }}>
-                Projected impact
-              </span>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#b91d1d', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>
-                12 mo
-              </span>
+            <div className="rounded-[11px] flex flex-col gap-[4px]" style={{ background: 'rgba(185,29,29,0.07)', padding: '10px 13px' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#b91d1d', letterSpacing: '-0.1px' }}>Projected impact</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#b91d1d', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>12 month</span>
             </div>
-
-            {/* 2 — How many */}
-            <div className="rounded-[11px] flex flex-col gap-[4px]"
-              style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>
-                People at risk
-              </span>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>
-                8,400
-              </span>
+            <div className="rounded-[11px] flex flex-col gap-[4px]" style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>People at risk</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>8,400</span>
             </div>
-
-            {/* 3 — When to respond */}
-            <div className="rounded-[11px] flex flex-col gap-[4px]"
-              style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>
-                Response start
-              </span>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>
-                Immediate
-              </span>
+            <div className="rounded-[11px] flex flex-col gap-[4px]" style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>Response start</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 }}>Immediate</span>
             </div>
-
-            {/* 4 — What type of response */}
-            <div className="rounded-[11px] flex flex-col gap-[4px]"
-              style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>
-                Action level
-              </span>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2, whiteSpace: 'nowrap' }}>
-                Protect & Adapt
-              </span>
+            <div className="rounded-[11px] flex flex-col gap-[4px]" style={{ background: 'rgba(0,0,0,0.04)', padding: '10px 13px' }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>Action level</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2, whiteSpace: 'nowrap' }}>Protect & Adapt</span>
             </div>
-
-          </div>
-        </div>
-
-        {/* ── Card 2: Action Plan — slides in after 2s ── */}
-        <div
-          className="absolute glass-65 glass-shadow"
-          style={{
-            left: LEFT, top: card2Top, width: W, borderRadius: 16, pointerEvents: 'auto',
-            opacity: showCard2 ? 1 : 0,
-            transform: showCard2 ? 'translateY(0)' : 'translateY(10px)',
-            transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1)',
-          }}
-        >
-          {/* Header */}
-          <div className="px-[16px] pt-[13px] pb-[12px]">
-            <span style={{ fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-              Recommended Action Plan
-            </span>
-          </div>
-
-          <div className="h-px bg-[rgba(0,0,0,0.07)] mx-[12px]" />
-
-          {/* Body */}
-          <p style={{
-            margin: '14px 16px 0',
-            fontSize: 17, fontWeight: 500, color: '#6b7280',
-            lineHeight: '24px', letterSpacing: '-0.44px',
-          }}>
-            The system built a recommended action plan for this situation. Acting now can delay the projected flood impact by over a year.
-          </p>
-
-
-          {/* Buttons */}
-          <div className="mx-[16px] mt-[14px] mb-[16px] flex flex-col gap-[10px]">
-            <button
-              onClick={onPlan}
-              className="w-full h-[44px] rounded-[12px] flex items-center justify-center"
-              style={{ background: 'rgba(16,24,40,0.90)' }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>
-                View Recommended Plan
-              </span>
-            </button>
-            <button
-              className="w-full h-[44px] rounded-[12px] flex items-center justify-center"
-              style={{ background: 'transparent', border: '1px solid rgba(30,41,57,0.25)' }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px' }}>
-                Build your own plan
-              </span>
-            </button>
           </div>
         </div>
 
@@ -258,6 +245,234 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
         )}
 
       </ScaledLayout>
+
+      {/* ── Unified Action Card: collapses/expands smoothly in one animation ── */}
+      <div
+        ref={panelRef}
+        className="glass-65 glass-shadow"
+        style={{
+          position: 'fixed',
+          left: panelLeft,
+          top: panelTop,
+          width: panelW,
+          height: panelH,
+          borderRadius: 16 * s,
+          zIndex: 200,
+          pointerEvents: showCard2 ? 'auto' : 'none',
+          overflow: 'hidden',
+          opacity: showCard2 ? 1 : 0,
+          transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1), width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.45s cubic-bezier(0.4,0,0.2,1)',
+          transform: showCard2 ? 'translateY(0)' : 'translateY(10px)',
+          display: 'flex', flexDirection: 'row', position: 'relative',
+        }}
+      >
+        {/* ── X button — absolute at top-right of the whole card ── */}
+        {isOpen && (
+          <button
+            onClick={handleClosePlan}
+            style={{
+              position: 'absolute', top: 14 * s, right: 14 * s, zIndex: 10,
+              width: 30 * s, height: 30 * s, borderRadius: '50%',
+              background: 'rgba(0,0,0,0.07)', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <X size={14 * s} color="#1e2939" strokeWidth={2.5} />
+          </button>
+        )}
+
+        {/* ── Left section: Card 2 content (always visible, same position) ── */}
+        <div style={{ width: collapsedW, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+
+          {/* Header */}
+          <div style={{ padding: `${13 * s}px ${16 * s}px ${12 * s}px` }}>
+            <span style={{ fontSize: 16 * s, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: `${28 * s}px` }}>
+              Recommended Action Plan
+            </span>
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: `0 ${12 * s}px` }} />
+
+          {/* Body */}
+          <p style={{
+            margin: `${14 * s}px ${16 * s}px 0`,
+            fontSize: 17 * s, fontWeight: 500, color: '#6b7280',
+            lineHeight: `${24 * s}px`, letterSpacing: '-0.44px',
+          }}>
+            The system built a recommended action plan for this situation. Acting now can delay the projected flood impact by over a year.
+          </p>
+
+          {/* Stat boxes — only when expanded */}
+          {isOpen && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 * s, margin: `${14 * s}px ${16 * s}px 0` }}>
+              <div style={{ background: 'rgba(70,129,55,0.08)', padding: `${10 * s}px ${13 * s}px`, borderRadius: 11 * s, display: 'flex', flexDirection: 'column', gap: 4 * s }}>
+                <span style={{ fontSize: 13 * s, fontWeight: 500, color: '#468137', letterSpacing: '-0.1px' }}>Impact delayed to</span>
+                <span style={{ fontSize: 18 * s, fontWeight: 700, color: '#468137', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 * s }}>2033</span>
+              </div>
+              <div style={{ background: 'rgba(0,0,0,0.04)', padding: `${10 * s}px ${13 * s}px`, borderRadius: 11 * s, display: 'flex', flexDirection: 'column', gap: 4 * s }}>
+                <span style={{ fontSize: 13 * s, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px' }}>Implementation</span>
+                <span style={{ fontSize: 18 * s, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.6px', lineHeight: 1, marginTop: 2 * s }}>18 months</span>
+              </div>
+            </div>
+          )}
+
+          {/* Start Assessment CTA — pinned to bottom when expanded */}
+          {isOpen && (
+            <div style={{ marginTop: 'auto', padding: `${16 * s}px` }}>
+              <button
+                onClick={onPlan}
+                style={{
+                  width: '100%', height: 44 * s, borderRadius: 12 * s,
+                  background: 'rgba(16,24,40,0.90)', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span style={{ fontSize: 15 * s, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>
+                  Start Assessment
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Buttons — only when collapsed */}
+          {!isOpen && (
+            <div style={{ margin: `${14 * s}px ${16 * s}px ${16 * s}px`, display: 'flex', flexDirection: 'column', gap: 10 * s }}>
+              <button
+                onClick={handleOpenPlan}
+                style={{
+                  width: '100%', height: 44 * s, borderRadius: 12 * s,
+                  background: 'rgba(16,24,40,0.90)', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span style={{ fontSize: 15 * s, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>
+                  View Recommended Plan
+                </span>
+              </button>
+              <button
+                style={{
+                  width: '100%', height: 44 * s, borderRadius: 12 * s,
+                  background: 'transparent', border: `1px solid rgba(30,41,57,0.25)`, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span style={{ fontSize: 15 * s, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px' }}>
+                  Build your own plan
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── Vertical divider between left and right sections ── */}
+        {isOpen && (
+          <div style={{
+            width: 1, background: 'rgba(0,0,0,0.07)', flexShrink: 0, alignSelf: 'stretch',
+            margin: `${16 * s}px 0`,
+            opacity: stepsVisible ? 1 : 0, transition: 'opacity 0.2s ease',
+          }} />
+        )}
+
+        {/* ── Right section: step cards centered vertically so X doesn't overlap ── */}
+        {isOpen && (
+          <div style={{
+            flex: 1, display: 'flex', alignItems: 'stretch',
+            padding: `${52 * s}px ${16 * s}px ${16 * s}px ${10 * s}px`,
+            minWidth: 0,
+            opacity: stepsVisible ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 10 * s, width: '100%' }}>
+            {PLAN_STEPS.map((step, i) => {
+              const StepIcon = step.icon;
+              const isActive = i === 0;
+              const isHovered = hoveredStep === i;
+              return (
+                <div
+                  key={step.title}
+                  style={{
+                    flex: 1, borderRadius: 14 * s,
+                    padding: `${18 * s}px ${14 * s}px`,
+                    display: 'flex', flexDirection: 'column',
+                    background: isActive
+                      ? 'rgba(30,41,57,0.96)'
+                      : isHovered ? 'rgba(0,0,0,0.055)' : 'rgba(0,0,0,0.03)',
+                    cursor: isActive ? 'pointer' : 'default',
+                    transition: 'background 0.15s ease',
+                    border: isActive ? 'none' : `1px solid rgba(0,0,0,0.07)`,
+                    minWidth: 0,
+                  }}
+                  onMouseEnter={() => setHoveredStep(i)}
+                  onMouseLeave={() => setHoveredStep(null)}
+                  onClick={isActive ? onPlan : undefined}
+                >
+                  {/* Icon + step number */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 * s }}>
+                    <div style={{
+                      width: 34 * s, height: 34 * s, borderRadius: 10 * s, flexShrink: 0,
+                      background: isActive ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <StepIcon size={16 * s} color={isActive ? 'rgba(255,255,255,0.85)' : '#6b7280'} strokeWidth={2} />
+                    </div>
+                    <span style={{ fontSize: 20 * s, fontWeight: 700, letterSpacing: '-0.5px', color: isActive ? 'white' : 'rgba(0,0,0,0.15)' }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <span style={{
+                    fontSize: 17 * s, fontWeight: 700,
+                    color: isActive ? 'white' : '#1e2939',
+                    letterSpacing: '-0.4px', lineHeight: `${23 * s}px`,
+                    marginBottom: 7 * s,
+                  }}>
+                    {step.title}
+                  </span>
+
+                  {/* Description */}
+                  <span style={{
+                    fontSize: 15 * s, fontWeight: 500,
+                    color: isActive ? 'rgba(255,255,255,0.55)' : '#6b7280',
+                    lineHeight: `${21 * s}px`, letterSpacing: '-0.2px',
+                    marginBottom: 14 * s,
+                  }}>
+                    {step.description}
+                  </span>
+
+                  <div style={{ height: 1, background: isActive ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)', marginBottom: 11 * s, flexShrink: 0 }} />
+
+                  {/* Bullet points */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 * s }}>
+                    {step.points.map(pt => (
+                      <div key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 * s }}>
+                        <ChevronRight size={13 * s} color={isActive ? 'rgba(255,255,255,0.4)' : '#9ca3af'} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 3 * s }} />
+                        <span style={{
+                          fontSize: 14 * s, fontWeight: 500,
+                          color: isActive ? 'rgba(255,255,255,0.68)' : '#6b7280',
+                          lineHeight: `${20 * s}px`, letterSpacing: '-0.2px',
+                        }}>
+                          {pt}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bottom action — only for locked steps */}
+                  {!isActive && (
+                    <div style={{ marginTop: 'auto', paddingTop: 14 * s }}>
+                      <span style={{ fontSize: 11 * s, fontWeight: 500, color: isHovered ? '#9ca3af' : 'rgba(0,0,0,0.22)', letterSpacing: '-0.1px' }}>
+                        Unlocks after step {i}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          </div>
+        )}
+      </div>
 
       <HomePageHeader onMinus={onZoomOut} />
     </>

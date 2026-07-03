@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { GeoJsonLayer } from '@deck.gl/layers';
+import { MapPin } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import FloodDepthScale from '../components/shared/FloodDepthScale';
 import HomePageHeader from '../components/shared/HomePageHeader';
 import LiveMonitoringPanelV2 from '../components/dashboard/LiveMonitoringPanelV2';
 import AlertBanner from '../components/alert/AlertBanner';
+
+const USE_PREVIEW = new URLSearchParams(window.location.search).has('preview');
 
 interface Props {
   onRedZoneClick: () => void;
@@ -255,6 +258,27 @@ export default function HomePageAlert({ onRedZoneClick, map }: Props) {
     <>
       <ScaledLayout className="screen-enter">
         <LiveMonitoringPanelV2 alert={zoneVisible} nudgeDown={showBanner} />
+        <div
+          className="absolute glass-65 glass-shadow flex items-center gap-[7px]"
+          style={{
+            left: 21,
+            top: showBanner ? 145 : 93,
+            transition: 'top 0.35s cubic-bezier(0.4,0,0.2,1)',
+            width: 326,
+            borderRadius: 100,
+            padding: '7px 14px 7px 11px',
+            pointerEvents: 'none',
+          }}
+        >
+          <MapPin size={13} color="#6b7280" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>
+            Miami Beach
+          </span>
+          <span style={{ fontSize: 14, color: 'rgba(0,0,0,0.35)' }}>,</span>
+          <span style={{ fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.2px' }}>
+            Florida, US
+          </span>
+        </div>
       </ScaledLayout>
 
       {/* Blocks the very first click from ever reaching the map canvas, so the

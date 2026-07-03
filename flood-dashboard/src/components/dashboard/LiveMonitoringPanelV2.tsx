@@ -137,7 +137,7 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown }: Props) {
 
       <div
         className="absolute left-[21px] w-[326px] glass-65 glass-shadow rounded-[16px] py-[10px] flex flex-col gap-[10px]"
-        style={{ top: nudgeDown ? 171 : 119, transition: 'top 0.35s cubic-bezier(0.4,0,0.2,1)' }}
+        style={{ top: nudgeDown ? 192 : 140, transition: 'top 0.35s cubic-bezier(0.4,0,0.2,1)' }}
       >
 
         {/* Header */}

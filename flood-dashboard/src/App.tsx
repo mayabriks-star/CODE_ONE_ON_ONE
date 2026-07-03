@@ -3,6 +3,9 @@ import Map3DBackground from './components/Map3DBackground';
 import HomePage from './screens/HomePage';
 import HomePageAlert, { HAZARD_ZONE_CENTROID } from './screens/HomePageAlert';
 import AlertPage from './screens/AlertPage';
+import AlertPageV2 from './screens/AlertPageV2';
+
+const USE_PREVIEW = new URLSearchParams(window.location.search).has('preview');
 import AssessCriticalZonesPage from './screens/AssessCriticalZonesPage';
 import ResponsePlanningPage from './screens/ResponsePlanningPage';
 import CoastalRoadAccessPage from './screens/CoastalRoadAccessPage';
@@ -211,7 +214,7 @@ export default function App() {
           className="absolute inset-0"
           style={{ zIndex: 10, pointerEvents: 'none' }}
         >
-          <AlertPage onZoomOut={handleZoomOut} onPlan={handleOpenAssessCriticalZones} />
+          <AlertPageV2 onZoomOut={handleZoomOut} onPlan={handleOpenAssessCriticalZones} />
         </div>
       )}
       {/* Screen 4 — Assess Critical Zones */}

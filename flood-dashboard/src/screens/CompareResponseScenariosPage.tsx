@@ -229,7 +229,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     const isSelected = s.id === 'selected';
     return {
       flex: 1,
-      padding: '7px 12px',
+      padding: '11px 12px',
       background: active ? '#364153' : 'transparent',
       borderTop: isSelected
         ? '3px solid #00a63e'
@@ -249,7 +249,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     const active = s.id === activeCol;
     return {
       flex: 1,
-      padding: '10px 12px',
+      padding: '11px 12px',
       background: active ? 'rgba(40,100,228,0.04)' : 'transparent',
       boxShadow: active ? 'inset 1px 0 0 rgba(40,100,228,0.2), inset -1px 0 0 rgba(40,100,228,0.2)' : undefined,
       display: 'flex',
@@ -322,13 +322,13 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
         style={{
           position: 'fixed', left: 16, right: 16, top: 137, bottom: 32,
           background: 'rgba(255,255,255,0.92)', borderRadius: 20,
-          padding: '24px 28px', boxSizing: 'border-box' as const,
-          display: 'flex', flexDirection: 'column', gap: 14,
-          overflowY: 'auto', pointerEvents: 'auto',
+          boxSizing: 'border-box' as const,
+          display: 'flex', flexDirection: 'column',
+          pointerEvents: 'auto',
         }}
       >
             {/* Page header */}
-            <div style={{ flexShrink: 0, paddingBottom: 32 }}>
+            <div style={{ flexShrink: 0, padding: '24px 28px 16px' }}>
               <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '23px' }}>
                 Compare Intervention Options
               </p>
@@ -337,12 +337,15 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
               </p>
             </div>
 
+            {/* Scrollable tables area */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 28px 0', display: 'flex', flexDirection: 'column', gap: 14 }}>
+
             {/* Comparison table */}
             <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
 
               {/* Column headers */}
               <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-                <div style={{ width: 168, flexShrink: 0, padding: '8px 14px' }} />
+                <div style={{ width: 168, flexShrink: 0, padding: '9px 14px' }} />
                 {SCENARIOS.map(s => (
                   <div
                     key={s.id}
@@ -396,7 +399,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {measureRows.map((row, rowIdx) => (
                   <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: rowIdx < measureRows.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
-                    <div style={{ width: 168, flexShrink: 0, padding: '10px 14px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
                       <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                     </div>
                     {SCENARIOS.map(s => (
@@ -421,7 +424,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                 { label: 'Implementation period', key: 'implementationTime' as const,   bold: false },
               ].map((row, idx, arr) => (
                 <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: idx < arr.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
-                  <div style={{ width: 168, flexShrink: 0, padding: '9px 14px', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
                     <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                   </div>
                   {SCENARIOS.map(s => {
@@ -437,7 +440,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                         onMouseLeave={() => setHoveredCol(null)}
                         onClick={() => setSelectedCol(s.id)}
                         style={{
-                          flex: 1, padding: '9px 16px', cursor: 'pointer',
+                          flex: 1, padding: '11px 16px', cursor: 'pointer',
                           borderLeft: '1px solid rgba(0,0,0,0.04)',
                           background: isActive ? 'rgba(40,100,228,0.04)' : 'transparent',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -455,20 +458,23 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
               ))}
             </div>
 
-      </div>
+            </div>{/* end scrollable area */}
 
-      {/* Continue — pinned to bottom-right */}
-      <button onClick={onContinue} style={{
-        position: 'fixed', bottom: 48, right: 32, zIndex: 25,
-        height: '40px', padding: '0 24px',
-        background: '#101828', borderRadius: '100px', border: 'none', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '15px', fontWeight: 500, color: 'white', letterSpacing: '-0.3px',
-        pointerEvents: 'auto', boxShadow: '0 2px 12px rgba(16,24,40,0.18)',
-        whiteSpace: 'nowrap',
-      }}>
-        Select plan
-      </button>
+            {/* Footer — button always visible */}
+            <div style={{ flexShrink: 0, padding: '16px 28px', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+              <button onClick={onContinue} style={{
+                width: 354, height: 44, borderRadius: 12,
+                background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 17, fontWeight: 600, color: 'white', letterSpacing: '-0.3px',
+                pointerEvents: 'auto', boxShadow: '0 2px 12px rgba(16,24,40,0.18)',
+                whiteSpace: 'nowrap',
+              }}>
+                Select plan
+              </button>
+            </div>
+
+      </div>
     </div>
   );
 }

@@ -135,6 +135,23 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
   const [expandedZone, setExpandedZone] = useState<string | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Mirror ScaledLayout's scale so back button + progress bar align with the canvas
+  // while using right:16px in viewport space to match HomePageHeader exactly.
+  const [scale, setScale] = useState(() => {
+    const sw = window.innerWidth / 1512;
+    const sh = window.innerHeight / 1008;
+    return Math.min(1.0, sw, sh);
+  });
+  useEffect(() => {
+    const update = () => {
+      const sw = window.innerWidth / 1512;
+      const sh = window.innerHeight / 1008;
+      setScale(Math.min(1.0, sw, sh));
+    };
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   // Debug drag state — only active when ?debug is in the URL
   const [debugLngLats, setDebugLngLats] = useState<[number, number][]>(() => {
     if (IS_DEBUG) {
@@ -230,91 +247,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         }
       `}</style>
       <ScaledLayout className="screen-enter">
-
-        {/* Back button — 16px gap below header, 16px gap above card */}
-        <button
-          onClick={onBack}
-          style={{
-            position: 'absolute', top: 80, left: 26,
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(255,255,255,0.65)',
-            backdropFilter: 'blur(12px)',
-            border: 'none',
-            cursor: 'pointer', pointerEvents: 'auto', zIndex: 20,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
-        </button>
-
-        {/* ── Step progress bar ── */}
-        {/* Single SVG draws step-1 fill + one V-line per junction (no per-step borders = no X-shapes).  */}
-        {/* Container glass-65 provides the inactive-step background.                                   */}
-        {/* Bar: left:70 right:16 = 1426px. Junctions at x=298,580,862,1144.                            */}
-        <div
-          className="absolute glass-65 glass-shadow"
-          style={{
-            top: 80, left: 70, right: 16,
-            height: 36, borderRadius: 18,
-            overflow: 'hidden',
-            pointerEvents: 'none', zIndex: 20,
-          }}
-        >
-          {/* Full-bar SVG: step-1 fill + junction divider lines */}
-          <svg
-            width="1426" height="36" viewBox="0 0 1426 36"
-            style={{ position: 'absolute', inset: 0, display: 'block' }}
-          >
-            {/* Step 1 dark fill — container overflow:hidden rounds the left corners */}
-            <polygon points="0,0 284,0 298,18 284,36 0,36" fill="#1e2939" />
-
-            {/* One V-line per junction — a single open path means no crossing = no X-shape */}
-            {/* junction 1→2 */ }
-            <path d="M284,0 L298,18 L284,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
-            {/* junction 2→3 */}
-            <path d="M566,0 L580,18 L566,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
-            {/* junction 3→4 */}
-            <path d="M848,0 L862,18 L848,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
-            {/* junction 4→5 */}
-            <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
-          </svg>
-
-          {/* Step labels — absolutely positioned, no flex-overlap issues */}
-          {/* Step 1: x 0..298 */}
-          <div style={{ position: 'absolute', left: 0, top: 0, width: 298, height: 36, display: 'flex', alignItems: 'center', paddingLeft: 20, paddingRight: 24 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Assess critical zones
-            </span>
-          </div>
-
-          {/* Step 2: x 298..580 (282px) */}
-          <div style={{ position: 'absolute', left: 298, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Simulate response scenarios
-            </span>
-          </div>
-
-          {/* Step 3: x 580..862 (282px) */}
-          <div style={{ position: 'absolute', left: 580, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Compare intervention options
-            </span>
-          </div>
-
-          {/* Step 4: x 862..1144 (282px) */}
-          <div style={{ position: 'absolute', left: 862, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Assign Teams & Tasks
-            </span>
-          </div>
-
-          {/* Step 5: x 1144..1426 (282px) — flat right, no arrow */}
-          <div style={{ position: 'absolute', left: 1144, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 16 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Launch action plan
-            </span>
-          </div>
-        </div>
 
         {/* Left info card */}
         <div
@@ -438,6 +370,88 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           </div>
         </div>
       </ScaledLayout>
+
+      {/* Back button — viewport space so it aligns with the scaled canvas */}
+      <button
+        onClick={onBack}
+        style={{
+          position: 'absolute',
+          top: Math.round(80 * scale),
+          left: Math.round(26 * scale),
+          width: Math.round(36 * scale),
+          height: Math.round(36 * scale),
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.65)',
+          backdropFilter: 'blur(12px)',
+          border: 'none',
+          cursor: 'pointer', pointerEvents: 'auto', zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <span style={{ fontSize: Math.round(17 * scale), color: '#1e2939', lineHeight: 1 }}>←</span>
+      </button>
+
+      {/* Progress bar — right:16px in viewport space matches HomePageHeader exactly */}
+      <div
+        className="glass-65 glass-shadow"
+        style={{
+          position: 'absolute',
+          top: Math.round(80 * scale),
+          left: Math.round(70 * scale),
+          right: 16,
+          height: Math.round(36 * scale),
+          borderRadius: Math.round(18 * scale),
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          zIndex: 20,
+        }}
+      >
+        {/* SVG fills 100% width — viewBox 1426×36 stretches proportionally with the container */}
+        <svg
+          width="100%" height="100%"
+          viewBox="0 0 1426 36"
+          preserveAspectRatio="none"
+          style={{ position: 'absolute', inset: 0, display: 'block' }}
+        >
+          <polygon points="0,0 284,0 298,18 284,36 0,36" fill="#1e2939" />
+          <path d="M284,0 L298,18 L284,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M566,0 L580,18 L566,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M848,0 L862,18 L848,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+        </svg>
+
+        {/* Labels — percentage-based positions mirror the viewBox fractions */}
+        {/* Step 1: 0/1426 → 298/1426 = 0%→20.90% */}
+        <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', paddingLeft: '1.4%', paddingRight: '1.7%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Assess critical zones
+          </span>
+        </div>
+        {/* Step 2: 20.90%→40.67% */}
+        <div style={{ position: 'absolute', left: '20.90%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Simulate response scenarios
+          </span>
+        </div>
+        {/* Step 3: 40.67%→60.45% */}
+        <div style={{ position: 'absolute', left: '40.67%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Compare intervention options
+          </span>
+        </div>
+        {/* Step 4: 60.45%→80.22% */}
+        <div style={{ position: 'absolute', left: '60.45%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Assign Teams & Tasks
+          </span>
+        </div>
+        {/* Step 5: 80.22%→100% */}
+        <div style={{ position: 'absolute', left: '80.22%', top: 0, width: '19.78%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.1%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Launch action plan
+          </span>
+        </div>
+      </div>
 
       <HomePageHeader />
 

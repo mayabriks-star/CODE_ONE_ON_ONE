@@ -37,7 +37,7 @@ export const AVAILABLE_BUDGET = 24_000_000;
 const SCENARIOS: ScenarioData[] = [
   {
     id: 'selected',
-    roleLabel: 'Selected Scenario',
+    roleLabel: 'Your Simulation',
     name: 'Balanced Approach',
     seaWall: 'yes',
     raisedRoads: 'yes',
@@ -51,7 +51,7 @@ const SCENARIOS: ScenarioData[] = [
     budgetPct: 78,
     residentsProtected: 620,
     floodRiskReduction: 65,
-    delayToImpact: '+8 years',
+    delayToImpact: '2034',
     implementationTime: '18 months',
     valueForEffort: 'high',
     mainTradeoff: 'Partial building coverage',
@@ -72,7 +72,7 @@ const SCENARIOS: ScenarioData[] = [
     budgetPct: 38,
     residentsProtected: 310,
     floodRiskReduction: 30,
-    delayToImpact: '+3 years',
+    delayToImpact: '2029',
     implementationTime: '9 months',
     valueForEffort: 'moderate',
     mainTradeoff: 'Low long-term protection',
@@ -93,7 +93,7 @@ const SCENARIOS: ScenarioData[] = [
     budgetPct: 59,
     residentsProtected: 480,
     floodRiskReduction: 50,
-    delayToImpact: '+6 years',
+    delayToImpact: '2032',
     implementationTime: '10 months',
     valueForEffort: 'moderate',
     mainTradeoff: 'Partial measures only',
@@ -105,9 +105,9 @@ const SCENARIOS: ScenarioData[] = [
 export const SELECTED_SCENARIO = SCENARIOS.find((s) => s.id === 'selected')!;
 
 function CheckCell({ v }: { v: MeasureValue }) {
-  if (v === 'yes') return <span style={{ color: '#00a63e', fontSize: 17, fontWeight: 700, lineHeight: 1 }}>✓</span>;
-  if (v === 'no') return <span style={{ color: '#b91d1d', fontSize: 17, fontWeight: 700, lineHeight: 1 }}>✗</span>;
-  return <span style={{ fontSize: 13, fontWeight: 600, color: '#b45309', letterSpacing: '-0.2px' }}>Partial</span>;
+  if (v === 'yes') return <span style={{ color: '#00a63e', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✓</span>;
+  if (v === 'no') return <span style={{ color: '#b91d1d', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✗</span>;
+  return <span style={{ fontSize: 13, fontWeight: 600, color: '#101828', letterSpacing: '-0.2px' }}>Partial</span>;
 }
 
 function RiskBar({ pct }: { pct: number }) {
@@ -206,15 +206,13 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     { label: 'Elevated walkways', render: s => <CheckCell v={s.elevatedWalkways} /> },
     { label: 'Drainage upgrade', render: s => <CheckCell v={s.drainageUpgrade} /> },
     { label: 'Utility protection', render: s => <CheckCell v={s.utilityProtection} /> },
-    { label: 'Resident support', render: s => <CheckCell v={s.residentSupport} /> },
   ];
 
   const outcomeRows: { label: string; render: (s: ScenarioData) => React.ReactNode }[] = [
     { label: 'Total cost', render: s => <span style={{ fontSize: 13, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px' }}>{s.totalCost}</span> },
-    { label: 'Budget used', render: s => <MiniBar pct={s.budgetPct} isOver={s.budgetPct > 100} /> },
     { label: 'Residents protected', render: s => <span style={{ fontSize: 13, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px' }}>{s.residentsProtected.toLocaleString()}</span> },
     { label: 'Flood-risk reduction', render: s => <RiskBar pct={s.floodRiskReduction} /> },
-    { label: 'Delay to first impact', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
+    { label: 'First impact year', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
     { label: 'Implementation time', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.implementationTime}</span> },
     { label: 'Main trade-off', render: s => <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px', lineHeight: 1.4 }}>{s.mainTradeoff}</span> },
   ];
@@ -235,6 +233,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
       display: 'flex',
       flexDirection: 'column' as const,
       justifyContent: 'center',
+      alignItems: 'center',
       gap: 4,
       cursor: 'default',
       transition: 'background 0.15s ease',
@@ -245,11 +244,12 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     const active = s.id === activeCol;
     return {
       flex: 1,
-      padding: '5px 12px',
-      background: active ? 'rgba(54,65,83,0.05)' : 'transparent',
-      boxShadow: active ? 'inset 1px 0 0 rgba(54,65,83,0.18), inset -1px 0 0 rgba(54,65,83,0.18)' : undefined,
+      padding: '13px 12px',
+      background: active ? 'rgba(40,100,228,0.04)' : 'transparent',
+      boxShadow: active ? 'inset 1px 0 0 rgba(40,100,228,0.2), inset -1px 0 0 rgba(40,100,228,0.2)' : undefined,
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       borderLeft: '1px solid rgba(0,0,0,0.04)',
       transition: 'background 0.15s ease',
     };
@@ -259,79 +259,85 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     <div className="screen-enter">
       <HomePageHeader />
 
-      {/* Back arrow + title — sits directly over the map, white text for
-          contrast (same convention as the back button on AssessCriticalZonesPage,
-          Section H in the design doc). */}
-      <div style={{ position: 'fixed', left: 32, top: 93, display: 'flex', alignItems: 'center', gap: 16, pointerEvents: 'auto' }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-          <ArrowLeft size={26} color="white" />
-        </button>
-        <span style={{ fontSize: 22, fontWeight: 600, color: 'white', letterSpacing: '-0.44px', lineHeight: '26px' }}>
-          Compare Response Scenarios
-        </span>
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        style={{
+          position: 'fixed', left: 16, top: 93, width: 36, height: 36, zIndex: 30,
+          background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)',
+          border: 'none', borderRadius: '50%',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'auto',
+        }}
+      >
+        <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
+      </button>
+
+      {/* Progress bar — step 3 (Compare) active, steps 1+2 completed */}
+      <div
+        className="glass-65 glass-shadow"
+        style={{
+          position: 'fixed', top: 93, left: 60, right: 16, height: 36,
+          borderRadius: 18, overflow: 'hidden', pointerEvents: 'none', zIndex: 20,
+        }}
+      >
+        <svg width="100%" height="100%" viewBox="0 0 1426 36" preserveAspectRatio="none"
+          style={{ position: 'absolute', inset: 0, display: 'block' }}>
+          {/* Steps 1+2 completed */}
+          <polygon points="0,0 284,0 298,18 284,36 0,36" fill="rgba(30,41,57,0.25)" />
+          <polygon points="284,0 566,0 580,18 566,36 284,36 298,18" fill="rgba(30,41,57,0.25)" />
+          {/* Step 3 current */}
+          <polygon points="566,0 848,0 862,18 848,36 566,36 580,18" fill="#1e2939" />
+          {/* Dividers */}
+          <path d="M284,0 L298,18 L284,36" stroke="rgba(30,41,57,0.3)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M566,0 L580,18 L566,36" stroke="rgba(30,41,57,0.3)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M848,0 L862,18 L848,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+        </svg>
+        <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.7%' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#101828', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Assess critical zones</span>
+        </div>
+        <div style={{ position: 'absolute', left: '20.90%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#101828', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Simulate response scenarios</span>
+        </div>
+        <div style={{ position: 'absolute', left: '40.67%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Compare intervention options</span>
+        </div>
+        <div style={{ position: 'absolute', left: '60.45%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Assign Teams &amp; Tasks</span>
+        </div>
+        <div style={{ position: 'absolute', left: '80.22%', top: 0, width: '19.78%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.1%' }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Launch action plan</span>
+        </div>
       </div>
 
-      {/* Large card floating over the map — leaves a visible map margin on
-          all sides instead of painting over the whole viewport. */}
+      {/* Large card floating over the map */}
       <div
         className="glass-shadow"
         style={{
-          position: 'fixed', left: 32, right: 32, top: 93, bottom: 32,
+          position: 'fixed', left: 16, right: 16, top: 137, bottom: 32,
           background: 'rgba(255,255,255,0.92)', borderRadius: 20,
           padding: '24px 28px', boxSizing: 'border-box' as const,
-          display: 'flex', flexDirection: 'column', gap: 8,
-          overflow: 'hidden', pointerEvents: 'auto',
+          display: 'flex', flexDirection: 'column', gap: 14,
+          overflowY: 'auto', pointerEvents: 'auto',
         }}
       >
-            {/* Top summary */}
-            <div style={{
-              background: 'white', borderRadius: '16px',
-              padding: '10px 20px', display: 'flex', alignItems: 'center',
-              gap: 0, boxSizing: 'border-box' as const, flexShrink: 0,
-            }}>
-              {/* Budget donut */}
-              <div style={{ paddingRight: 28, marginRight: 28, borderRight: '1px solid rgba(0,0,0,0.08)' }}>
-                <p style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 600, color: '#6b778a', letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>
-                  Budget Overview
-                </p>
-                <BudgetDonut
-                  usedPct={sel.budgetPct}
-                  costLabel={sel.totalCost}
-                  availLabel={availLabel}
-                  remainLabel={remainLabel}
-                />
-              </div>
-
-              {/* Metric tiles */}
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                {[
-                  { label: 'Residents Protected', value: sel.residentsProtected.toLocaleString() },
-                  { label: 'Risk Reduction', value: `−${sel.floodRiskReduction}%` },
-                  { label: 'Delay to Impact', value: sel.delayToImpact },
-                ].map((m, i, arr) => (
-                  <div
-                    key={m.label}
-                    style={{
-                      flex: 1, paddingLeft: 24, paddingRight: 24,
-                      borderRight: i < arr.length - 1 ? '1px solid rgba(0,0,0,0.08)' : undefined,
-                    }}
-                  >
-                    <p style={{ margin: '0 0 5px', fontSize: 12, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px' }}>{m.label}</p>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px', lineHeight: 1 }}>{m.value}</p>
-                    <p style={{ margin: '3px 0 0', fontSize: 11, color: '#6b778a', letterSpacing: '-0.2px' }}>Selected scenario</p>
-                  </div>
-                ))}
-              </div>
+            {/* Page header */}
+            <div style={{ flexShrink: 0, paddingBottom: 4 }}>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '23px' }}>
+                Compare Intervention Options
+              </p>
+              <p style={{ margin: '8px 0 0', fontSize: 17, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.44px', lineHeight: '24px', whiteSpace: 'pre-line' }}>
+                Comparing your simulation against two optimized alternatives.{'\n'}Each scenario reflects a different balance of cost, deployment speed, and flood protection coverage.
+              </p>
             </div>
 
             {/* Comparison table */}
-            <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', flexShrink: 1, minHeight: 0 }}>
+            <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
 
               {/* Column headers */}
               <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-                <div style={{ width: 168, flexShrink: 0, padding: '8px 14px', display: 'flex', alignItems: 'flex-end' }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#6b778a', letterSpacing: '0.4px', textTransform: 'uppercase' as const }}>Factors</span>
-                </div>
+                <div style={{ width: 168, flexShrink: 0, padding: '8px 14px' }} />
                 {SCENARIOS.map(s => (
                   <div
                     key={s.id}
@@ -340,86 +346,93 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                     onMouseLeave={() => setHoveredCol(null)}
                   >
                     <span style={{
-                      display: 'inline-block', alignSelf: 'flex-start',
-                      background: s.id === activeCol ? 'rgba(255,255,255,0.18)' : 'rgba(54,65,83,0.08)',
-                      borderRadius: 100, padding: '2px 9px',
-                      fontSize: 12, fontWeight: 600,
-                      color: s.id === activeCol ? 'rgba(255,255,255,0.9)' : '#364153',
-                      letterSpacing: '-0.2px', marginBottom: 5,
+                      fontSize: 15, fontWeight: 600,
+                      color: s.id === activeCol ? 'white' : '#364153',
+                      letterSpacing: '-0.3px', lineHeight: 1.3, textAlign: 'center',
                     }}>
                       {s.roleLabel}
-                    </span>
-                    <span style={{
-                      fontSize: 16, fontWeight: 600,
-                      color: s.id === activeCol ? 'white' : '#364153',
-                      letterSpacing: '-0.44px', lineHeight: 1.3,
-                    }}>
-                      {s.name}
-                    </span>
-                    <span style={{
-                      fontSize: 13, fontWeight: 500,
-                      color: s.id === activeCol ? 'rgba(255,255,255,0.65)' : '#6b778a',
-                      letterSpacing: '-0.2px', marginTop: 2,
-                    }}>
-                      {s.totalCost} · {s.budgetPct}% budget
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* Sections */}
-              {tableSections.map((section, sIdx) => (
-                <div key={section.title}>
-                  <div style={{ display: 'flex', background: 'rgba(0,0,0,0.025)', padding: '3px 14px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6b778a', letterSpacing: '0.7px', textTransform: 'uppercase' as const }}>
-                      {section.title}
-                    </span>
-                  </div>
-                  {section.rows.map((row, rowIdx) => {
-                    const isLastRow = rowIdx === section.rows.length - 1;
-                    const isLastSection = sIdx === tableSections.length - 1;
-                    return (
-                      <div
-                        key={row.label}
-                        style={{
-                          display: 'flex', alignItems: 'stretch',
-                          borderBottom: isLastRow && isLastSection ? undefined : '1px solid rgba(0,0,0,0.05)',
-                        }}
-                      >
-                        <div style={{ width: 168, flexShrink: 0, padding: '6px 14px', display: 'flex', alignItems: 'center' }}>
-                          <span style={{ fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>
-                            {row.label}
-                          </span>
-                        </div>
-                        {SCENARIOS.map(s => (
-                          <div
-                            key={s.id}
-                            style={getCellStyle(s)}
-                            onMouseEnter={() => setHoveredCol(s.id)}
-                            onMouseLeave={() => setHoveredCol(null)}
-                          >
-                            {row.render(s)}
-                          </div>
-                        ))}
+              {/* Chosen Measures rows */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {measureRows.map((row, rowIdx) => (
+                  <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: rowIdx < measureRows.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
+                    <div style={{ width: 168, flexShrink: 0, padding: '13px 14px', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
+                    </div>
+                    {SCENARIOS.map(s => (
+                      <div key={s.id} style={getCellStyle(s)} onMouseEnter={() => setHoveredCol(s.id)} onMouseLeave={() => setHoveredCol(null)}>
+                        {row.render(s)}
                       </div>
-                    );
-                  })}
-                </div>
-              ))}
+                    ))}
+                  </div>
+                ))}
+              </div>
+
             </div>
 
-            {/* Continue */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
-              <button onClick={onContinue} style={{
-                width: '223px', height: '40px',
-                background: '#323232', borderRadius: '100px', border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '16px', fontWeight: 500, color: 'white', letterSpacing: '-0.44px',
-              }}>
-                Continue
-              </button>
+            {/* Outcomes — separate white card, one panel per scenario */}
+            <div style={{ background: 'white', borderRadius: 12, flexShrink: 0, display: 'flex', overflow: 'hidden' }}>
+              {/* Label column */}
+              <div style={{ width: 168, flexShrink: 0, padding: '16px 14px', display: 'flex', alignItems: 'flex-start', borderRight: '1px solid rgba(0,0,0,0.06)' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.2px' }}>Outcomes</span>
+              </div>
+              {/* One summary card per scenario */}
+              {SCENARIOS.map(s => {
+                const isActive = s.id === activeCol;
+                return (
+                  <div
+                    key={s.id}
+                    onMouseEnter={() => setHoveredCol(s.id)}
+                    onMouseLeave={() => setHoveredCol(null)}
+                    style={{
+                      flex: 1, padding: '14px 16px',
+                      borderLeft: '1px solid rgba(0,0,0,0.06)',
+                      background: isActive ? 'rgba(40,100,228,0.04)' : 'transparent',
+                      display: 'flex', flexDirection: 'column', gap: 6,
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    {/* Primary metric */}
+                    <div style={{ marginBottom: 1 }}>
+                      <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#364153', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{s.totalCost}</p>
+                      <p style={{ margin: '2px 0 0', fontSize: 11, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.1px' }}>Total investment</p>
+                    </div>
+                    {/* Metric rows — label + value tight on same row */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {[
+                        { label: 'Residents protected', value: s.residentsProtected.toLocaleString() },
+                        { label: 'Risk reduction', value: `−${s.floodRiskReduction}%` },
+                        { label: 'First impact year', value: s.delayToImpact },
+                        { label: 'Timeline', value: s.implementationTime },
+                      ].map(m => (
+                        <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                          <span style={{ fontSize: 14, color: '#6b778a', flex: 1, minWidth: 0 }}>{m.label}</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#364153', flexShrink: 0 }}>{m.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+
       </div>
+
+      {/* Continue — pinned to bottom-right */}
+      <button onClick={onContinue} style={{
+        position: 'fixed', bottom: 48, right: 32, zIndex: 25,
+        width: '223px', height: '40px',
+        background: '#101828', borderRadius: '100px', border: 'none',
+        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '16px', fontWeight: 500, color: 'white', letterSpacing: '-0.44px',
+        pointerEvents: 'auto', boxShadow: '0 2px 12px rgba(16,24,40,0.18)',
+      }}>
+        Continue
+      </button>
     </div>
   );
 }

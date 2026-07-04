@@ -429,7 +429,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
         {/* Labels — percentage-based positions mirror the viewBox fractions */}
         {/* Step 1: 0/1426 → 298/1426 = 0%→20.90% */}
-        <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', paddingLeft: '1.4%', paddingRight: '1.7%' }}>
+        <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.7%' }}>
           <span style={{ fontSize: Math.round(13 * scale), fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             Assess critical zones
           </span>

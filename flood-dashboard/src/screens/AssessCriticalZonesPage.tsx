@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MapPin, ChevronRight, MousePointerClick } from 'lucide-react';
+import { MapPin, ChevronDown, MousePointerClick } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 
@@ -132,6 +132,7 @@ const IS_DEBUG = new URLSearchParams(window.location.search).has('debug');
 export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, map }: Props) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [animDone, setAnimDone] = useState(skipAnimation ?? false);
+  const [expandedZone, setExpandedZone] = useState<string | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debug drag state — only active when ?debug is in the URL
@@ -331,7 +332,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 13px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <MapPin size={17} color="#1e2939" strokeWidth={2} />
-              <span style={{ fontSize: 16, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
                 Critical Zones
               </span>
             </div>
@@ -348,7 +349,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
 
           {/* ── Context ── */}
-          <p style={{ margin: '13px 16px 0', fontSize: 15, fontWeight: 400, color: '#6b7280', lineHeight: '22px', letterSpacing: '-0.3px' }}>
+          <p style={{ margin: '13px 16px 0', fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
             The locations shown on the map and listed below are areas that require targeted adaptations to prepare the district against coastal flooding.
           </p>
 
@@ -366,27 +367,60 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '16px 12px 0' }} />
 
-          {/* ── Zone list ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', padding: '4px 8px 0' }}>
-            {ZONE_LIST.map(({ label, svgPath }) => (
-              <div key={label} style={{
-                display: 'flex', alignItems: 'center', gap: 13,
-                padding: '13px 8px', borderRadius: 10,
-                cursor: 'pointer',
-              }}>
-                <svg viewBox="0 0 24 24" width={24} height={24} fill="none" style={{ flexShrink: 0 }}>
-                  <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
-                  <path d={svgPath} fill="white" />
-                </svg>
-                <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px', lineHeight: '21px', flex: 1 }}>
-                  {label}
-                </span>
-                <ChevronRight size={15} color="rgba(30,41,57,0.30)" strokeWidth={2} style={{ flexShrink: 0 }} />
-              </div>
-            ))}
+          {/* ── Zone cards ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', padding: '8px 8px 0', overflowY: 'auto', flex: 1 }}>
+            {ZONE_LIST.map(({ label, svgPath }) => {
+              const isExpanded = expandedZone === label;
+              const hoverData = HOVER_DATA[label];
+              return (
+                <div
+                  key={label}
+                  style={{
+                    background: 'rgba(255,255,255,0.55)',
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: 12,
+                    marginBottom: 6,
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                  }}
+                >
+                  <div
+                    onClick={() => setExpandedZone(isExpanded ? null : label)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px', cursor: 'pointer' }}
+                  >
+                    <svg viewBox="0 0 24 24" width={32} height={32} fill="none" style={{ flexShrink: 0 }}>
+                      <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
+                      <path d={svgPath} fill="white" />
+                    </svg>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '20px', flex: 1 }}>
+                      {label}
+                    </span>
+                    <ChevronDown
+                      size={15}
+                      color="rgba(30,41,57,0.40)"
+                      strokeWidth={2}
+                      style={{
+                        flexShrink: 0,
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    />
+                  </div>
+                  {isExpanded && (
+                    <div style={{ padding: '0 12px 12px' }}>
+                      <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', marginBottom: 10 }} />
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 400, color: '#6b7280', lineHeight: '19px', letterSpacing: '-0.2px' }}>
+                        {hoverData.description}
+                      </p>
+                      <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 500, color: '#1e2939', lineHeight: '19px', letterSpacing: '-0.2px' }}>
+                        <span style={{ color: '#6b7280', fontWeight: 400 }}>Proposed: </span>{hoverData.proposed}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-
-          <div style={{ flex: 1 }} />
 
           {/* ── Simulate button pinned to bottom ── */}
           <div style={{ padding: '0 16px 16px' }}>
@@ -444,7 +478,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             ...(isUpward
               ? { bottom: window.innerHeight - pos.y - 45 }
               : { top: pos.y }),
-            width: animDone ? (isOpen ? 280 : tab.width) : tab.width,
+            width: animDone ? (isOpen ? 280 : 45) : 45,
             animation: !animDone ? entranceAnim : undefined,
             clipPath: animDone ? (isOpen ? expandedClip : compactClip) : undefined,
             transition: animDone
@@ -462,23 +496,24 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
           const pillRow = (
             <div style={{
+              width: 45,
               height: 45,
               flexShrink: 0,
               display: 'flex',
               alignItems: 'center',
-              gap: 27,
-              padding: '0 5px',
+              justifyContent: 'center',
             }}>
-              <img src={tab.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
               <div style={{
+                width: 34,
+                height: 34,
+                borderRadius: '50%',
+                background: ZONE_ACCENT[tab.title] || '#888',
                 display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                lineHeight: '21px',
-                letterSpacing: '-0.44px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
               }}>
-                <span style={{ fontWeight: 600, fontSize: 12, color: '#1e2939' }}>{tab.title}</span>
-                <span style={{ fontWeight: 500, fontSize: 12, color: '#505153' }}>{tab.subtitle}</span>
+                <img src={tab.icon} alt="" width={20} height={20} />
               </div>
             </div>
           );
@@ -543,7 +578,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               {/* Connector: line grows up from dot */}
               <div style={{
                 position: 'absolute',
-                left: pos.x + 32,
+                left: pos.x + 18,
                 top: pos.y + 45,
                 width: 10,
                 height: 33,

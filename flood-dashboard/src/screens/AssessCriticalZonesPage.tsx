@@ -317,6 +317,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                     flexShrink: 0,
                   }}
                 >
+                  {/* Row — click body/chevron = expand; Assess pill = navigate */}
                   <div
                     onClick={() => setExpandedZone(isExpanded ? null : label)}
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px', cursor: 'pointer' }}
@@ -328,9 +329,23 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                     <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '20px', flex: 1 }}>
                       {label}
                     </span>
+                    {/* Primary CTA — always visible, navigates to full zone plan */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); ZONE_HANDLER[label]?.(); }}
+                      style={{
+                        flexShrink: 0, padding: '4px 10px', borderRadius: 20,
+                        background: ZONE_ACCENT[label], border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        pointerEvents: 'auto',
+                      }}
+                    >
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'white', letterSpacing: '-0.1px', whiteSpace: 'nowrap' }}>Assess</span>
+                      <ChevronRight size={11} color="rgba(255,255,255,0.8)" strokeWidth={2.5} />
+                    </button>
+                    {/* Secondary — expand details */}
                     <ChevronDown
                       size={15}
-                      color="rgba(30,41,57,0.40)"
+                      color="rgba(30,41,57,0.35)"
                       strokeWidth={2}
                       style={{
                         flexShrink: 0,
@@ -339,6 +354,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                       }}
                     />
                   </div>
+                  {/* Expanded content — description + proposed action */}
                   {isExpanded && (
                     <div style={{ padding: '0 12px 12px' }}>
                       <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', marginBottom: 10 }} />
@@ -348,18 +364,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                       <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 500, color: '#1e2939', lineHeight: '19px', letterSpacing: '-0.2px' }}>
                         <span style={{ color: '#6b7280', fontWeight: 400 }}>Proposed: </span>{hoverData.proposed}
                       </p>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); ZONE_HANDLER[label]?.(); }}
-                        style={{
-                          marginTop: 10, width: '100%', height: 34, borderRadius: 8,
-                          background: ZONE_ACCENT[label], border: 'none', cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                          pointerEvents: 'auto',
-                        }}
-                      >
-                        <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px' }}>Begin Assessment</span>
-                        <ChevronRight size={13} color="rgba(255,255,255,0.75)" strokeWidth={2.5} />
-                      </button>
                     </div>
                   )}
                 </div>

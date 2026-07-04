@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { MapPin, ChevronRight, MousePointerClick } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 
@@ -229,70 +230,178 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
       `}</style>
       <ScaledLayout className="screen-enter">
 
+        {/* Back button — 16px gap below header, 16px gap above card */}
+        <button
+          onClick={onBack}
+          style={{
+            position: 'absolute', top: 80, left: 26,
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.65)',
+            backdropFilter: 'blur(12px)',
+            border: 'none',
+            cursor: 'pointer', pointerEvents: 'auto', zIndex: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
+        </button>
+
+        {/* ── Step progress bar ── */}
+        {/* Single SVG draws step-1 fill + one V-line per junction (no per-step borders = no X-shapes).  */}
+        {/* Container glass-65 provides the inactive-step background.                                   */}
+        {/* Bar: left:70 right:16 = 1426px. Junctions at x=298,580,862,1144.                            */}
+        <div
+          className="absolute glass-65 glass-shadow"
+          style={{
+            top: 80, left: 70, right: 16,
+            height: 36, borderRadius: 18,
+            overflow: 'hidden',
+            pointerEvents: 'none', zIndex: 20,
+          }}
+        >
+          {/* Full-bar SVG: step-1 fill + junction divider lines */}
+          <svg
+            width="1426" height="36" viewBox="0 0 1426 36"
+            style={{ position: 'absolute', inset: 0, display: 'block' }}
+          >
+            {/* Step 1 dark fill — container overflow:hidden rounds the left corners */}
+            <polygon points="0,0 284,0 298,18 284,36 0,36" fill="#1e2939" />
+
+            {/* One V-line per junction — a single open path means no crossing = no X-shape */}
+            {/* junction 1→2 */ }
+            <path d="M284,0 L298,18 L284,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
+            {/* junction 2→3 */}
+            <path d="M566,0 L580,18 L566,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
+            {/* junction 3→4 */}
+            <path d="M848,0 L862,18 L848,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
+            {/* junction 4→5 */}
+            <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" />
+          </svg>
+
+          {/* Step labels — absolutely positioned, no flex-overlap issues */}
+          {/* Step 1: x 0..298 */}
+          <div style={{ position: 'absolute', left: 0, top: 0, width: 298, height: 36, display: 'flex', alignItems: 'center', paddingLeft: 20, paddingRight: 24 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Assess critical zones
+            </span>
+          </div>
+
+          {/* Step 2: x 298..580 (282px) */}
+          <div style={{ position: 'absolute', left: 298, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Simulate response scenarios
+            </span>
+          </div>
+
+          {/* Step 3: x 580..862 (282px) */}
+          <div style={{ position: 'absolute', left: 580, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Compare intervention options
+            </span>
+          </div>
+
+          {/* Step 4: x 862..1144 (282px) */}
+          <div style={{ position: 'absolute', left: 862, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 22 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Assign Teams & Tasks
+            </span>
+          </div>
+
+          {/* Step 5: x 1144..1426 (282px) — flat right, no arrow */}
+          <div style={{ position: 'absolute', left: 1144, top: 0, width: 282, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 16 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Launch action plan
+            </span>
+          </div>
+        </div>
+
         {/* Left info card */}
         <div
           className="absolute glass-65 glass-shadow"
           style={{
-            left: 16, top: 80, width: 386, height: 912,
+            left: 16, top: 132, width: 386, height: 860,
             borderRadius: 16,
             pointerEvents: 'auto',
+            display: 'flex', flexDirection: 'column',
+            overflow: 'hidden',
           }}
         >
-          <p
-            className="absolute font-semibold text-[18px] leading-[28px] tracking-[-0.44px] text-[#1e2939]"
-            style={{ left: 12, top: 16 }}
-          >
-            1. Assess Critical Zones
-          </p>
 
-          <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 59, left: 0, right: 0, height: 1 }} />
-
-          <p
-            className="absolute font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#505153]"
-            style={{ left: 58, top: 79, width: 307 }}
-          >
-            Several areas in the Harbor District are expected to be affected more severely by the
-            projected flooding. These critical zones include vulnerable access routes, exposed
-            infrastructure, residential edges, and support points that may require adaptation,
-            repair, or reinforcement in order to reduce future disruption.
-          </p>
-
-          <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 329, left: 13, right: 13, height: 1 }} />
-
-          <div className="absolute flex gap-[13px] items-start" style={{ left: 17, top: 355 }}>
-            <img src="/icons/notice-icon.svg" alt="" width={28} height={28} className="flex-shrink-0" />
-            <p className="font-medium text-[16px] leading-[28px] tracking-[-0.44px] text-[#505153]" style={{ width: 308 }}>
-              Review the proposed response for each critical zone to continue
-            </p>
+          {/* ── Card header ── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 13px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MapPin size={17} color="#1e2939" strokeWidth={2} />
+              <span style={{ fontSize: 16, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+                Critical Zones
+              </span>
+            </div>
+            <span style={{
+              fontSize: 12, fontWeight: 700, letterSpacing: '0.1px',
+              color: '#1e4b8f', background: 'rgba(30,75,143,0.10)',
+              border: '1px solid rgba(30,75,143,0.20)',
+              borderRadius: 100, padding: '4px 11px',
+            }}>
+              5 zones
+            </span>
           </div>
 
-          <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 437, left: 13, right: 13, height: 1 }} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
 
-          <div className="absolute flex flex-col" style={{ left: 19, top: 463, gap: 20 }}>
+          {/* ── Context ── */}
+          <p style={{ margin: '13px 16px 0', fontSize: 15, fontWeight: 400, color: '#6b7280', lineHeight: '22px', letterSpacing: '-0.3px' }}>
+            The locations shown on the map and listed below are areas that require targeted adaptations to prepare the district against coastal flooding.
+          </p>
+
+          {/* ── Instruction hint ── */}
+          <div style={{
+            margin: '12px 16px 0', padding: '10px 13px',
+            background: 'rgba(0,0,0,0.04)', borderRadius: 11,
+            display: 'flex', alignItems: 'center', gap: 9,
+          }}>
+            <MousePointerClick size={15} color="#1e2939" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+              Select a zone on the map or below to begin its assessment
+            </span>
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '16px 12px 0' }} />
+
+          {/* ── Zone list ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', padding: '4px 8px 0' }}>
             {ZONE_LIST.map(({ label, svgPath }) => (
-              <div key={label} className="flex items-end" style={{ gap: 15 }}>
+              <div key={label} style={{
+                display: 'flex', alignItems: 'center', gap: 13,
+                padding: '13px 8px', borderRadius: 10,
+                cursor: 'pointer',
+              }}>
                 <svg viewBox="0 0 24 24" width={24} height={24} fill="none" style={{ flexShrink: 0 }}>
                   <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
                   <path d={svgPath} fill="white" />
                 </svg>
-                <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+                <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px', lineHeight: '21px', flex: 1 }}>
                   {label}
-                </p>
+                </span>
+                <ChevronRight size={15} color="rgba(30,41,57,0.30)" strokeWidth={2} style={{ flexShrink: 0 }} />
               </div>
             ))}
           </div>
 
-          <button
-            onClick={onPlan}
-            className="absolute w-[354px] h-[44px] rounded-[12px] flex items-center justify-center"
-            style={{
-              left: 16, bottom: 16,
-              background: 'rgba(16,24,40,0.9)',
-              cursor: 'pointer',
-            }}
-          >
-            <span className="font-semibold text-[15px] text-white tracking-[-0.3px]">Simulate response scenarios</span>
-          </button>
+          <div style={{ flex: 1 }} />
+
+          {/* ── Simulate button pinned to bottom ── */}
+          <div style={{ padding: '0 16px 16px' }}>
+            <button
+              onClick={onPlan}
+              style={{
+                width: '100%', height: 44, borderRadius: 12,
+                background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                pointerEvents: 'auto',
+              }}
+            >
+              <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>Simulate response scenarios</span>
+            </button>
+          </div>
         </div>
       </ScaledLayout>
 

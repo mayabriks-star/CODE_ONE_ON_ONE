@@ -1,0 +1,610 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Preview</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#e8edf3;min-height:100vh}
+.tabs{display:flex;gap:8px;padding:16px 20px;background:white;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:100}
+.tab{padding:8px 20px;border-radius:100px;border:none;cursor:pointer;font-size:14px;font-weight:600;letter-spacing:-.2px;transition:all .15s}
+.tab.active{background:#101828;color:white}
+.tab:not(.active){background:rgba(0,0,0,.06);color:#364153}
+.screen{display:none;padding:20px;min-height:calc(100vh - 57px)}
+.screen.active{display:block}
+
+/* shared app chrome */
+.app-frame{position:relative;background:center/cover url('https://api.mapbox.com/styles/v1/mapbox/light-v11/static/34.78,31.89,12/800x600?access_token=pk.placeholder') no-repeat;background-color:#c8d8e8;border-radius:20px;overflow:hidden;height:calc(100vh - 100px);max-height:760px;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.map-bg{position:absolute;inset:0;background:linear-gradient(160deg,#c5d8e8 0%,#b8ccdd 40%,#a8bfcf 100%)}
+.hdr{position:absolute;top:0;left:0;right:0;height:57px;background:rgba(255,255,255,.72);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;padding:0 16px;gap:12px}
+.hdr-dot{width:28px;height:28px;border-radius:50%;background:#101828;display:flex;align-items:center;justify-content:center}
+.hdr-dot span{color:white;font-size:12px;font-weight:700}
+.back-btn{position:absolute;left:16px;top:72px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);backdrop-filter:blur(12px);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:#1e2939;z-index:20}
+.pgbar{position:absolute;top:72px;left:58px;right:16px;height:34px;border-radius:17px;overflow:hidden;background:rgba(255,255,255,.65);backdrop-filter:blur(12px);z-index:20}
+.pgbar-fill{position:absolute;left:0;top:0;height:100%;background:#1e2939;border-radius:17px 0 0 17px;width:61%}
+.pgbar-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:62%;font-size:12px;font-weight:600;color:white}
+
+/* OPTION 1 — Wizard */
+.card{position:absolute;left:16px;right:16px;top:120px;bottom:20px;background:rgba(255,255,255,.93);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.card-head{padding:18px 22px 14px;border-bottom:1px solid rgba(0,0,0,.07);flex-shrink:0}
+.card-head h2{font-size:17px;font-weight:600;color:#1e2939;letter-spacing:-.4px}
+.card-head p{margin-top:5px;font-size:13px;color:#6b7280;letter-spacing:-.2px}
+
+/* wizard steps */
+.wiz-steps{display:flex;gap:6px;padding:14px 22px 10px;flex-shrink:0;align-items:center}
+.wiz-dot{width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all .2s}
+.wiz-dot.done{background:#00a63e;color:white}
+.wiz-dot.active{background:#1e2939;color:white;box-shadow:0 0 0 3px rgba(30,41,57,.2)}
+.wiz-dot.todo{background:rgba(0,0,0,.08);color:#9ca3af}
+.wiz-line{flex:1;height:2px;background:rgba(0,0,0,.1);border-radius:1px}
+.wiz-prog{color:#6b778a;font-size:12px;font-weight:500;margin-left:4px}
+
+/* measure hero */
+.measure-hero{padding:0 22px 14px;flex-shrink:0}
+.m-card{background:#f8fafc;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.m-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.m-info h3{font-size:16px;font-weight:700;color:#1e2939;letter-spacing:-.3px}
+.m-info p{font-size:12px;color:#6b778a;margin-top:2px}
+.m-budget{margin-left:auto;text-align:right;flex-shrink:0}
+.m-budget .amt{font-size:17px;font-weight:700;color:#1e2939}
+.m-budget .lbl{font-size:11px;color:#9ca3af;margin-top:1px}
+
+/* team cards */
+.teams-label{padding:0 22px 8px;font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.5px;flex-shrink:0}
+.teams-row{display:flex;gap:10px;padding:0 22px;flex:1;overflow-x:auto}
+.team-card{flex:1;min-width:150px;background:white;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:10}
+.team-card:hover,.team-card.sel{border-color:rgba(0,166,62,.4);background:rgba(0,166,62,.04)}
+.team-card.best{border-color:rgba(0,0,0,.14)}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white}
+.team-name{font-size:13px;font-weight:700;color:#1e2939;letter-spacing:-.2px;line-height:1.3}
+.team-lead{font-size:11px;color:#6b778a;margin-top:1px}
+.match-badge{font-size:11px;font-weight:700;border-radius:100px;padding:2px 9px;align-self:flex-start}
+.match-hi{background:rgba(0,166,62,.1);color:#166534}
+.match-md{background:rgba(234,179,8,.12);color:#854d0e}
+.match-lo{background:rgba(0,0,0,.06);color:#6b778a}
+.best-tag{font-size:10px;font-weight:600;color:#1d4ed8;background:rgba(29,78,216,.08);border-radius:100px;padding:2px 7px;margin-top:2px;align-self:flex-start}
+.wiz-footer{padding:14px 22px;border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.assign-btn{height:38px;padding:0 24px;border-radius:100px;background:#101828;color:white;border:none;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:-.2px}
+.skip-btn{font-size:13px;color:#9ca3af;background:none;border:none;cursor:pointer}
+
+/* OPTION 2 — Board */
+.board-body{flex:1;display:flex;overflow:hidden}
+.board-left{width:220px;flex-shrink:0;border-right:1px solid rgba(0,0,0,.07);padding:14px 14px;display:flex;flex-direction:column;gap:5px;overflow-y:auto}
+.board-right{flex:1;padding:14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;position:relative}
+.measure-row{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s;border:none;width:100%;text-align:left;background:rgba(0,0,0,.03)}
+.measure-row.bsel{background:#1e2939}
+.measure-row .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.measure-row .mname{font-size:12px;font-weight:600;color:#364153;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.measure-row.bsel .mname{color:white}
+.measure-row .assigned-tag{font-size:10px;color:#00a63e;font-weight:600}
+.team-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all .15s;background:white;border:1.5px solid rgba(0,0,0,.07)}
+.team-row:hover{border-color:rgba(0,0,0,.15);background:#f9fafb}
+.team-row.highlighted{border-color:rgba(29,78,216,.3);background:rgba(29,78,216,.04)}
+.team-row.tassigned{border-color:rgba(0,166,62,.35);background:rgba(0,166,62,.04)}
+.tr-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0}
+.tr-name{font-size:12px;font-weight:600;color:#364153;flex:1}
+.tr-score{font-size:11px;font-weight:700}
+.svg-overlay{position:absolute;inset:0;pointer-events:none}
+
+/* OPTION 3 — Command */
+.cmd-card{position:absolute;left:16px;right:16px;top:120px;bottom:20px;background:#0f172a;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.08)}
+.cmd-head{padding:16px 22px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.cmd-head h2{font-size:16px;font-weight:700;color:white;letter-spacing:.5px}
+.cmd-status{font-size:11px;font-weight:600;color:#34d399;background:rgba(52,211,153,.1);border-radius:100px;padding:3px 10px;border:1px solid rgba(52,211,153,.2)}
+.cmd-body{flex:1;display:flex;overflow:hidden}
+.cmd-left{width:260px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.07);padding:12px;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.cmd-section-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.8px;padding:6px 8px 4px;text-transform:uppercase}
+.mission-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;border:none;width:100%;text-align:left;transition:background .15s;background:transparent}
+.mission-row:hover,.mission-row.msel{background:rgba(255,255,255,.06)}
+.mission-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mission-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mission-badge{font-size:9px;font-weight:700;border-radius:4px;padding:2px 6px;letter-spacing:.2px}
+.badge-done{background:rgba(52,211,153,.15);color:#34d399}
+.badge-open{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4)}
+.badge-sel{background:rgba(59,130,246,.2);color:#60a5fa;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+.cmd-right{flex:1;padding:12px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.deploy-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.8px;text-transform:uppercase;padding:2px 0 6px}
+.deploy-card{background:#1e293b;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px}
+.deploy-card:hover,.deploy-card.dsel{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.06)}
+.deploy-card.deployed{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.05)}
+.d-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0}
+.d-info{flex:1;min-width:0}
+.d-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:-.1px}
+.d-lead{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+.d-status{font-size:10px;font-weight:700;border-radius:100px;padding:2px 8px}
+.status-ready{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.2)}
+.status-busy{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.15)}
+.status-deployed{background:rgba(52,211,153,.18);color:#34d399}
+.deploy-score{font-size:11px;font-weight:700;color:rgba(255,255,255,.3)}
+.cmd-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cmd-prog-text{font-size:12px;color:rgba(255,255,255,.4)}
+.cmd-prog-text span{color:#34d399;font-weight:700}
+.execute-btn{height:36px;padding:0 22px;border-radius:100px;background:linear-gradient(135deg,#1d4ed8,#4f46e5);color:white;border:none;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:-.1px}
+.execute-btn:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:default}
+
+/* capacity bar shared */
+.cap-bar{display:flex;align-items:center;gap:5px;margin-top:4px}
+.cap-track{flex:1;height:3px;border-radius:2px;background:rgba(0,0,0,.1);overflow:hidden}
+.cap-fill{height:100%;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="show(0)">Option 1 — Wizard</button>
+  <button class="tab" onclick="show(1)">Option 2 — Board</button>
+  <button class="tab" onclick="show(2)">Option 3 — Command</button>
+</div>
+
+<!-- ═══════════════════════════ OPTION 1 ═══════════════════════════ -->
+<div class="screen active" id="s0">
+<div class="app-frame">
+  <div class="map-bg"></div>
+  <div class="hdr">
+    <div class="hdr-dot"><span>F</span></div>
+    <span style="font-size:14px;font-weight:600;color:#1e2939;letter-spacing:-.3px">Flood Response Dashboard</span>
+  </div>
+  <button class="back-btn">←</button>
+  <div class="pgbar"><div class="pgbar-fill"></div><div class="pgbar-label">Assign Teams & Tasks</div></div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Assign Teams & Tasks</h2>
+      <p>Select the responsible department for each intervention measure.</p>
+    </div>
+
+    <div class="wiz-steps">
+      <div class="wiz-dot done">✓</div><div class="wiz-line"></div>
+      <div class="wiz-dot done">✓</div><div class="wiz-line"></div>
+      <div class="wiz-dot active" id="wstep">3</div><div class="wiz-line"></div>
+      <div class="wiz-dot todo">4</div><div class="wiz-line"></div>
+      <div class="wiz-dot todo">5</div><div class="wiz-line"></div>
+      <div class="wiz-dot todo">6</div><div class="wiz-line"></div>
+      <div class="wiz-dot todo">7</div>
+      <span class="wiz-prog">3 / 7</span>
+    </div>
+
+    <div class="measure-hero">
+      <div class="m-card">
+        <div class="m-icon" style="background:rgba(29,78,216,.12)">🌊</div>
+        <div class="m-info">
+          <h3>Sea Wall Construction</h3>
+          <p>Coastal barrier · 12–17 months</p>
+        </div>
+        <div class="m-budget">
+          <div class="amt">$6.2M</div>
+          <div class="lbl">allocated</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="teams-label">AVAILABLE TEAMS — ranked by expertise match</div>
+    <div class="teams-row">
+      <div class="team-card best" id="tc1" onclick="selectTeam(1)">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="avatar" style="background:#1d4ed8">CE</div>
+          <span id="check1" style="display:none;font-size:18px;color:#00a63e">✓</span>
+        </div>
+        <div>
+          <div class="team-name">Coastal Engineering</div>
+          <div class="team-lead">M. Alvarez</div>
+        </div>
+        <div class="match-badge match-hi">97% match</div>
+        <div class="best-tag">★ Best fit</div>
+        <div class="cap-bar"><div class="cap-track"><div class="cap-fill" style="width:65%;background:#00a63e"></div></div><span style="font-size:10px;color:#6b778a">65%</span></div>
+      </div>
+      <div class="team-card" id="tc2" onclick="selectTeam(2)">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="avatar" style="background:#7e22ce">EM</div>
+          <span id="check2" style="display:none;font-size:18px;color:#00a63e">✓</span>
+        </div>
+        <div>
+          <div class="team-name">Emergency Mgmt.</div>
+          <div class="team-lead">K. Williams</div>
+        </div>
+        <div class="match-badge match-md">66% match</div>
+        <div class="cap-bar"><div class="cap-track"><div class="cap-fill" style="width:85%;background:#00a63e"></div></div><span style="font-size:10px;color:#6b778a">85%</span></div>
+      </div>
+      <div class="team-card" id="tc3" onclick="selectTeam(3)">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="avatar" style="background:#0e7490">WS</div>
+          <span id="check3" style="display:none;font-size:18px;color:#00a63e">✓</span>
+        </div>
+        <div>
+          <div class="team-name">Water & Stormwater</div>
+          <div class="team-lead">S. Patel</div>
+        </div>
+        <div class="match-badge match-md">70% match</div>
+        <div class="cap-bar"><div class="cap-track"><div class="cap-fill" style="width:80%;background:#00a63e"></div></div><span style="font-size:10px;color:#6b778a">80%</span></div>
+      </div>
+    </div>
+
+    <div class="wiz-footer">
+      <button class="skip-btn">← Previous</button>
+      <button class="assign-btn" id="wizBtn" onclick="wizNext()" disabled style="opacity:.4">Assign & Continue →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════ OPTION 2 ═══════════════════════════ -->
+<div class="screen" id="s1">
+<div class="app-frame">
+  <div class="map-bg"></div>
+  <div class="hdr">
+    <div class="hdr-dot"><span>F</span></div>
+    <span style="font-size:14px;font-weight:600;color:#1e2939;letter-spacing:-.3px">Flood Response Dashboard</span>
+  </div>
+  <button class="back-btn">←</button>
+  <div class="pgbar"><div class="pgbar-fill"></div><div class="pgbar-label">Assign Teams & Tasks</div></div>
+
+  <div class="card">
+    <div class="card-head" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h2>Assign Teams & Tasks</h2>
+        <p>Click a measure → then click a team to assign.</p>
+      </div>
+      <span id="b-prog" style="font-size:13px;font-weight:600;color:#6b778a">0 / 7</span>
+    </div>
+
+    <div class="board-body" style="position:relative">
+      <div class="board-left">
+        <div style="font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.5px;padding:0 2px 6px">MEASURES</div>
+        <button class="measure-row" onclick="selectMeasure('seawall','#1d4ed8')" id="m-seawall">
+          <div class="dot" style="background:#1d4ed8"></div>
+          <span class="mname">Sea Wall</span>
+          <span class="assigned-tag" id="at-seawall" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('roads','#6d28d9')" id="m-roads">
+          <div class="dot" style="background:#6d28d9"></div>
+          <span class="mname">Raised Roads</span>
+          <span class="assigned-tag" id="at-roads" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('buildings','#b45309')" id="m-buildings">
+          <div class="dot" style="background:#b45309"></div>
+          <span class="mname">Elevated Buildings</span>
+          <span class="assigned-tag" id="at-buildings" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('walkways','#0e7490')" id="m-walkways">
+          <div class="dot" style="background:#0e7490"></div>
+          <span class="mname">Elevated Walkways</span>
+          <span class="assigned-tag" id="at-walkways" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('drainage','#15803d')" id="m-drainage">
+          <div class="dot" style="background:#15803d"></div>
+          <span class="mname">Drainage Upgrade</span>
+          <span class="assigned-tag" id="at-drainage" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('utility','#be185d')" id="m-utility">
+          <div class="dot" style="background:#be185d"></div>
+          <span class="mname">Utility Protection</span>
+          <span class="assigned-tag" id="at-utility" style="display:none">✓</span>
+        </button>
+        <button class="measure-row" onclick="selectMeasure('support','#7e22ce')" id="m-support">
+          <div class="dot" style="background:#7e22ce"></div>
+          <span class="mname">Resident Support</span>
+          <span class="assigned-tag" id="at-support" style="display:none">✓</span>
+        </button>
+      </div>
+
+      <div class="board-right" id="board-right">
+        <div style="font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:.5px;padding:0 2px 6px">TEAMS</div>
+        <div class="team-row" onclick="assignTeam('CE','Coastal Engineering','#1d4ed8')" id="tr-coastal">
+          <div class="tr-avatar" style="background:#1d4ed8">CE</div>
+          <span class="tr-name">Coastal Engineering</span>
+          <span class="tr-score" id="sc-coastal"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('PW','Public Works','#6d28d9')" id="tr-works">
+          <div class="tr-avatar" style="background:#6d28d9">PW</div>
+          <span class="tr-name">Public Works</span>
+          <span class="tr-score" id="sc-works"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('UP','Urban Planning','#b45309')" id="tr-urban">
+          <div class="tr-avatar" style="background:#b45309">UP</div>
+          <span class="tr-name">Urban Planning & Zoning</span>
+          <span class="tr-score" id="sc-urban"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('WS','Water & Stormwater','#0e7490')" id="tr-water">
+          <div class="tr-avatar" style="background:#0e7490">WS</div>
+          <span class="tr-name">Water & Stormwater</span>
+          <span class="tr-score" id="sc-water"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('EU','Electric Utility','#15803d')" id="tr-electric">
+          <div class="tr-avatar" style="background:#15803d">EU</div>
+          <span class="tr-name">Electric Utility Authority</span>
+          <span class="tr-score" id="sc-electric"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('CS','Community Services','#be185d')" id="tr-community">
+          <div class="tr-avatar" style="background:#be185d">CS</div>
+          <span class="tr-name">Community Services</span>
+          <span class="tr-score" id="sc-community"></span>
+        </div>
+        <div class="team-row" onclick="assignTeam('EM','Emergency Management','#7e22ce')" id="tr-emergency">
+          <div class="tr-avatar" style="background:#7e22ce">EM</div>
+          <span class="tr-name">Emergency Management</span>
+          <span class="tr-score" id="sc-emergency"></span>
+        </div>
+        <svg class="svg-overlay" id="svg-lines"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════ OPTION 3 ═══════════════════════════ -->
+<div class="screen" id="s2">
+<div class="app-frame">
+  <div class="map-bg"></div>
+  <div class="hdr">
+    <div class="hdr-dot"><span>F</span></div>
+    <span style="font-size:14px;font-weight:600;color:#1e2939;letter-spacing:-.3px">Flood Response Dashboard</span>
+  </div>
+  <button class="back-btn">←</button>
+  <div class="pgbar"><div class="pgbar-fill"></div><div class="pgbar-label">Assign Teams & Tasks</div></div>
+
+  <div class="cmd-card">
+    <div class="cmd-head">
+      <h2>ACTION PLAN DEPLOYMENT</h2>
+      <span class="cmd-status" id="cmd-status">● 0 DEPLOYED</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-left">
+        <div class="cmd-section-label">Missions</div>
+        <button class="mission-row" onclick="cmdSelect('seawall')" id="cm-seawall">
+          <div class="mission-dot" style="background:#60a5fa"></div>
+          <span class="mission-name">Sea Wall</span>
+          <span class="mission-badge badge-open" id="cb-seawall">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('roads')" id="cm-roads">
+          <div class="mission-dot" style="background:#a78bfa"></div>
+          <span class="mission-name">Raised Roads</span>
+          <span class="mission-badge badge-open" id="cb-roads">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('buildings')" id="cm-buildings">
+          <div class="mission-dot" style="background:#fbbf24"></div>
+          <span class="mission-name">Elevated Buildings</span>
+          <span class="mission-badge badge-open" id="cb-buildings">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('walkways')" id="cm-walkways">
+          <div class="mission-dot" style="background:#34d399"></div>
+          <span class="mission-name">Elevated Walkways</span>
+          <span class="mission-badge badge-open" id="cb-walkways">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('drainage')" id="cm-drainage">
+          <div class="mission-dot" style="background:#6ee7b7"></div>
+          <span class="mission-name">Drainage Upgrade</span>
+          <span class="mission-badge badge-open" id="cb-drainage">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('utility')" id="cm-utility">
+          <div class="mission-dot" style="background:#f472b6"></div>
+          <span class="mission-name">Utility Protection</span>
+          <span class="mission-badge badge-open" id="cb-utility">OPEN</span>
+        </button>
+        <button class="mission-row" onclick="cmdSelect('support')" id="cm-support">
+          <div class="mission-dot" style="background:#c084fc"></div>
+          <span class="mission-name">Resident Support</span>
+          <span class="mission-badge badge-open" id="cb-support">OPEN</span>
+        </button>
+      </div>
+
+      <div class="cmd-right">
+        <div class="deploy-label" id="deploy-label">SELECT A MISSION</div>
+        <div class="deploy-card" onclick="cmdDeploy('coastal','Coastal Engineering','#1d4ed8','CE')" id="dc-coastal">
+          <div class="d-avatar" style="background:#1d4ed8">CE</div>
+          <div class="d-info"><div class="d-name">Coastal Engineering</div><div class="d-lead">M. Alvarez · 12 yrs</div></div>
+          <span class="deploy-score" id="ds-coastal">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('works','Public Works','#6d28d9','PW')" id="dc-works">
+          <div class="d-avatar" style="background:#6d28d9">PW</div>
+          <div class="d-info"><div class="d-name">Public Works</div><div class="d-lead">D. Chen · 8 yrs</div></div>
+          <span class="deploy-score" id="ds-works">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('urban','Urban Planning','#b45309','UP')" id="dc-urban">
+          <div class="d-avatar" style="background:#b45309">UP</div>
+          <div class="d-info"><div class="d-name">Urban Planning & Zoning</div><div class="d-lead">R. Osei · 9 yrs</div></div>
+          <span class="deploy-score" id="ds-urban">—</span>
+          <span class="d-status status-busy">BUSY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('water','Water & Stormwater','#0e7490','WS')" id="dc-water">
+          <div class="d-avatar" style="background:#0e7490">WS</div>
+          <div class="d-info"><div class="d-name">Water & Stormwater</div><div class="d-lead">S. Patel · 15 yrs</div></div>
+          <span class="deploy-score" id="ds-water">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('electric','Electric Utility','#15803d','EU')" id="dc-electric">
+          <div class="d-avatar" style="background:#15803d">EU</div>
+          <div class="d-info"><div class="d-name">Electric Utility Authority</div><div class="d-lead">J. Romero · 11 yrs</div></div>
+          <span class="deploy-score" id="ds-electric">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('community','Community Services','#be185d','CS')" id="dc-community">
+          <div class="d-avatar" style="background:#be185d">CS</div>
+          <div class="d-info"><div class="d-name">Community Services</div><div class="d-lead">L. Kim · 6 yrs</div></div>
+          <span class="deploy-score" id="ds-community">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+        <div class="deploy-card" onclick="cmdDeploy('emergency','Emergency Management','#7e22ce','EM')" id="dc-emergency">
+          <div class="d-avatar" style="background:#7e22ce">EM</div>
+          <div class="d-info"><div class="d-name">Emergency Management</div><div class="d-lead">K. Williams · 14 yrs</div></div>
+          <span class="deploy-score" id="ds-emergency">—</span>
+          <span class="d-status status-ready">READY</span>
+        </div>
+      </div>
+    </div>
+    <div class="cmd-footer">
+      <span class="cmd-prog-text"><span id="cmd-count">0</span> / 7 missions assigned</span>
+      <button class="execute-btn" id="exec-btn" disabled>EXECUTE ACTION PLAN</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// Tab switching
+function show(i){
+  document.querySelectorAll('.screen').forEach((s,j)=>s.classList.toggle('active',i===j));
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+}
+
+// ── OPTION 1 ──
+let wizSel=null,wizStep=3;
+function selectTeam(n){
+  wizSel=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('tc'+i).classList.toggle('sel',i===n);
+  });
+  const btn=document.getElementById('wizBtn');
+  btn.disabled=false; btn.style.opacity=1;
+}
+function wizNext(){
+  if(!wizSel||wizStep>=7)return;
+  wizStep++;
+  document.getElementById('wstep').textContent=wizStep;
+  document.querySelector('.wiz-prog').textContent=wizStep+' / 7';
+  // advance dots
+  const dots=document.querySelectorAll('.wiz-dot');
+  dots.forEach((d,i)=>{
+    if(i<wizStep-1){d.className='wiz-dot done';d.textContent='✓';}
+    else if(i===wizStep-1){d.className='wiz-dot active';d.textContent=wizStep;}
+    else{d.className='wiz-dot todo';d.textContent=i+1;}
+  });
+  [1,2,3].forEach(i=>{document.getElementById('tc'+i).classList.remove('sel');});
+  const btn=document.getElementById('wizBtn');
+  btn.disabled=true;btn.style.opacity=.4;wizSel=null;
+}
+
+// ── OPTION 2 ──
+const BSCORES={
+  seawall:{coastal:97,works:54,urban:44,water:70,electric:38,community:21,emergency:66},
+  roads:{coastal:55,works:93,urban:62,water:67,electric:43,community:29,emergency:71},
+  buildings:{coastal:41,works:64,urban:95,water:37,electric:39,community:27,emergency:54},
+  walkways:{coastal:47,works:89,urban:71,water:54,electric:41,community:34,emergency:59},
+  drainage:{coastal:57,works:71,urban:39,water:96,electric:54,community:24,emergency:62},
+  utility:{coastal:39,works:54,urban:34,water:61,electric:94,community:19,emergency:57},
+  support:{coastal:24,works:37,urban:44,water:29,electric:31,community:97,emergency:80},
+};
+const TKEYS=['coastal','works','urban','water','electric','community','emergency'];
+let bSelected=null,bAssigned={},bCount=0,bColor=null;
+
+function selectMeasure(m,color){
+  bSelected=m; bColor=color;
+  document.querySelectorAll('.measure-row').forEach(r=>r.classList.remove('bsel'));
+  document.getElementById('m-'+m).classList.add('bsel');
+  // show scores
+  const sc=BSCORES[m];
+  TKEYS.forEach(k=>{
+    const el=document.getElementById('sc-'+k);
+    const score=sc[k];
+    el.textContent=score+'%';
+    el.style.color=score>=85?'#00a63e':score>=60?'#b45309':'#9ca3af';
+    const row=document.getElementById('tr-'+k);
+    row.classList.toggle('highlighted',score>=75&&!bAssigned[k]);
+  });
+}
+function assignTeam(initials,name,color){
+  if(!bSelected)return;
+  if(bAssigned[bSelected]){
+    const old=bAssigned[bSelected];
+    document.getElementById('tr-'+old).classList.remove('tassigned');
+    delete bAssigned[bSelected];
+    bCount--;
+    document.getElementById('at-'+bSelected).style.display='none';
+  }
+  const tid=Object.keys(BSCORES.seawall).find((_,i)=>['CE','PW','UP','WS','EU','CS','EM'][i]===initials)||initials.toLowerCase();
+  const tkey={'CE':'coastal','PW':'works','UP':'urban','WS':'water','EU':'electric','CS':'community','EM':'emergency'}[initials];
+  if(tkey){
+    bAssigned[bSelected]=tkey;
+    document.getElementById('tr-'+tkey).classList.add('tassigned');
+    document.getElementById('at-'+bSelected).style.display='';
+    bCount=Object.keys(bAssigned).length;
+    document.getElementById('b-prog').textContent=bCount+' / 7';
+  }
+  drawLines();
+  document.querySelectorAll('.measure-row').forEach(r=>r.classList.remove('bsel'));
+  bSelected=null;
+  TKEYS.forEach(k=>{document.getElementById('sc-'+k).textContent='';document.getElementById('tr-'+k).classList.remove('highlighted');});
+}
+
+function drawLines(){
+  const svg=document.getElementById('svg-lines');
+  const container=document.getElementById('board-right');
+  const rect=container.getBoundingClientRect();
+  svg.innerHTML='';
+  Object.entries(bAssigned).forEach(([mkey,tkey])=>{
+    const mrow=document.getElementById('m-'+mkey);
+    const trow=document.getElementById('tr-'+tkey);
+    if(!mrow||!trow)return;
+    const mr=mrow.getBoundingClientRect();
+    const tr=trow.getBoundingClientRect();
+    const x1=mr.right-rect.left+8;
+    const y1=(mr.top+mr.height/2)-rect.top;
+    const x2=tr.left-rect.left-4;
+    const y2=(tr.top+tr.height/2)-rect.top;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    const cx=(x1+x2)/2;
+    path.setAttribute('d',`M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`);
+    path.setAttribute('stroke','rgba(0,166,62,0.5)');
+    path.setAttribute('stroke-width','1.5');
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke-dasharray','4 3');
+    svg.appendChild(path);
+  });
+}
+
+// ── OPTION 3 ──
+const CSCORES={
+  seawall:{coastal:97,works:54,urban:44,water:70,electric:38,community:21,emergency:66},
+  roads:{coastal:55,works:93,urban:62,water:67,electric:43,community:29,emergency:71},
+  buildings:{coastal:41,works:64,urban:95,water:37,electric:39,community:27,emergency:54},
+  walkways:{coastal:47,works:89,urban:71,water:54,electric:41,community:34,emergency:59},
+  drainage:{coastal:57,works:71,urban:39,water:96,electric:54,community:24,emergency:62},
+  utility:{coastal:39,works:54,urban:34,water:61,electric:94,community:19,emergency:57},
+  support:{coastal:24,works:37,urban:44,water:29,electric:31,community:97,emergency:80},
+};
+let cmdSel=null,cmdAssigned={},cmdCount=0;
+const CTEAMS=['coastal','works','urban','water','electric','community','emergency'];
+
+function cmdSelect(m){
+  cmdSel=m;
+  document.querySelectorAll('.mission-row').forEach(r=>r.classList.remove('msel'));
+  document.getElementById('cm-'+m).classList.add('msel');
+  const sc=CSCORES[m];
+  const label=document.getElementById('deploy-label');
+  label.textContent='DEPLOY TO: '+m.toUpperCase().replace('SEAWALL','SEA WALL').replace('ROADS','RAISED ROADS').replace('BUILDINGS','ELEVATED BUILDINGS').replace('WALKWAYS','ELEVATED WALKWAYS').replace('DRAINAGE','DRAINAGE UPGRADE').replace('UTILITY','UTILITY PROTECTION').replace('SUPPORT','RESIDENT SUPPORT');
+  CTEAMS.forEach(k=>{
+    const score=sc[k];
+    const el=document.getElementById('ds-'+k);
+    el.textContent=score+'%';
+    el.style.color=score>=85?'#34d399':score>=60?'#fbbf24':'rgba(255,255,255,.3)';
+    const card=document.getElementById('dc-'+k);
+    card.classList.toggle('dsel',score>=85&&!cmdAssigned[k]);
+  });
+}
+function cmdDeploy(tkey,name,color,initials){
+  if(!cmdSel)return;
+  if(cmdAssigned[cmdSel]){
+    const old=cmdAssigned[cmdSel];
+    document.getElementById('dc-'+old).classList.remove('deployed');
+    const badge=document.getElementById('cb-'+cmdSel);
+    badge.className='mission-badge badge-open';badge.textContent='OPEN';
+    delete cmdAssigned[cmdSel];
+    cmdCount--;
+  }
+  cmdAssigned[cmdSel]=tkey;
+  document.getElementById('dc-'+tkey).classList.remove('dsel');
+  document.getElementById('dc-'+tkey).classList.add('deployed');
+  const badge=document.getElementById('cb-'+cmdSel);
+  badge.className='mission-badge badge-done';badge.textContent='✓ ASSIGNED';
+  document.getElementById('cm-'+cmdSel).classList.remove('msel');
+  cmdCount=Object.keys(cmdAssigned).length;
+  cmdSel=null;
+  CTEAMS.forEach(k=>{const el=document.getElementById('ds-'+k);el.textContent='—';el.style.color='rgba(255,255,255,.3)';document.getElementById('dc-'+k).classList.remove('dsel');});
+  document.getElementById('deploy-label').textContent='SELECT A MISSION';
+  document.getElementById('cmd-count').textContent=cmdCount;
+  document.getElementById('cmd-status').textContent='● '+cmdCount+' DEPLOYED';
+  const btn=document.getElementById('exec-btn');
+  btn.disabled=cmdCount<7;
+}
+</script>
+</body></html>

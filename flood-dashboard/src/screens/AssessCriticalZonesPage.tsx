@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { MapPin, ChevronDown, ChevronRight, MousePointerClick } from 'lucide-react';
+import { MousePointerClick, ChevronRight } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
+import CoastalRoadAccessPage from './CoastalRoadAccessPage';
 
 interface Props {
   onBack: () => void;
@@ -53,35 +54,35 @@ const ZONE_LIST = [
 // drag-to-place debug tool.
 const MAP_TABS = [
   {
-    lngLat: [-80.190072, 25.762479] as [number, number], width: 190,
+    lngLat: [-80.190025, 25.762731] as [number, number], width: 190,
     icon: '/icons/tab-car.svg',
     title: 'Costal Road Access',
     subtitle: 'Potential disruption',
     action: 'coastal' as const,
   },
   {
-    lngLat: [-80.193974, 25.768884] as [number, number], width: 242,
+    lngLat: [-80.193005, 25.766975] as [number, number], width: 242,
     icon: '/icons/tab-electric.svg',
     title: 'Electric Utility Point',
     subtitle: 'Changing the defense system',
     action: 'electric' as const,
   },
   {
-    lngLat: [-80.189149, 25.766935] as [number, number], width: 211,
+    lngLat: [-80.188994, 25.764776] as [number, number], width: 211,
     icon: '/icons/tab-building.svg',
     title: 'Residential Edge Blocks',
     subtitle: 'Higher exposure',
     action: 'residential' as const,
   },
   {
-    lngLat: [-80.191864, 25.759567] as [number, number], width: 208,
+    lngLat: [-80.192034, 25.760490] as [number, number], width: 208,
     icon: '/icons/tab-water.svg',
     title: 'Increase pump capacity',
     subtitle: 'Back-flow risk',
     action: 'pump' as const,
   },
   {
-    lngLat: [-80.194403, 25.762863] as [number, number], width: 215,
+    lngLat: [-80.194103, 25.762587] as [number, number], width: 215,
     icon: '/icons/tab-people.svg',
     title: 'Vulnerable Residents',
     subtitle: 'Support planning needed',
@@ -127,6 +128,14 @@ const HOVER_DATA: Record<string, {
   },
 };
 
+const ZONE_SUBTITLE: Record<string, string> = {
+  'Costal Road Access': 'Potential disruption',
+  'Electric Utility Point': 'Changing the defense system',
+  'Residential Edge Blocks': 'Higher exposure',
+  'Increase pump capacity': 'Back-flow risk',
+  'Vulnerable Residents': 'Support planning needed',
+};
+
 const IS_DEBUG = new URLSearchParams(window.location.search).has('debug');
 
 export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, map }: Props) {
@@ -151,6 +160,12 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
+
+  // Dynamic expanded width so the card always reaches viewport right-16px,
+  // matching HomePageHeader's right-[16px], even when scale is height-constrained.
+  const expandedWidth = Math.round((window.innerWidth - 16) / scale - 16);
+  const rightPanelScale = (expandedWidth - 386) / 1512;
+  const rightPanelContainerH = Math.round(826 / rightPanelScale);
 
   // Maps each zone label to its navigation handler
   const ZONE_HANDLER: Record<string, (() => void) | undefined> = {
@@ -246,145 +261,120 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           from { transform: scaleY(0); }
           to   { transform: scaleY(1); }
         }
-        @keyframes pillEnterUp {
-          from { clip-path: inset(calc(100% - 45px) 100% 0 0 round 100px); }
-          to   { clip-path: inset(calc(100% - 45px) 0% 0 0 round 100px); }
-        }
-        @keyframes pillEnterDown {
-          from { clip-path: inset(0 100% calc(100% - 45px) 0 round 100px); }
-          to   { clip-path: inset(0 0% calc(100% - 45px) 0 round 100px); }
+        @keyframes pillGrow {
+          from { transform: scale(0); opacity: 0; }
+          to   { transform: scale(1); opacity: 1; }
         }
       `}</style>
       <ScaledLayout className="screen-enter">
 
-        {/* Left info card */}
+        {/* Left info card — expands right when a zone is selected */}
         <div
           className="absolute glass-65 glass-shadow"
           style={{
-            left: 16, top: 132, width: 386, height: 860,
+            left: 16, top: 140, bottom: 16,
+            width: expandedZone ? expandedWidth : 386,
             borderRadius: 16,
             pointerEvents: 'auto',
-            display: 'flex', flexDirection: 'column',
+            display: 'flex', flexDirection: 'row',
             overflow: 'hidden',
+            transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-
-          {/* ── Card header ── */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 13px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <MapPin size={17} color="#1e2939" strokeWidth={2} />
+          {/* Left column — always visible zone list */}
+          <div style={{ width: 386, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+            {/* Header — title only */}
+            <div style={{ padding: '14px 16px 13px' }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
                 Critical Zones
               </span>
             </div>
-          </div>
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
+            <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
 
-          {/* ── Context ── */}
-          <p style={{ margin: '13px 16px 0', fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
-            The locations shown on the map and listed below are areas that require targeted adaptations to prepare the district against coastal flooding.
-          </p>
+            {/* Context */}
+            <p style={{ margin: '13px 16px 0', fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
+              The zones and systems listed here require targeted interventions in order for the district to withstand coastal flooding. Select any zone to open its full assessment and adaptation plan.
+            </p>
 
-          {/* ── Instruction hint ── */}
-          <div style={{
-            margin: '12px 16px 0', padding: '10px 13px',
-            background: 'rgba(0,0,0,0.04)', borderRadius: 11,
-            display: 'flex', alignItems: 'center', gap: 9,
-          }}>
-            <MousePointerClick size={15} color="#1e2939" strokeWidth={2} style={{ flexShrink: 0 }} />
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', lineHeight: '20px' }}>
-              Select a zone on the map or below to begin its assessment
-            </span>
-          </div>
+            {/* Hint */}
+            <div style={{
+              margin: '12px 16px 0', padding: '10px 13px',
+              background: 'rgba(0,0,0,0.04)', borderRadius: 11,
+              display: 'flex', alignItems: 'center', gap: 9,
+            }}>
+              <MousePointerClick size={15} color="#1e2939" strokeWidth={2} style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+                Click a zone below or on the map to open its full assessment
+              </span>
+            </div>
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '16px 12px 0' }} />
+            <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '16px 12px 0' }} />
 
-          {/* ── Zone cards ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', padding: '8px 8px 0', overflowY: 'auto', flex: 1 }}>
-            {ZONE_LIST.map(({ label, svgPath }) => {
-              const isExpanded = expandedZone === label;
-              const hoverData = HOVER_DATA[label];
-              return (
+            {/* Zone list */}
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '6px 8px 0' }}>
+              {ZONE_LIST.map(({ label, svgPath }) => (
                 <div
                   key={label}
+                  onClick={() => {
+                    if (expandedZone === label) { setExpandedZone(null); return; }
+                    if (label === 'Costal Road Access') { setExpandedZone(label); } else { ZONE_HANDLER[label]?.(); }
+                  }}
                   style={{
-                    background: 'rgba(255,255,255,0.55)',
-                    backdropFilter: 'blur(8px)',
-                    borderRadius: 12,
-                    marginBottom: 6,
-                    overflow: 'hidden',
-                    flexShrink: 0,
+                    display: 'flex', alignItems: 'center', gap: 13,
+                    padding: '13px 8px', borderRadius: 10,
+                    cursor: 'pointer', flexShrink: 0,
+                    background: expandedZone === label ? 'rgba(0,0,0,0.04)' : undefined,
                   }}
                 >
-                  {/* Row — click body/chevron = expand; Assess pill = navigate */}
-                  <div
-                    onClick={() => setExpandedZone(isExpanded ? null : label)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px', cursor: 'pointer' }}
-                  >
-                    <svg viewBox="0 0 24 24" width={32} height={32} fill="none" style={{ flexShrink: 0 }}>
-                      <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
-                      <path d={svgPath} fill="white" />
-                    </svg>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '20px', flex: 1 }}>
+                  <svg viewBox="0 0 24 24" width={32} height={32} fill="none" style={{ flexShrink: 0 }}>
+                    <rect width="24" height="24" rx="12" style={{ fill: ZONE_ACCENT[label] }} />
+                    <path d={svgPath} fill="white" />
+                  </svg>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}>
+                    <span style={{ fontSize: 16, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '21px' }}>
                       {label}
                     </span>
-                    {/* Primary CTA — always visible, navigates to full zone plan */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); ZONE_HANDLER[label]?.(); }}
-                      style={{
-                        flexShrink: 0, padding: '4px 10px', borderRadius: 20,
-                        background: ZONE_ACCENT[label], border: 'none', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        pointerEvents: 'auto',
-                      }}
-                    >
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'white', letterSpacing: '-0.1px', whiteSpace: 'nowrap' }}>Assess</span>
-                      <ChevronRight size={11} color="rgba(255,255,255,0.8)" strokeWidth={2.5} />
-                    </button>
-                    {/* Secondary — expand details */}
-                    <ChevronDown
-                      size={15}
-                      color="rgba(30,41,57,0.35)"
-                      strokeWidth={2}
-                      style={{
-                        flexShrink: 0,
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease',
-                      }}
-                    />
+                    <span style={{ fontSize: 14, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
+                      {ZONE_SUBTITLE[label]}
+                    </span>
                   </div>
-                  {/* Expanded content — description + proposed action */}
-                  {isExpanded && (
-                    <div style={{ padding: '0 12px 12px' }}>
-                      <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', marginBottom: 10 }} />
-                      <p style={{ margin: 0, fontSize: 13, fontWeight: 400, color: '#6b7280', lineHeight: '19px', letterSpacing: '-0.2px' }}>
-                        {hoverData.description}
-                      </p>
-                      <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 500, color: '#1e2939', lineHeight: '19px', letterSpacing: '-0.2px' }}>
-                        <span style={{ color: '#6b7280', fontWeight: 400 }}>Proposed: </span>{hoverData.proposed}
-                      </p>
-                    </div>
-                  )}
+                  <ChevronRight size={16} color="rgba(30,41,57,0.30)" strokeWidth={2} style={{ flexShrink: 0, transform: expandedZone === label ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }} />
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Simulate button — pinned to bottom */}
+            <div style={{ padding: '14px 16px 16px', marginTop: 'auto' }}>
+              <button
+                onClick={onPlan}
+                style={{
+                  width: '100%', height: 44, borderRadius: 12,
+                  background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  pointerEvents: 'auto',
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>Simulate response scenarios</span>
+              </button>
+            </div>
           </div>
 
-          {/* ── Simulate button pinned to bottom ── */}
-          <div style={{ padding: '0 16px 16px' }}>
-            <button
-              onClick={onPlan}
-              style={{
-                width: '100%', height: 44, borderRadius: 12,
-                background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                pointerEvents: 'auto',
-              }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>Simulate response scenarios</span>
-            </button>
-          </div>
+          {/* Right panel — zone detail, scaled to fit */}
+          {expandedZone && (
+            <div style={{ flex: 1, borderLeft: '1px solid rgba(0,0,0,0.09)', overflow: 'hidden', position: 'relative' }}>
+              <div style={{
+                position: 'absolute', top: 0, left: 0,
+                width: 1512, height: rightPanelContainerH,
+                transformOrigin: 'top left',
+                transform: `scale(${rightPanelScale})`,
+              }}>
+                {expandedZone === 'Costal Road Access' && (
+                  <CoastalRoadAccessPage embedded containerHeight={rightPanelContainerH} onBack={() => setExpandedZone(null)} onApprove={() => setExpandedZone(null)} />
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </ScaledLayout>
 
@@ -393,8 +383,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         onClick={onBack}
         style={{
           position: 'absolute',
-          top: Math.round(80 * scale),
-          left: Math.round(26 * scale),
+          top: Math.round(93 * scale),
+          left: 16,
           width: Math.round(36 * scale),
           height: Math.round(36 * scale),
           borderRadius: '50%',
@@ -413,8 +403,8 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         className="glass-65 glass-shadow"
         style={{
           position: 'absolute',
-          top: Math.round(80 * scale),
-          left: Math.round(70 * scale),
+          top: Math.round(93 * scale),
+          left: 16 + Math.round(36 * scale) + 8,
           right: 16,
           height: Math.round(36 * scale),
           borderRadius: Math.round(18 * scale),
@@ -474,10 +464,10 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
       {/* Map tabs — geo-anchored via map.project(), rendered in raw viewport
           pixels outside ScaledLayout so they track the map on pan/zoom. */}
-      {tabPositions && MAP_TABS.map((tab, i) => {
+      {tabPositions && !expandedZone && MAP_TABS.map((tab, i) => {
           const pos = tabPositions[i];
           const handler =
-            tab.action === 'coastal' ? onCoastalRoad
+            tab.action === 'coastal' ? () => setExpandedZone('Costal Road Access')
             : tab.action === 'vulnerable' ? onVulnerableResidents
             : tab.action === 'electric' ? onElectricUtility
             : tab.action === 'residential' ? onResidentialEdge
@@ -498,9 +488,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             ? 'inset(calc(100% - 45px) 0 0 0 round 100px)'
             : 'inset(0 0 calc(100% - 45px) 0 round 100px)';
           const expandedClip = 'inset(0 0 0 0 round 16px)';
-          const entranceAnim = isUpward
-            ? `pillEnterUp 0.3s ease-out ${pillDelay} both`
-            : `pillEnterDown 0.3s ease-out ${pillDelay} both`;
+          const entranceAnim = `pillGrow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) ${pillDelay} both`;
 
           const containerStyle: React.CSSProperties = {
             position: 'absolute',
@@ -511,10 +499,12 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               : { top: pos.y }),
             width: animDone ? (isOpen ? 280 : 45) : 45,
             animation: !animDone ? entranceAnim : undefined,
+            transformOrigin: !animDone ? '50% 100%' : undefined,
             clipPath: animDone ? (isOpen ? expandedClip : compactClip) : undefined,
             transition: animDone
-              ? 'clip-path 0.3s ease-out, width 0.3s ease-out, box-shadow 0.2s'
+              ? 'clip-path 0.45s cubic-bezier(0.4, 0, 0.2, 1), width 0.45s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease'
               : 'none',
+            borderRadius: !animDone ? '50%' : undefined,
             background: 'rgba(255,255,255,0.9)',
             boxShadow: isOpen
               ? '0 4px 24px rgba(0,0,0,0.15)'
@@ -595,13 +585,13 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               >
                 {isUpward ? (
                   <>
-                    {extraContent}
+                    {animDone && extraContent}
                     {pillRow}
                   </>
                 ) : (
                   <>
                     {pillRow}
-                    {extraContent}
+                    {animDone && extraContent}
                   </>
                 )}
               </div>

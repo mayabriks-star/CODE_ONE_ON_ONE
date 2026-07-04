@@ -4,6 +4,8 @@ import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 interface Props {
   onBack: () => void;
   onApprove: () => void;
+  embedded?: boolean;
+  containerHeight?: number;
 }
 
 function RiskGauge() {
@@ -94,21 +96,21 @@ function DonutChart() {
 }
 
 const implementationSteps = [
-  { n: 1, label: 'Raise Low Road Segments:', desc: 'Raise the coastal road segment to a target elevation of 2.6 m above MSL using pile-supported structures.' },
-  { n: 2, label: 'Upgrade Drainage Capacity and Outfalls:', desc: 'Increase drainage capacity with larger culverts and connect outfalls to a dedicated pump station for flood prevention.' },
-  { n: 3, label: 'Reinforce Shoreline Edge Protection:', desc: 'Strengthen embankments and install scour protection at vulnerable sections exposed to storm surge.' },
-  { n: 4, label: 'Protect and Adjust Adjacent Infrastructure:', desc: 'Relocate exposed utilities out of the surge zone and elevate critical lines above the design flood elevation.' },
-  { n: 5, label: 'Protect and Relocate Utilities:', desc: 'Relocate exposed utilities out of the surge zone and elevate critical infrastructure along the corridor.' },
-  { n: 6, label: 'Maintain Emergency Access:', desc: 'Ensure continuous access for emergency services through all stages of construction.' },
+  { n: 1, label: 'Raise Road Elevation:', desc: 'Elevate the coastal road to 2.6 m above MSL using pile-supported structures to withstand surge events.' },
+  { n: 2, label: 'Upgrade Drainage & Shoreline:', desc: 'Expand culvert capacity, connect outfalls to a dedicated pump station, and reinforce embankments against storm surge.' },
+  { n: 3, label: 'Relocate & Protect Utilities:', desc: 'Move exposed utilities outside the surge zone and elevate critical infrastructure above the design flood elevation.' },
+  { n: 4, label: 'Ensure Emergency Access:', desc: 'Maintain continuous emergency access throughout all construction phases, coordinated with local services.' },
 ];
 
-export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
+export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, containerHeight }: Props) {
   const DESIGN_RIGHT_HEIGHT = 788;
+  const embH = containerHeight ?? 826;
   const [rightScale, setRightScale] = useState(() =>
-    Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
+    embedded ? Math.min(1, (embH - 20) / DESIGN_RIGHT_HEIGHT) : Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
   );
   const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
+    if (embedded) return;
     const update = () =>
       setRightScale(Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT));
     window.addEventListener('resize', update);
@@ -125,27 +127,28 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
   return (
     <div
       className="screen-enter"
-      style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
+      style={{ height: embedded ? `${embH}px` : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: embedded ? 'transparent' : '#f8f8f8' }}
     >
-      {/* Header */}
-      <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-            <Menu size={20} />
-          </button>
-          <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Bell size={20} color="#364153" />
+      {!embedded && (
+        <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+              <Menu size={20} />
+            </button>
+            <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Bell size={20} color="#364153" />
+            </div>
+          </div>
+          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
+            <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+              <ArrowLeft size={20} />
+            </button>
+            <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              Assess Critical Zones- Costal Road Access
+            </span>
           </div>
         </div>
-        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-            <ArrowLeft size={20} />
-          </button>
-          <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-            Assess Critical Zones- Costal Road Access
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Body */}
       <div
@@ -153,8 +156,8 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
           flex: 1,
           display: 'flex',
           overflow: 'hidden',
-          paddingLeft: '70px',
-          paddingRight: '70px',
+          paddingLeft: embedded ? '24px' : '70px',
+          paddingRight: embedded ? '24px' : '70px',
           paddingTop: '20px',
           paddingBottom: 0,
           gap: '42px',
@@ -190,7 +193,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
 
             {/* Action Plan Overview */}
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Action Plan Overview</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '512px', ...editStyle }}>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: '24px', letterSpacing: '-0.08px', width: '512px', ...editStyle }}>
               The coastal road segment provides critical connectivity for 620 residents and is a primary evacuation and emergency access route. It is exposed to storm surge and sea level rise, with multiple elevation and infrastructure vulnerabilities.
             </p>
 
@@ -207,7 +210,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
                       <span style={{ fontSize: '8.8px', fontWeight: 700, color: '#ea7836', letterSpacing: '0.18px' }}>{step.n}</span>
                     </div>
                   </div>
-                  <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '13px', lineHeight: '20.15px', letterSpacing: '-0.08px', ...editStyle }}>
+                  <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '16px', lineHeight: '24px', letterSpacing: '-0.08px', ...editStyle }}>
                     <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>
                     {' '}
                     <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
@@ -216,40 +219,27 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
               ))}
             </div>
 
-            {/* Divider */}
-            <div style={{ borderTop: '1px solid #cfcccc', marginTop: '20px' }} />
+            {!embedded && (
+              <>
+                {/* Divider */}
+                <div style={{ borderTop: '1px solid #cfcccc', marginTop: '20px' }} />
 
-            {/* Implementation Approach */}
-            <p style={{ margin: '20px 0 0 0', fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Implementation Approach</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '578px', ...editStyle }}>
-              Construction will be completed in phased segments to maintain at least one travel lane at all times. Work will prioritize the lowest elevation areas and critical access points. Coordination with utility providers and emergency services will minimize disruptions.
-            </p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '579px', ...editStyle }}>
-              Implementation is designed to align with storm season windows and permit approval timelines. Coordination with utility providers and emergency services will minimize disruptions.
-            </p>
-
-            {/* Bottom image card */}
-            <div style={{ marginTop: '16px', border: '1px solid #cfcccc', borderRadius: '15px', display: 'flex', overflow: 'hidden', alignItems: 'stretch', width: '100%' }}>
-              <img
-                src="/costal-road-pile.jpg"
-                alt="Elevated roadway"
-                style={{ width: '325px', flexShrink: 0, objectFit: 'cover' }}
-              />
-              <div style={{ flex: 1, padding: '20px 20px 20px 24px' }}>
-                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#364153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
-                  Elevated Roadway on Pile-Supported Structure
+                {/* Implementation Approach */}
+                <p style={{ margin: '20px 0 0 0', fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Implementation Approach</p>
+                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: '24px', letterSpacing: '-0.08px', width: '578px', ...editStyle }}>
+                  Construction will be completed in phased segments to maintain at least one travel lane at all times. Work will prioritize the lowest elevation areas and critical access points. Coordination with utility providers and emergency services will minimize disruptions.
                 </p>
-                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
-                  Raising the roadway on piles allows storm surge and wave energy to pass beneath, reducing overtopping while maintaining connectivity and long-term resilience.
+                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: '24px', letterSpacing: '-0.08px', width: '579px', ...editStyle }}>
+                  Implementation is designed to align with storm season windows and permit approval timelines. Coordination with utility providers and emergency services will minimize disruptions.
                 </p>
-              </div>
-            </div>
+              </>
+            )}
 
           </div>
         </div>
 
-        {/* Right column — proportionally scaled to viewport height */}
-        <div style={{ width: '606px', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
+        {/* Right column — fills remaining space, content scales to fit */}
+        <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
           <div
             style={{
               position: 'absolute',
@@ -269,7 +259,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
               <div style={{ background: 'white', borderRadius: '20px', height: '151px', display: 'flex', alignItems: 'center', gap: '45px', padding: '0 16px', flexShrink: 0 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingTop: '12px', paddingBottom: '16px' }}>
                   <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '19.5px', letterSpacing: '-0.08px', whiteSpace: 'nowrap' }}>Problem Summary</p>
-                  <p style={{ margin: '6px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '19.2px', width: '359px' }}>
+                  <p style={{ margin: '6px 0 0 0', fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: '24px', width: '359px' }}>
                     The coastal road is exposed to storm surge and rising sea levels. Without adaptation, access to the Harbor District may become limited during high-water events, affecting evacuation routes, emergency access, and daily mobility.
                   </p>
                 </div>
@@ -284,7 +274,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
               <div style={{ background: 'white', borderRadius: '20px', height: '286px', padding: '0 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexShrink: 0 }}>
                 <div style={{ paddingLeft: '25px' }}>
                   <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '18px', letterSpacing: '-0.15px', whiteSpace: 'nowrap' }}>Cost &amp; Budget</p>
-                  <p style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '16px', letterSpacing: '0.06px', maxWidth: '519px' }}>
+                  <p style={{ margin: '10px 0 0 0', fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: '24px', letterSpacing: '0.06px', maxWidth: '519px' }}>
                     Implementation is estimated over 12–20 months with an estimated total budget of $18.6M, funded through a combination of municipal funds and grants.
                   </p>
                 </div>
@@ -298,7 +288,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
                     ].map((item) => (
                       <div key={item.value} style={{ display: 'flex', gap: '15px', alignItems: 'flex-start' }}>
                         <div style={{ width: 17, height: 17, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: 'normal', whiteSpace: 'nowrap' }}>
+                        <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#505153', lineHeight: 'normal', whiteSpace: 'nowrap' }}>
                           {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
                         </p>
                       </div>
@@ -320,7 +310,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove }: Props) {
                   ].map((item) => (
                     <div key={item.label} style={{ display: 'flex', gap: '15px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
                       <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                      <p style={{ margin: 0, fontSize: '14px', color: '#364153', whiteSpace: 'nowrap' }}>
+                      <p style={{ margin: 0, fontSize: '16px', color: '#364153', whiteSpace: 'nowrap' }}>
                         <span style={{ color: '#505153' }}>{item.label}</span>
                         {' '}
                         <span style={{ fontWeight: item.bold ? 700 : 600 }}>{item.value}</span>

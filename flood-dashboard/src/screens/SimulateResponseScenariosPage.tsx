@@ -280,7 +280,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare }: Pro
           guessing). Rendered outside ScaledLayout with position:fixed so it
           stays flush with the true viewport left edge on any screen width
           (see ARCHITECTURE_AND_DESIGN_SYSTEM.md Section D pattern). */}
-      <div style={{ position: 'fixed', left: 16, top: 138, width: 360, display: 'flex', flexDirection: 'column', gap: 16, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', left: 16, top: 93, width: 360, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
         {/* Scenario controls — step title + sub-heading live at the top of
             this card, matching AssessCriticalZonesPage's title→divider→content
             pattern (Section H), instead of a separate floating title box. */}

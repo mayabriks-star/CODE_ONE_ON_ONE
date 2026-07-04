@@ -62,7 +62,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
       {/* Back arrow + title — sits directly over the map (same convention as
           CompareResponseScenariosPage). */}
-      <div style={{ position: 'fixed', left: 32, top: 99, display: 'flex', alignItems: 'center', gap: 16, pointerEvents: 'auto' }}>
+      <div style={{ position: 'fixed', left: 32, top: 93, display: 'flex', alignItems: 'center', gap: 16, pointerEvents: 'auto' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
           <ArrowLeft size={26} color="white" />
         </button>
@@ -77,7 +77,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
       <div
         className="glass-shadow"
         style={{
-          position: 'fixed', left: 32, right: 32, top: 100, bottom: 32,
+          position: 'fixed', left: 32, right: 32, top: 93, bottom: 32,
           background: 'rgba(255,255,255,0.92)', borderRadius: 20,
           padding: '24px 28px', boxSizing: 'border-box',
           display: 'flex', flexDirection: 'column', gap: 12,

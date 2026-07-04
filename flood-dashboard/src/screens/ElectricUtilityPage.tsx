@@ -4,6 +4,7 @@ import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 interface Props {
   onBack: () => void;
   onApprove: () => void;
+  embedded?: boolean;
 }
 
 function RiskGauge() {
@@ -105,13 +106,14 @@ const implementationSteps = [
 const ACCENT = '#ffbb00';
 const ACCENT_BG = 'rgba(255,187,0,0.2)';
 
-export default function ElectricUtilityPage({ onBack, onApprove }: Props) {
+export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Props) {
   const DESIGN_RIGHT_HEIGHT = 788;
   const [rightScale, setRightScale] = useState(() =>
-    Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
+    embedded ? Math.min(1, (826 - 48 - 20) / DESIGN_RIGHT_HEIGHT) : Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
   );
   const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
+    if (embedded) return;
     const update = () =>
       setRightScale(Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT));
     window.addEventListener('resize', update);
@@ -128,27 +130,35 @@ export default function ElectricUtilityPage({ onBack, onApprove }: Props) {
   return (
     <div
       className="screen-enter"
-      style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
+      style={{ height: embedded ? '826px' : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
     >
-      {/* Header */}
-      <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-            <Menu size={20} />
+      {embedded ? (
+        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px 12px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
+          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#364153' }}>
+            <ArrowLeft size={18} />
           </button>
-          <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Bell size={20} color="#364153" />
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#364153', letterSpacing: '-0.3px' }}>Electric Utility Point</span>
+        </div>
+      ) : (
+        <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+              <Menu size={20} />
+            </button>
+            <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Bell size={20} color="#364153" />
+            </div>
+          </div>
+          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
+            <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+              <ArrowLeft size={20} />
+            </button>
+            <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              Assess Critical Zones- Electric Utility Point
+            </span>
           </div>
         </div>
-        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
-            <ArrowLeft size={20} />
-          </button>
-          <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-            Assess Critical Zones- Electric Utility Point
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Body */}
       <div
@@ -156,8 +166,8 @@ export default function ElectricUtilityPage({ onBack, onApprove }: Props) {
           flex: 1,
           display: 'flex',
           overflow: 'hidden',
-          paddingLeft: '70px',
-          paddingRight: '70px',
+          paddingLeft: embedded ? '24px' : '70px',
+          paddingRight: embedded ? '24px' : '70px',
           paddingTop: '20px',
           paddingBottom: 0,
           gap: '42px',

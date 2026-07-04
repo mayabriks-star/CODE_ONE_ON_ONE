@@ -193,8 +193,10 @@ export function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
 
 export default function CompareResponseScenariosPage({ onBack, onContinue }: Props) {
   const [hoveredCol, setHoveredCol] = useState<string | null>(null);
+  const [selectedCol, setSelectedCol] = useState<string | null>(null);
 
-  const activeCol = hoveredCol ?? 'selected';
+  const activeCol = hoveredCol ?? selectedCol ?? null;
+  const chosenScenario = selectedCol ? SCENARIOS.find(s => s.id === selectedCol) : null;
   const sel = SCENARIOS.find(s => s.id === 'selected')!;
   const remainLabel = `$${((AVAILABLE_BUDGET - sel.totalCostValue) / 1_000_000).toFixed(1)}M`;
   const availLabel = `$${(AVAILABLE_BUDGET / 1_000_000).toFixed(0)}M`;
@@ -224,17 +226,20 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
 
   function getHeaderStyle(s: ScenarioData): React.CSSProperties {
     const active = s.id === activeCol;
+    const isSelected = s.id === 'selected';
     return {
       flex: 1,
-      padding: '8px 12px',
+      padding: '7px 12px',
       background: active ? '#364153' : 'transparent',
-      borderTop: `2px solid ${active ? '#364153' : 'transparent'}`,
+      borderTop: isSelected
+        ? '3px solid #00a63e'
+        : `2px solid ${active ? '#364153' : 'transparent'}`,
       borderLeft: '1px solid rgba(0,0,0,0.06)',
       display: 'flex',
       flexDirection: 'column' as const,
       justifyContent: 'center',
       alignItems: 'center',
-      gap: 4,
+      gap: 3,
       cursor: 'default',
       transition: 'background 0.15s ease',
     };
@@ -244,7 +249,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
     const active = s.id === activeCol;
     return {
       flex: 1,
-      padding: '13px 12px',
+      padding: '10px 12px',
       background: active ? 'rgba(40,100,228,0.04)' : 'transparent',
       boxShadow: active ? 'inset 1px 0 0 rgba(40,100,228,0.2), inset -1px 0 0 rgba(40,100,228,0.2)' : undefined,
       display: 'flex',
@@ -323,12 +328,12 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
         }}
       >
             {/* Page header */}
-            <div style={{ flexShrink: 0, paddingBottom: 4 }}>
+            <div style={{ flexShrink: 0, paddingBottom: 16 }}>
               <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '23px' }}>
                 Compare Intervention Options
               </p>
               <p style={{ margin: '8px 0 0', fontSize: 17, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.44px', lineHeight: '24px', whiteSpace: 'pre-line' }}>
-                Comparing your simulation against two optimized alternatives.{'\n'}Each scenario reflects a different balance of cost, deployment speed, and flood protection coverage.
+                Select the intervention plan you want to execute.{'\n'}Each scenario reflects a different balance of cost, deployment speed, and flood protection coverage.
               </p>
             </div>
 
@@ -341,9 +346,10 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                 {SCENARIOS.map(s => (
                   <div
                     key={s.id}
-                    style={getHeaderStyle(s)}
+                    style={{ ...getHeaderStyle(s), cursor: 'pointer' }}
                     onMouseEnter={() => setHoveredCol(s.id)}
                     onMouseLeave={() => setHoveredCol(null)}
+                    onClick={() => setSelectedCol(s.id)}
                   >
                     <span style={{
                       fontSize: 15, fontWeight: 600,
@@ -351,73 +357,102 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                       letterSpacing: '-0.3px', lineHeight: 1.3, textAlign: 'center',
                     }}>
                       {s.roleLabel}
+                      {s.id === 'selected' && (
+                        <span style={{
+                          fontSize: 14, fontWeight: 400,
+                          color: s.id === activeCol ? 'rgba(255,255,255,0.7)' : '#6b778a',
+                          letterSpacing: '-0.2px',
+                        }}>
+                          {' '}(best value)
+                        </span>
+                      )}
                     </span>
                   </div>
                 ))}
+                {/* Add comparison column */}
+                <div style={{
+                  width: 90, flexShrink: 0,
+                  borderLeft: '1px solid rgba(0,0,0,0.06)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '8px 10px',
+                }}>
+                  <button
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+                      background: 'none', border: 'none', borderRadius: 8, padding: '4px 6px',
+                      cursor: 'pointer', width: '100%',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(40,100,228,0.06)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                  >
+                    <span style={{ fontSize: 16, color: '#6b778a', lineHeight: 1, fontWeight: 400 }}>+</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#101828', letterSpacing: '-0.1px', whiteSpace: 'nowrap' }}>Add scenario</span>
+                  </button>
+                </div>
               </div>
 
               {/* Chosen Measures rows */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {measureRows.map((row, rowIdx) => (
                   <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: rowIdx < measureRows.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
-                    <div style={{ width: 168, flexShrink: 0, padding: '13px 14px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: 168, flexShrink: 0, padding: '10px 14px', display: 'flex', alignItems: 'center' }}>
                       <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                     </div>
                     {SCENARIOS.map(s => (
-                      <div key={s.id} style={getCellStyle(s)} onMouseEnter={() => setHoveredCol(s.id)} onMouseLeave={() => setHoveredCol(null)}>
+                      <div key={s.id} style={{ ...getCellStyle(s), cursor: 'pointer' }} onMouseEnter={() => setHoveredCol(s.id)} onMouseLeave={() => setHoveredCol(null)} onClick={() => setSelectedCol(s.id)}>
                         {row.render(s)}
                       </div>
                     ))}
+                    <div style={{ width: 90, flexShrink: 0, borderLeft: '1px solid rgba(0,0,0,0.04)', background: 'rgba(0,0,0,0.012)' }} />
                   </div>
                 ))}
               </div>
 
             </div>
 
-            {/* Outcomes — separate white card, one panel per scenario */}
-            <div style={{ background: 'white', borderRadius: 12, flexShrink: 0, display: 'flex', overflow: 'hidden' }}>
-              {/* Label column */}
-              <div style={{ width: 168, flexShrink: 0, padding: '16px 14px', display: 'flex', alignItems: 'flex-start', borderRight: '1px solid rgba(0,0,0,0.06)' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.2px' }}>Outcomes</span>
-              </div>
-              {/* One summary card per scenario */}
-              {SCENARIOS.map(s => {
-                const isActive = s.id === activeCol;
-                return (
-                  <div
-                    key={s.id}
-                    onMouseEnter={() => setHoveredCol(s.id)}
-                    onMouseLeave={() => setHoveredCol(null)}
-                    style={{
-                      flex: 1, padding: '14px 16px',
-                      borderLeft: '1px solid rgba(0,0,0,0.06)',
-                      background: isActive ? 'rgba(40,100,228,0.04)' : 'transparent',
-                      display: 'flex', flexDirection: 'column', gap: 6,
-                      transition: 'background 0.15s ease',
-                    }}
-                  >
-                    {/* Primary metric */}
-                    <div style={{ marginBottom: 1 }}>
-                      <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#364153', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{s.totalCost}</p>
-                      <p style={{ margin: '2px 0 0', fontSize: 11, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.1px' }}>Total investment</p>
-                    </div>
-                    {/* Metric rows — label + value tight on same row */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {[
-                        { label: 'Residents protected', value: s.residentsProtected.toLocaleString() },
-                        { label: 'Risk reduction', value: `−${s.floodRiskReduction}%` },
-                        { label: 'First impact year', value: s.delayToImpact },
-                        { label: 'Timeline', value: s.implementationTime },
-                      ].map(m => (
-                        <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                          <span style={{ fontSize: 14, color: '#6b778a', flex: 1, minWidth: 0 }}>{m.label}</span>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: '#364153', flexShrink: 0 }}>{m.value}</span>
-                        </div>
-                      ))}
-                    </div>
+            {/* Outcomes — table style, same white card as above */}
+            <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+              {[
+                { label: 'Total investment',    key: 'totalCost' as const,              bold: false },
+                { label: 'Residents protected', key: 'residentsProtected' as const,     bold: false },
+                { label: 'Risk reduction',      key: 'floodRiskReduction' as const,     bold: false },
+                { label: 'First impact year',   key: 'delayToImpact' as const,          bold: false },
+                { label: 'Implementation period', key: 'implementationTime' as const,   bold: false },
+              ].map((row, idx, arr) => (
+                <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: idx < arr.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
+                  <div style={{ width: 168, flexShrink: 0, padding: '9px 14px', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                   </div>
-                );
-              })}
+                  {SCENARIOS.map(s => {
+                    const isActive = s.id === activeCol;
+                    const rawVal = s[row.key];
+                    const display = typeof rawVal === 'number'
+                      ? row.key === 'floodRiskReduction' ? `−${rawVal}%` : rawVal.toLocaleString()
+                      : rawVal;
+                    return (
+                      <div
+                        key={s.id}
+                        onMouseEnter={() => setHoveredCol(s.id)}
+                        onMouseLeave={() => setHoveredCol(null)}
+                        onClick={() => setSelectedCol(s.id)}
+                        style={{
+                          flex: 1, padding: '9px 16px', cursor: 'pointer',
+                          borderLeft: '1px solid rgba(0,0,0,0.04)',
+                          background: isActive ? 'rgba(40,100,228,0.04)' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'background 0.15s ease',
+                        }}
+                      >
+                        <span style={{ fontSize: row.bold ? 16 : 14, fontWeight: row.bold ? 700 : 600, color: '#364153', letterSpacing: '-0.3px' }}>
+                          {display}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div style={{ width: 90, flexShrink: 0, borderLeft: '1px solid rgba(0,0,0,0.04)', background: 'rgba(0,0,0,0.012)' }} />
+                </div>
+              ))}
             </div>
 
       </div>
@@ -425,13 +460,14 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
       {/* Continue — pinned to bottom-right */}
       <button onClick={onContinue} style={{
         position: 'fixed', bottom: 48, right: 32, zIndex: 25,
-        width: '223px', height: '40px',
-        background: '#101828', borderRadius: '100px', border: 'none',
-        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '16px', fontWeight: 500, color: 'white', letterSpacing: '-0.44px',
+        height: '40px', padding: '0 24px',
+        background: '#101828', borderRadius: '100px', border: 'none', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '15px', fontWeight: 500, color: 'white', letterSpacing: '-0.3px',
         pointerEvents: 'auto', boxShadow: '0 2px 12px rgba(16,24,40,0.18)',
+        whiteSpace: 'nowrap',
       }}>
-        Continue
+        Select plan
       </button>
     </div>
   );

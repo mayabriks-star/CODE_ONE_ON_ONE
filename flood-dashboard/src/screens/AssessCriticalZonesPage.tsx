@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MapPin, ChevronDown, MousePointerClick } from 'lucide-react';
+import { MapPin, ChevronDown, ChevronRight, MousePointerClick } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 
@@ -152,6 +152,15 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  // Maps each zone label to its navigation handler
+  const ZONE_HANDLER: Record<string, (() => void) | undefined> = {
+    'Costal Road Access': onCoastalRoad,
+    'Electric Utility Point': onElectricUtility,
+    'Residential Edge Blocks': onResidentialEdge,
+    'Increase pump capacity': onPumpCapacity,
+    'Vulnerable Residents': onVulnerableResidents,
+  };
+
   // Debug drag state — only active when ?debug is in the URL
   const [debugLngLats, setDebugLngLats] = useState<[number, number][]>(() => {
     if (IS_DEBUG) {
@@ -268,14 +277,6 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                 Critical Zones
               </span>
             </div>
-            <span style={{
-              fontSize: 12, fontWeight: 700, letterSpacing: '0.1px',
-              color: '#1e4b8f', background: 'rgba(30,75,143,0.10)',
-              border: '1px solid rgba(30,75,143,0.20)',
-              borderRadius: 100, padding: '4px 11px',
-            }}>
-              5 zones
-            </span>
           </div>
 
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
@@ -347,6 +348,18 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                       <p style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 500, color: '#1e2939', lineHeight: '19px', letterSpacing: '-0.2px' }}>
                         <span style={{ color: '#6b7280', fontWeight: 400 }}>Proposed: </span>{hoverData.proposed}
                       </p>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); ZONE_HANDLER[label]?.(); }}
+                        style={{
+                          marginTop: 10, width: '100%', height: 34, borderRadius: 8,
+                          background: ZONE_ACCENT[label], border: 'none', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                          pointerEvents: 'auto',
+                        }}
+                      >
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px' }}>Begin Assessment</span>
+                        <ChevronRight size={13} color="rgba(255,255,255,0.75)" strokeWidth={2.5} />
+                      </button>
                     </div>
                   )}
                 </div>

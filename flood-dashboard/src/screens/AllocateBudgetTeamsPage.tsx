@@ -121,7 +121,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
   function pick(groupLabel: string, teamId: string) {
     setAssignments(p => ({ ...p, [groupLabel]: p[groupLabel] === teamId ? null : teamId }));
-    setExpanded(null);
+    setTimeout(() => setExpanded(null), 500);
   }
 
   const expandedGroup = expanded ? MEASURE_GROUPS.find(g => g.label === expanded) ?? null : null;
@@ -224,11 +224,18 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                     <img src={group.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 18, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '22px' }}>{group.label}</div>
-                      {(assignedTeam || group.keys.length === 1) && (
-                        <div style={{ fontSize: 16, fontWeight: 400, color: assignedTeam ? '#00a63e' : '#6b7280', letterSpacing: '-0.2px', lineHeight: '20px' }}>
-                          {assignedTeam ? `✓ ${assignedTeam.name}` : SUBTITLES[group.keys[0] as MeasureKey]}
+                      {assignedTeam ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <div style={{ width: 7, height: 7, borderRadius: '50%', background: group.color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 16, fontWeight: 400, color: '#364153', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+                            {assignedTeam.name}
+                          </span>
                         </div>
-                      )}
+                      ) : group.keys.length === 1 ? (
+                        <div style={{ fontSize: 16, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+                          {SUBTITLES[group.keys[0] as MeasureKey]}
+                        </div>
+                      ) : null}
                     </div>
                     <ChevronRight size={14} color="rgba(30,41,57,0.25)" strokeWidth={2}
                       style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }} />
@@ -242,7 +249,6 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                           padding: '4px 0',
                           borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : undefined,
                         }}>
-                          <div style={{ width: 4, height: 4, borderRadius: '50%', flexShrink: 0, background: '#9ca3af' }} />
                           <div style={{ fontSize: 15, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
                             {SUBTITLES[key as MeasureKey]}
                           </div>
@@ -264,7 +270,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
               display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto',
             }}>
               <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>
-                {allDone ? 'Build Action Plan' : 'Build Action Plan'}
+                Done
               </span>
             </button>
           </div>
@@ -330,13 +336,27 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.18) 0%, transparent 70%)' }} />
                         <div style={{
                           width: 70, height: 70, borderRadius: '50%', position: 'relative', zIndex: 1,
-                          background: 'rgba(255,255,255,0.18)', border: '2.5px solid rgba(255,255,255,0.5)',
+                          background: 'rgba(255,255,255,0.18)',
+                          border: isPicked ? '3px solid white' : '2.5px solid rgba(255,255,255,0.5)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          boxShadow: '0 4px 18px rgba(0,0,0,0.2)',
+                          boxShadow: isPicked ? '0 0 0 3px rgba(255,255,255,0.35), 0 4px 18px rgba(0,0,0,0.2)' : '0 4px 18px rgba(0,0,0,0.2)',
+                          transition: 'border .18s, box-shadow .18s',
                         }}>
                           <span style={{ fontSize: 22, fontWeight: 700, color: 'white', letterSpacing: '0.5px' }}>
                             {team.initials}
                           </span>
+                          {isPicked && (
+                            <div style={{
+                              position: 'absolute', bottom: -2, right: -2,
+                              width: 22, height: 22, borderRadius: '50%',
+                              background: '#1e2939', border: '2px solid white',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                                <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                          )}
                         </div>
                       </button>
 

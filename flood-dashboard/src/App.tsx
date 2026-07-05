@@ -17,8 +17,9 @@ import CompareResponseScenariosPage from './screens/CompareResponseScenariosPage
 import type { ScenarioData } from './screens/CompareResponseScenariosPage';
 import SimulateResponseScenariosPage from './screens/SimulateResponseScenariosPage';
 import AllocateBudgetTeamsPage from './screens/AllocateBudgetTeamsPage';
+import LaunchActionPlanPage from './screens/LaunchActionPlanPage';
 
-type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'simulate-scenarios' | 'planning' | 'compare-scenarios' | 'allocate-budget-teams' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
+type Screen = 'home' | 'home-alert' | 'alert' | 'assess-critical-zones' | 'simulate-scenarios' | 'planning' | 'compare-scenarios' | 'allocate-budget-teams' | 'launch-action-plan' | 'coastal-road' | 'vulnerable-residents' | 'electric-utility' | 'residential-edge' | 'pump-capacity';
 
 function easeOut(t: number): number {
   return 1 - Math.pow(1 - t, 3);
@@ -172,6 +173,7 @@ export default function App() {
       {/* 3D map — persistent background for all map-based screens */}
       {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones'
         || screen === 'simulate-scenarios' || screen === 'compare-scenarios' || screen === 'allocate-budget-teams'
+        || screen === 'launch-action-plan'
         || screen === 'coastal-road' || screen === 'vulnerable-residents' || screen === 'electric-utility'
         || screen === 'residential-edge' || screen === 'pump-capacity') && (
         <Map3DBackground onMapReady={(m) => {
@@ -266,8 +268,17 @@ export default function App() {
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AllocateBudgetTeamsPage
             onBack={() => setScreen('compare-scenarios')}
-            onContinue={() => setScreen('planning')}
+            onContinue={() => setScreen('launch-action-plan')}
             map={mapRef.current}
+          />
+        </div>
+      )}
+      {/* Screen — Launch Action Plan */}
+      {screen === 'launch-action-plan' && (
+        <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+          <LaunchActionPlanPage
+            onBack={() => setScreen('allocate-budget-teams')}
+            onLaunch={() => setScreen('home-alert')}
           />
         </div>
       )}

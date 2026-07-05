@@ -390,6 +390,15 @@ const add = () => {
     })
   }, [map, activeMeasures?.elevatedBuildings])
 
+  // ── Elevated buildings: remove debug layers when debugMode is off ─────────
+  useEffect(() => {
+    if (!map || ELEVATED_BUILDINGS_CONFIG.debugMode) return
+    ELEVATED_BUILDINGS_CONFIG.buildings.forEach((_, i) => {
+      if (map.getLayer(`eb-debug-${i}`)) map.removeLayer(`eb-debug-${i}`)
+      if (map.getSource(`eb-debug-src-${i}`)) map.removeSource(`eb-debug-src-${i}`)
+    })
+  }, [map])
+
   // ── Elevated buildings: draggable corner markers ──────────────────────────
   useEffect(() => {
     if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return

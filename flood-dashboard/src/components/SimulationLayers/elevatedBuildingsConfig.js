@@ -64,5 +64,5 @@ export const ELEVATED_BUILDINGS_CONFIG = {
   columnColor:   '#a89e94',
 
   // ── DEBUG ─────────────────────────────────────────────────────────────────
-  debugMode: true,
+  debugMode: false,
 }

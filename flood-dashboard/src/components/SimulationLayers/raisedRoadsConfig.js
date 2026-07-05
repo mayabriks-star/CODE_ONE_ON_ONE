@@ -25,8 +25,8 @@ export const RAISED_ROADS_CONFIG = {
   columnSpacingMeters:  12,   // distance between column centers
 
   // ── APPEARANCE ────────────────────────────────────────────────────────────
-  roadColor:    '#00ccff',   // TEMP diagnostic: bright teal
-  columnColor:  '#0088bb',   // TEMP diagnostic: darker teal
+  roadColor:    '#a0a0a0',   // concrete road deck
+  columnColor:  '#7d7d7d',   // slightly darker columns
   opacity:      0.92,
   transitionDuration: 500,
 

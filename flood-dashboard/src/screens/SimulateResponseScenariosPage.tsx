@@ -25,8 +25,7 @@ export type MeasureKey =
   | 'elevatedBuildings'
   | 'elevatedWalkways'
   | 'drainageUpgrade'
-  | 'utilityProtection'
-  | 'residentSupport';
+  | 'utilityProtection';
 
 export interface Measure {
   key: MeasureKey;
@@ -47,16 +46,15 @@ export interface Measure {
 // residentSupport) are calibrated to sum to the spec's exact default
 // scenario, matching CompareResponseScenariosPage's "Selected Scenario".
 export const MEASURES: Measure[] = [
-  { key: 'seaWall', label: 'Sea wall', descriptor: 'High cost · Strong protection', color: '#0b1f3a', cost: 9_500_000, residents: 240, risk: 22, delay: 5, timeMin: 10, timeMax: 16, defaultOn: false },
-  { key: 'raisedRoads', label: 'Raised roads', descriptor: 'Medium-high cost · Improves access', color: '#ea7836', cost: 6_500_000, residents: 150, risk: 9, delay: 2, timeMin: 4, timeMax: 7, defaultOn: false },
-  { key: 'elevatedBuildings', label: 'Elevated buildings', descriptor: 'High cost · Long-term resilience', color: '#bf5761', cost: 8_200_000, residents: 300, risk: 18, delay: 4, timeMin: 9, timeMax: 14, defaultOn: false },
+  { key: 'seaWall', label: 'Sea wall', descriptor: 'High cost · Strong protection', color: '#0b1f3a', cost: 18_000_000, residents: 240, risk: 22, delay: 5, timeMin: 10, timeMax: 16, defaultOn: false },
+  { key: 'raisedRoads', label: 'Raised roads', descriptor: 'Medium-high cost · Improves access', color: '#ea7836', cost: 12_000_000, residents: 150, risk: 9, delay: 2, timeMin: 4, timeMax: 7, defaultOn: false },
+  { key: 'elevatedBuildings', label: 'Elevated buildings', descriptor: 'High cost · Long-term resilience', color: '#bf5761', cost: 15_000_000, residents: 300, risk: 18, delay: 4, timeMin: 9, timeMax: 14, defaultOn: false },
   { key: 'elevatedWalkways', label: 'Elevated walkways', descriptor: 'Medium cost · Improves access', color: '#6b778a', cost: 3_400_000, residents: 70, risk: 5, delay: 1, timeMin: 4, timeMax: 6, defaultOn: false },
   { key: 'drainageUpgrade', label: 'Drainage upgrade', descriptor: 'Medium cost · Reduces street flooding', color: '#2864e4', cost: 5_000_000, residents: 160, risk: 11, delay: 2, timeMin: 3, timeMax: 6, defaultOn: false },
   { key: 'utilityProtection', label: 'Utility protection', descriptor: 'Medium cost · Protects power infrastructure', color: '#ffbb00', cost: 4_100_000, residents: 130, risk: 9, delay: 2, timeMin: 3, timeMax: 5, defaultOn: false },
-  { key: 'residentSupport', label: 'Resident support measures', descriptor: 'Low cost · Fast implementation', color: '#84af79', cost: 3_000_000, residents: 180, risk: 5, delay: 2, timeMin: 2, timeMax: 2, defaultOn: false },
 ];
 
-const AVAILABLE_BUDGET = 24_000_000;
+const AVAILABLE_BUDGET = 60_000_000;
 const TOGGLE_ON_COLOR = 'rgba(16,24,40,0.85)';
 const TOGGLE_OFF_COLOR = '#C6C7C8';
 
@@ -104,7 +102,7 @@ function DonutChart({ pct, size = 130 }: { pct: number; size?: number }) {
 function ToggleRow({ measure, active, onToggle }: { measure: Measure; active: boolean; onToggle: () => void }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '17px' }}>{measure.label}</div>
+      <div style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '20px' }}>{measure.label}</div>
       <button
         onClick={onToggle}
         aria-label={`Toggle ${measure.label}`}
@@ -124,8 +122,8 @@ function ToggleRow({ measure, active, onToggle }: { measure: Measure; active: bo
 function MetricCell({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 500, color: '#505153', letterSpacing: '-0.44px', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px' }}>{value}</div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.3px', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 20, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>{value}</div>
     </div>
   );
 }
@@ -199,7 +197,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
   const selectedScenario = {
     seaWall: active.seaWall, raisedRoads: active.raisedRoads, elevatedBuildings: active.elevatedBuildings,
     elevatedWalkways: active.elevatedWalkways, drainageUpgrade: active.drainageUpgrade,
-    utilityProtection: active.utilityProtection, residentSupport: active.residentSupport,
+    utilityProtection: active.utilityProtection,
     totalCost: formatCost(totalCost), totalCostValue: totalCost, budgetPct, residentsProtected,
     floodRiskReduction, delayToImpact: `+${delayYears} years`, implementationTime: `${timeMin}–${timeMax} months`,
     valueForEffort, mainTradeoff,
@@ -258,34 +256,10 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             ))}
           </g>
 
-          {/* Resident support — service-point clusters within a soft support zone */}
-          <g style={overlayGroupStyle(active.residentSupport)}>
-            {[[600, 350], [560, 470]].map(([cx, cy], i) => (
-              <g key={i}>
-                <circle cx={cx} cy={cy} r={19} fill={MEASURES[6].color} fillOpacity={0.14} />
-                {[[-6, 0], [5, -5], [3, 6]].map(([dx, dy], k) => (
-                  <g key={k}>
-                    <rect x={cx + dx - 4} y={cy + dy - 3} width={8} height={7} rx={1.5} fill={MEASURES[6].color} />
-                    <path d={`M ${cx + dx - 5},${cy + dy - 3} L ${cx + dx},${cy + dy - 7} L ${cx + dx + 5},${cy + dy - 3} Z`} fill={MEASURES[6].color} />
-                  </g>
-                ))}
-              </g>
-            ))}
-          </g>
         </svg>
-
-        {/* Back arrow */}
-        <button
-          onClick={onBack}
-          aria-label="Back"
-          className="absolute flex items-center left-[32px] top-[99px]"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          <span className="font-semibold text-[26px] leading-[28px] text-white">←</span>
-        </button>
       </ScaledLayout>
 
-      <HomePageHeader />
+      <HomePageHeader reducedShadow={active.seaWall || active.raisedRoads} />
 
       {/* Left-side column — toggle panel stacked above the data card, as a
           single flex column so the data card always sits directly below the
@@ -293,36 +267,23 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
           guessing). Rendered outside ScaledLayout with position:fixed so it
           stays flush with the true viewport left edge on any screen width
           (see ARCHITECTURE_AND_DESIGN_SYSTEM.md Section D pattern). */}
-      <div style={{ position: 'fixed', left: 16, top: 93, width: 360, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
-        {/* Scenario controls — step title + sub-heading live at the top of
-            this card, matching AssessCriticalZonesPage's title→divider→content
-            pattern (Section H), instead of a separate floating title box. */}
-        <div
-          className="glass-shadow"
-          style={{
-            borderRadius: 16,
-            background: 'rgba(255,255,255,0.85)',
-            border: '1px solid rgba(255,255,255,0.3)',
-            pointerEvents: 'auto',
-            padding: '18px 20px 20px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}
-        >
-          <p className="font-semibold text-[18px] leading-[23px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
-            2. Simulate Response Scenarios
-          </p>
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
-          <p className="font-semibold text-[16px] leading-[20px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
-            Scenario controls
-          </p>
-          {MEASURES.map((m) => (
-            <ToggleRow key={m.key} measure={m} active={active[m.key]} onToggle={() => toggle(m.key)} />
-          ))}
-        </div>
+      {/* Back button — same style as AssessCriticalZonesPage */}
+      <button
+        onClick={onBack}
+        style={{
+          position: 'fixed', top: 93, left: 16,
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(0,0,0,0.10)', cursor: 'pointer', pointerEvents: 'auto', zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.10)',
+        }}
+      >
+        <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
+      </button>
 
-        {/* Current Simulated Scenario — live impact */}
+      {/* Left column — scenario controls */}
+      <div style={{ position: 'fixed', left: 16, top: 141, width: 360, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
         <div
           className="glass-shadow"
           style={{
@@ -338,43 +299,68 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         >
           <div>
             <p className="font-semibold text-[18px] leading-[23px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
-              Current Simulated Scenario
+              Simulate Response Scenarios
             </p>
-            <p className="font-medium text-[12px] leading-[16px]" style={{ margin: '2px 0 0 0', color: '#6b778a' }}>
-              Live outcome of the active protection measures
+            <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '6px 0 0 0', color: '#6b778a', letterSpacing: '-0.3px' }}>
+              Toggle infrastructure measures to explore their combined impact on flood resilience, cost, and protected residents.
             </p>
           </div>
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
+          {MEASURES.map((m) => (
+            <ToggleRow key={m.key} measure={m} active={active[m.key]} onToggle={() => toggle(m.key)} />
+          ))}
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
+          <button
+            onClick={onCompare}
+            className="w-full flex items-center justify-center"
+            style={{ height: 44, borderRadius: 14, background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer', pointerEvents: 'auto' }}
+          >
+            <span className="font-medium text-[14px] text-white">Compare Scenarios</span>
+          </button>
+        </div>
+      </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <DonutChart pct={budgetPct} size={84} />
+      {/* Top-right — summary card, horizontal layout */}
+      <div style={{ position: 'fixed', right: 16, top: 93, width: 520, pointerEvents: 'none' }}>
+        <div
+          className="glass-shadow"
+          style={{
+            borderRadius: 16,
+            background: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            pointerEvents: 'auto',
+            padding: '18px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: 24, fontWeight: 500, color: 'black', letterSpacing: '-0.44px', lineHeight: '27px' }}>{formatCost(totalCost)}</div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: '#6b778a', marginTop: 2 }}>of {formatCost(AVAILABLE_BUDGET)} available</div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: '#6b778a' }}>{budgetPct}% used</div>
+              <p className="font-semibold text-[18px] leading-[23px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
+                Current Simulated Scenario
+              </p>
+              <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '5px 0 0 0', color: '#6b778a', letterSpacing: '-0.3px' }}>
+                Live outcome of the active protection measures
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+              <DonutChart pct={budgetPct} size={64} />
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 500, color: 'black', letterSpacing: '-0.44px', lineHeight: '24px' }}>{formatCost(totalCost)}</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: '#6b778a' }}>of {formatCost(AVAILABLE_BUDGET)} · {budgetPct}%</div>
+              </div>
             </div>
           </div>
 
           <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 12, columnGap: 16 }}>
-            <MetricCell label="Residents protected" value={String(residentsProtected)} />
-            <MetricCell label="Flood-risk reduction" value={`${floodRiskReduction}%`} />
-            <MetricCell label="Delay to first impact" value={`+${delayYears} years`} />
-            <MetricCell label="Implementation time" value={`${timeMin}–${timeMax} months`} />
-            <MetricCell label="Value for effort" value={valueForEffort} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <MetricCell label="Residents" value={String(residentsProtected)} />
+            <MetricCell label="Risk reduction" value={`${floodRiskReduction}%`} />
+            <MetricCell label="Impact delay" value={`+${delayYears} yrs`} />
+            <MetricCell label="Build time" value={`${timeMin}–${timeMax} mo`} />
           </div>
-
-          <p className="font-medium text-[12px] leading-[17px]" style={{ margin: 0, color: '#505153', letterSpacing: '-0.44px' }}>
-            {mainTradeoff}
-          </p>
-
-          <button
-            onClick={onCompare}
-            className="w-full flex items-center justify-center"
-            style={{ height: 36, borderRadius: 14, background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer' }}
-          >
-            <span className="font-medium text-[14px] text-white">Compare Scenarios</span>
-          </button>
         </div>
       </div>
     </>

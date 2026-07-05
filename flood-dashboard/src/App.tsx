@@ -31,6 +31,7 @@ export default function App() {
   const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
   const [approvedZones, setApprovedZones] = useState<string[]>([]);
   const [simulatedScenario, setSimulatedScenario] = useState<ScenarioData | null>(null);
+  const [planActivated, setPlanActivated] = useState(false);
   const assessVisited = useRef(false);
 
   const s2Ref = useRef<HTMLDivElement | null>(null);
@@ -206,7 +207,7 @@ export default function App() {
             : { zIndex: 10, pointerEvents: 'none' }
           }
         >
-          <HomePageAlert onRedZoneClick={handleRedZoneClick} map={mapRef.current} />
+          <HomePageAlert onRedZoneClick={handleRedZoneClick} map={mapRef.current} planActivated={planActivated} />
         </div>
       )}
 
@@ -268,7 +269,7 @@ export default function App() {
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AllocateBudgetTeamsPage
             onBack={() => setScreen('compare-scenarios')}
-            onContinue={() => setScreen('launch-action-plan')}
+            onContinue={() => { setPlanActivated(true); setScreen('home-alert'); }}
             map={mapRef.current}
           />
         </div>

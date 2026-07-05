@@ -19,17 +19,16 @@ const STYLES = `
 .launch-overlay-enter { animation: overlayFade 0.28s ease both; }
 `;
 
-const METRICS = [
+const SECONDARY_METRICS = [
   { label: 'Residents Protected', value: '620' },
   { label: 'Risk Reduction',      value: '34%' },
-  { label: 'Implementation',      value: '12–20 months' },
-  { label: 'Flood Damage Deferred', value: 'Until 2027' },
+  { label: 'Implementation',      value: '12–20 mo.' },
 ];
 
 const READINESS = [
   '5 response leads assigned',
   'All critical zones reviewed',
-  'Response leads confirmed and ready',
+  'Monitoring remains active',
 ];
 
 
@@ -91,84 +90,119 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
 
       {/* ── Launch card ── */}
       <div className="glass-65 glass-shadow" style={{
-        position: 'fixed',
-        left: 16, top: 137,
-        width: 386,
+        position: 'fixed', left: 16, top: 137, width: 386,
         borderRadius: 16, pointerEvents: 'auto', zIndex: 10,
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
       }}>
 
-        {/* Header */}
-        <div style={{ padding: '16px 18px 13px' }}>
-          <p style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>
-            Activate Response Plan
-          </p>
-          <p style={{ margin: 0, fontSize: 17, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.44px', lineHeight: '24px' }}>
-            The selected adaptation plan is ready for activation.
-          </p>
+        {/* 1 — Header */}
+        <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>
+              Activate Response Plan
+            </p>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.3px', lineHeight: '21px' }}>
+              The selected adaptation plan is ready for activation.
+            </p>
+          </div>
+          <div style={{
+            flexShrink: 0, marginTop: 2,
+            background: 'rgba(0,166,62,0.1)', border: '1px solid rgba(0,166,62,0.22)',
+            borderRadius: 20, padding: '4px 10px',
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00a63e' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#00a63e', letterSpacing: '0.1px', whiteSpace: 'nowrap' }}>Ready</span>
+          </div>
         </div>
 
         <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 14px' }} />
 
-        {/* Plan context */}
-        <div style={{ padding: '12px 18px 0' }}>
-          <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>
+        {/* 2 — Plan context */}
+        <div style={{ padding: '10px 16px 0' }}>
+          <p style={{ margin: '0 0 1px', fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.3px' }}>
             Adaptation Plan · Harbor District
           </p>
-          <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.44px' }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px' }}>
             Selected after scenario comparison
           </p>
         </div>
 
-        {/* Metrics */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: '12px 16px 0' }}>
-          {METRICS.map(({ label, value }) => (
-            <div key={label} style={{ background: 'rgba(255,255,255,0.55)', borderRadius: 9, padding: '9px 12px' }}>
-              <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.2px' }}>{label}</p>
-              <p style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.3px' }}>{value}</p>
+        {/* 3 — Hero outcome */}
+        <div style={{ margin: '12px 12px 0', borderRadius: 12, background: 'rgba(30,41,57,0.055)', padding: '13px 14px 12px' }}>
+          <p style={{ margin: '0 0 5px', fontSize: 10, fontWeight: 700, color: '#6b7280', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+            Protected time gained
+          </p>
+          <p style={{ margin: '0 0 3px', fontSize: 42, fontWeight: 800, color: '#1e2939', letterSpacing: '-2px', lineHeight: 1 }}>
+            6–8 years
+          </p>
+          <p style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.1px' }}>
+            with selected adaptation plan
+          </p>
+          {/* Before / after comparison */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={{
+              flex: 1, background: 'rgba(0,0,0,0.04)', borderRadius: 8, padding: '7px 10px', textAlign: 'center',
+            }}>
+              <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 600, color: '#9ca3af', letterSpacing: '0.3px', textTransform: 'uppercase' }}>Without plan</p>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#6b7280', letterSpacing: '-0.3px' }}>12 months</p>
+            </div>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M1 5h13M9 1l5 4-5 4" stroke="#9ca3af" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div style={{
+              flex: 1, background: 'rgba(0,166,62,0.07)', border: '1px solid rgba(0,166,62,0.18)', borderRadius: 8, padding: '7px 10px', textAlign: 'center',
+            }}>
+              <p style={{ margin: '0 0 2px', fontSize: 10, fontWeight: 600, color: '#9ca3af', letterSpacing: '0.3px', textTransform: 'uppercase' }}>With this plan</p>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#00a63e', letterSpacing: '-0.3px' }}>6–8 years</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4 — Secondary metrics — 3 compact equal columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 5, padding: '9px 12px 0' }}>
+          {SECONDARY_METRICS.map(({ label, value }) => (
+            <div key={label} style={{ background: 'rgba(255,255,255,0.55)', borderRadius: 9, padding: '8px 9px' }}>
+              <p style={{ margin: '0 0 2px', fontSize: 11, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.1px', lineHeight: '14px' }}>{label}</p>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.3px' }}>{value}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '13px 14px 0' }} />
+        <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '11px 14px 0' }} />
 
-        {/* Launch readiness */}
-        <div style={{ padding: '12px 18px 0' }}>
-          <p style={{ margin: '0 0 9px', fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>
-            Launch readiness
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {READINESS.map((item) => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{
-                  width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
-                  background: 'rgba(30,41,57,0.09)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <svg width="7" height="5.5" viewBox="0 0 8 6" fill="none">
-                    <path d="M1 3L3 5L7 1" stroke="#1e2939" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.2px' }}>
-                  {item}
-                </p>
+        {/* 5 — Readiness */}
+        <div style={{ padding: '10px 16px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {READINESS.map((item) => (
+            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 15, height: 15, borderRadius: '50%', flexShrink: 0,
+                background: 'rgba(30,41,57,0.09)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="7" height="5.5" viewBox="0 0 8 6" fill="none">
+                  <path d="M1 3L3 5L7 1" stroke="#1e2939" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </div>
-            ))}
-          </div>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.2px' }}>{item}</p>
+            </div>
+          ))}
         </div>
 
-        {/* CTA */}
-        <div style={{ padding: '16px 16px 18px' }}>
-          <button
-            onClick={handleLaunch}
-            style={{
-              width: '100%', height: 44, borderRadius: 11,
-              background: 'rgba(16,24,40,0.92)',
-              border: 'none', cursor: 'pointer',
-              fontSize: 14, fontWeight: 600, color: 'white', letterSpacing: '-0.2px',
-            }}
-          >
-            Launch Action Plan
+        {/* 6 — Consequence line */}
+        <p style={{ margin: '10px 16px 0', fontSize: 13, fontWeight: 400, color: '#6b7280', lineHeight: '18px', letterSpacing: '-0.1px' }}>
+          Activating this plan will notify assigned leads and start the first 30-day response window.
+        </p>
+
+        {/* 7 — CTA */}
+        <div style={{ padding: '12px 14px 16px' }}>
+          <button onClick={handleLaunch} style={{
+            width: '100%', height: 44, borderRadius: 11,
+            background: 'rgba(16,24,40,0.92)',
+            border: 'none', cursor: 'pointer',
+            fontSize: 14, fontWeight: 600, color: 'white', letterSpacing: '-0.2px',
+          }}>
+            Activate Response Plan
           </button>
         </div>
       </div>

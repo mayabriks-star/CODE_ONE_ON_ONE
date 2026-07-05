@@ -180,9 +180,9 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
           {/* Map image with overlay tab */}
           <div style={{ position: 'relative' }}>
             <img
-              src="/costal-road-map.jpg"
+              src="/electric-utility-tab.png"
               alt="Electric utility area aerial view"
-              style={{ width: '100%', height: '341px', objectFit: 'cover', borderRadius: '20px 20px 0 0', display: 'block' }}
+              style={{ width: '100%', height: '260px', objectFit: 'cover', objectPosition: '28% 20%', borderRadius: '20px 20px 0 0', display: 'block' }}
             />
             <div style={{ position: 'absolute', bottom: '30px', left: '365px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.9)', borderRadius: '9999px', padding: '4px 10px 4px 4px' }}>

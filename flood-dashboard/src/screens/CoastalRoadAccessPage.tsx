@@ -1,4 +1,14 @@
 import { useState } from 'react';
+
+const ROAD_GLOW_STYLE = `
+@keyframes roadPulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.8; }
+}
+.road-glow-outer { animation: roadPulse 2.8s ease-in-out infinite; }
+.road-glow-mid   { animation: roadPulse 2.8s ease-in-out infinite 0.4s; }
+.road-glow-inner { animation: roadPulse 2.8s ease-in-out infinite 0.15s; }
+`;
 import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 
 interface Props {
@@ -158,11 +168,40 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
         <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
           {/* Image full width */}
           <div style={{ position: 'relative' }}>
+            <style>{ROAD_GLOW_STYLE}</style>
             <img
-              src="/costal-road-map.jpg"
+              src="/coastal-road-tab.png"
               alt="Coastal road aerial view"
-              style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }}
+              style={{ width: '100%', height: 260, objectFit: 'cover', objectPosition: 'center 40%', display: 'block' }}
             />
+            {/* Orange road highlight */}
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              <svg width="100%" height="100%" viewBox="0 0 1000 260" preserveAspectRatio="none"
+                style={{ position: 'absolute', inset: 0, display: 'block' }}>
+                <defs>
+                  <filter id="rg-outer" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="18" />
+                  </filter>
+                  <filter id="rg-mid" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="8" />
+                  </filter>
+                </defs>
+                {/* Outer glow — wide, soft */}
+                <path className="road-glow-outer"
+                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
+                  stroke="rgba(234,120,54,0.38)" strokeWidth="70" fill="none" strokeLinecap="round"
+                  filter="url(#rg-outer)" />
+                {/* Mid glow */}
+                <path className="road-glow-mid"
+                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
+                  stroke="rgba(234,120,54,0.5)" strokeWidth="28" fill="none" strokeLinecap="round"
+                  filter="url(#rg-mid)" />
+                {/* Sharp core line */}
+                <path className="road-glow-inner"
+                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
+                  stroke="rgba(251,146,60,0.65)" strokeWidth="5" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
             {/* Edit button — over image, top-right */}
             <button
               onClick={() => setIsEditing(e => !e)}
@@ -179,18 +218,6 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
               <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
               <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
             </button>
-            {/* Map marker tab */}
-            <div style={{ position: 'absolute', bottom: 24, left: '40%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.92)', borderRadius: 9999, padding: '4px 10px 4px 4px' }}>
-                <img src="/icons/costal-road-access.svg" alt="" width={24} height={24} style={{ flexShrink: 0 }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: 9, fontWeight: 600, color: '#101828', lineHeight: '14px' }}>Costal Road Access</p>
-                  <p style={{ margin: 0, fontSize: 9, fontWeight: 500, color: '#505153', lineHeight: '14px' }}>Potential disruption</p>
-                </div>
-              </div>
-              <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.7)', marginLeft: 16 }} />
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.7)', marginLeft: 13 }} />
-            </div>
           </div>
           {/* Text below image */}
           <div style={{ padding: '20px 28px 24px' }}>

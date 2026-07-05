@@ -17,6 +17,12 @@ interface Props {
   map?: any;
 }
 
+const ZONE_IMAGE: Record<string, string> = {
+  'Costal Road Access': '/coastal-road-tab.png',
+  'Electric Utility Point': '/electric-utility-tab.png',
+  'Residential Edge Blocks': '/elevated-buildings-tab.png',
+};
+
 const ZONE_ACCENT: Record<string, string> = {
   'Costal Road Access': '#ea7836',
   'Electric Utility Point': '#ffbb00',
@@ -306,6 +312,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
   const data = ZONE_DETAIL_DATA[zone];
   const zoneInfo = ZONE_LIST.find(z => z.label === zone)!;
   const accent = ZONE_ACCENT[zone] || '#888';
+  const zoneImage = ZONE_IMAGE[zone];
   const [isEditing, setIsEditing] = useState(false);
   if (!data || !zoneInfo) return null;
   return (
@@ -314,14 +321,25 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
       <div style={{ height: `${containerHeight}px`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 20, paddingRight: 20, paddingTop: 16, paddingBottom: 16, gap: 14, boxSizing: 'border-box' }}>
 
-          {/* Top card — colored banner + overview */}
+          {/* Top card — image or colored banner + overview */}
           <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
-            <div style={{ position: 'relative', height: 160, background: `linear-gradient(135deg, ${accent}18, ${accent}55, ${accent}33)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg viewBox="0 0 24 24" width={44} height={44} fill="none">
-                  <path d={zoneInfo.svgPath} fill={accent} />
-                </svg>
-              </div>
+            <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
+              {zoneImage ? (
+                <img
+                  src={zoneImage}
+                  alt={zone}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '28% 20%', display: 'block' }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${accent}18, ${accent}55, ${accent}33)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg viewBox="0 0 24 24" width={44} height={44} fill="none">
+                      <path d={zoneInfo.svgPath} fill={accent} />
+                    </svg>
+                  </div>
+                </div>
+              )}
+
               <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
                 <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
                 <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>

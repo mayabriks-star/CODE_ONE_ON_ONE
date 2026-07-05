@@ -121,7 +121,6 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
   function pick(groupLabel: string, teamId: string) {
     setAssignments(p => ({ ...p, [groupLabel]: p[groupLabel] === teamId ? null : teamId }));
-    setTimeout(() => setExpanded(null), 500);
   }
 
   const expandedGroup = expanded ? MEASURE_GROUPS.find(g => g.label === expanded) ?? null : null;
@@ -133,7 +132,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
   }
 
   const topTeams = expandedGroup
-    ? [...TEAMS].sort((a, b) => groupScore(expandedGroup, b.id) - groupScore(expandedGroup, a.id)).slice(0, expandedGroup.teamCount)
+    ? [...TEAMS].sort((a, b) => groupScore(expandedGroup, b.id) - groupScore(expandedGroup, a.id)).slice(0, Math.max(3, expandedGroup.teamCount))
     : [];
 
   return (
@@ -270,7 +269,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
               display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto',
             }}>
               <span style={{ fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.3px' }}>
-                Done
+                Finish
               </span>
             </button>
           </div>

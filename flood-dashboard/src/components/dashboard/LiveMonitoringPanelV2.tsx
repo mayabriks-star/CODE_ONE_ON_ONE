@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-interface Props { alert?: boolean; nudgeDown?: boolean; }
+interface Props { alert?: boolean; nudgeDown?: boolean; planActivated?: boolean; }
 
 function MonitorIcon() {
   return (
@@ -23,6 +23,11 @@ const BASE_NORMAL: number[] = [
 const BASE_ALERT: number[] = [
   2.0,2.8,3.5,4.9,4.1,6.3,5.8,8.1,7.3,10.5,
   9.2,12.4,11.1,15.3,13.8,18.6,16.2,22.1,28.4,38.0,
+];
+// Plan activated: starts at alert peak, live ticks drive it down gradually
+const BASE_ACTIVATED: number[] = [
+  28.4,30.2,31.8,33.1,34.3,35.2,35.9,36.5,36.9,37.2,
+  37.5,37.8,37.9,38.1,37.8,38.0,37.7,38.1,37.9,38.0,
 ];
 
 const VW = 292, VH = 72;
@@ -58,26 +63,43 @@ function Arrow({ delta }: { delta: number }) {
   );
 }
 
-export default function LiveMonitoringPanelV2({ alert, nudgeDown }: Props) {
+export default function LiveMonitoringPanelV2({ alert, nudgeDown, planActivated }: Props) {
   const alertRef = useRef(alert);
   alertRef.current = alert;
+  const activatedRef = useRef(planActivated);
+  activatedRef.current = planActivated;
 
-  const [seaData, setSeaData] = useState<number[]>(() => alert ? [...BASE_ALERT] : [...BASE_NORMAL]);
+  const [seaData, setSeaData] = useState<number[]>(() =>
+    planActivated ? [...BASE_ACTIVATED] : alert ? [...BASE_ALERT] : [...BASE_NORMAL]
+  );
   const [waveH, setWaveH]     = useState<Tracked>({ curr: 1.2, prev: 1.0 });
   const [waveP, setWaveP]     = useState<Tracked>({ curr: 8.4, prev: 9.1 });
   const [tick, setTick]       = useState(0);
   const [flash, setFlash]     = useState(false);
 
-  useEffect(() => { setSeaData(alert ? [...BASE_ALERT] : [...BASE_NORMAL]); }, [alert]);
+  useEffect(() => {
+    setSeaData(planActivated ? [...BASE_ACTIVATED] : alert ? [...BASE_ALERT] : [...BASE_NORMAL]);
+  }, [alert, planActivated]);
 
   useEffect(() => {
-    // 2s interval + high noise = visible chart movement every tick
+    const intervalMs = 2000;
     const t = setInterval(() => {
       setSeaData(prev => {
         const last = prev[prev.length - 1];
         const isAlt = alertRef.current;
         let next: number;
-        if (!isAlt) {
+        if (activatedRef.current) {
+          if (last > 8.0) {
+            // Fast enough to reach normal in ~5s (3 ticks × 2s), same tick rhythm
+            const noise = (Math.random() - 0.5) * 1.5;
+            next = Math.max(7, +(last - 13.0 + noise).toFixed(2));
+          } else {
+            // Reached normal — gentle oscillation like the first screen
+            const t = Date.now() / 8000;
+            const tide = 7.0 + Math.sin(t) * 2.2 + Math.cos(t * 2.1) * 1.0;
+            next = Math.max(4, +(tide + (Math.random() - 0.5) * 0.7).toFixed(2));
+          }
+        } else if (!isAlt) {
           // Normal: pure tide oscillation around ~7mm — never drifts above 11mm
           const t = Date.now() / 8000;
           const tide = 7.0 + Math.sin(t) * 2.2 + Math.cos(t * 2.1) * 1.0;
@@ -101,15 +123,15 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown }: Props) {
       setTick(n => n + 1);
       setFlash(true);
       setTimeout(() => setFlash(false), 600);
-    }, 2000);
+    }, intervalMs);
     return () => clearInterval(t);
-  }, []);
+  }, [planActivated]);
 
   const current   = seaData[seaData.length - 1];
   const seaDelta  = seaData.length >= 2 ? current - seaData[seaData.length - 2] : 0.1;
   const isAlert   = !!(alert || current >= 15);
   const accent    = isAlert ? '#b91d1d' : '#1e2939';
-  const yMax      = Math.max(alert ? 55 : 18, current * 1.35);
+  const yMax      = Math.max(alert || planActivated ? 55 : 18, current * 1.35);
   const isNormal  = !isAlert;
 
   const seaStatus =

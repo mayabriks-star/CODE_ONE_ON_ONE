@@ -23,8 +23,8 @@ function buildPath(pts: Pts) {
 
 const ROAD_GLOW_STYLE = `
 @keyframes roadPulse {
-  0%, 100% { opacity: 0.28; }
-  50%       { opacity: 0.48; }
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.85; }
 }
 .road-glow-outer { animation: roadPulse 3.2s ease-in-out infinite; }
 .road-glow-mid   { animation: roadPulse 3.2s ease-in-out infinite 0.5s; }
@@ -135,7 +135,7 @@ const implementationSteps = [
 export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, containerHeight }: Props) {
   const embH = containerHeight ?? 826;
   const [isEditing, setIsEditing] = useState(false);
-  const [isEditingPath, setIsEditingPath] = useState(true);
+  const [isEditingPath, setIsEditingPath] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const [pts, setPts] = useState<Pts>(() => {
     try {
@@ -151,10 +151,15 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
 
   useEffect(() => {
     if (isEditingPath) return;
-    const len = measureRef.current?.getTotalLength() ?? 1500;
-    setPathLen(len);
-    setDashOffset(len);
-    requestAnimationFrame(() => requestAnimationFrame(() => setDashOffset(0)));
+    const run = () => {
+      const len = measureRef.current?.getTotalLength() ?? 1500;
+      setPathLen(len);
+      setDashOffset(len);
+      requestAnimationFrame(() => requestAnimationFrame(() => setDashOffset(0)));
+    };
+    // Small delay on first mount so the SVG path is in the DOM
+    const t = setTimeout(run, 80);
+    return () => clearTimeout(t);
   }, [animKey, isEditingPath]);
 
   const toSvgCoords = useCallback((mx: number, my: number): Pt => {
@@ -271,17 +276,17 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
 
                 {/* Glow layers — dash-animated along the actual path */}
                 <path className={isEditingPath ? undefined : 'road-glow-outer'}
-                  d={pathD} stroke="rgba(234,120,54,0.3)" strokeWidth="70" fill="none" strokeLinecap="round"
+                  d={pathD} stroke="rgba(234,120,54,0.55)" strokeWidth="80" fill="none" strokeLinecap="round"
                   filter="url(#rg-outer)"
                   strokeDasharray={isEditingPath ? undefined : pathLen}
                   strokeDashoffset={isEditingPath ? undefined : dashOffset}
-                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)' }} />
+                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 2.2s cubic-bezier(0.4,0,0.2,1)' }} />
                 <path className={isEditingPath ? undefined : 'road-glow-mid'}
-                  d={pathD} stroke="rgba(234,120,54,0.4)" strokeWidth="28" fill="none" strokeLinecap="round"
+                  d={pathD} stroke="rgba(251,146,60,0.65)" strokeWidth="32" fill="none" strokeLinecap="round"
                   filter="url(#rg-mid)"
                   strokeDasharray={isEditingPath ? undefined : pathLen}
                   strokeDashoffset={isEditingPath ? undefined : dashOffset}
-                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)' }} />
+                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 2.2s cubic-bezier(0.4,0,0.2,1)' }} />
 
                 {/* Edit handles — only in path-edit mode */}
                 {isEditingPath && (

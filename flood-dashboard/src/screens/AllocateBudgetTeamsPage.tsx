@@ -214,18 +214,13 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
               const assignedTeam = assignments[group.label] ? TEAMS.find(t => t.id === assignments[group.label]) : null;
               return (
                 <div key={group.label} style={{
-                  background: 'rgba(255,255,255,0.65)',
-                  borderRadius: 13, overflow: 'hidden', flexShrink: 0,
-                  border: isOpen ? '1.5px solid rgba(0,0,0,0.13)' : '1px solid rgba(0,0,0,0.06)',
-                  transition: 'border-color .15s',
+                  flexShrink: 0, borderRadius: 10,
+                  background: isOpen ? 'rgba(0,0,0,0.04)' : undefined,
+                  transition: 'background .15s',
                 }}>
-                  {/* Clickable group header with single ChevronRight */}
+                  {/* Clickable group header */}
                   <div onClick={() => setExpanded(isOpen ? null : group.label)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '9px 12px', cursor: 'pointer',
-                      background: isOpen ? 'rgba(0,0,0,0.025)' : undefined,
-                    }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 8px', cursor: 'pointer' }}>
                     <img src={group.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 18, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '22px' }}>{group.label}</div>
@@ -238,13 +233,17 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                     <ChevronRight size={14} color="rgba(30,41,57,0.25)" strokeWidth={2}
                       style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }} />
                   </div>
-                  {/* Task names — two rows with divider */}
+                  {/* 2-task groups — inside the same frame */}
                   {group.keys.length > 1 && (
-                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingLeft: 54 }}>
+                    <div style={{ margin: '0 8px 7px 50px' }}>
                       {group.keys.map((key, idx) => (
-                        <div key={key}>
-                          {idx > 0 && <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', marginRight: 12 }} />}
-                          <div style={{ padding: '6px 12px 6px 0', fontSize: 15, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
+                        <div key={key} style={{
+                          display: 'flex', alignItems: 'center', gap: 7,
+                          padding: '4px 0',
+                          borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : undefined,
+                        }}>
+                          <div style={{ width: 4, height: 4, borderRadius: '50%', flexShrink: 0, background: '#9ca3af' }} />
+                          <div style={{ fontSize: 15, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
                             {SUBTITLES[key as MeasureKey]}
                           </div>
                         </div>

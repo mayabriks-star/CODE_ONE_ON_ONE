@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MousePointerClick, ChevronRight } from 'lucide-react';
+import { MousePointerClick, ChevronRight, Pencil } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 import CoastalRoadAccessPage from './CoastalRoadAccessPage';
@@ -137,6 +137,272 @@ const ZONE_SUBTITLE: Record<string, string> = {
 };
 
 const IS_DEBUG = new URLSearchParams(window.location.search).has('debug');
+
+// ─── Zone detail panels ──────────────────────────────────────────────────────
+
+interface ZoneDetailData {
+  description: string;
+  steps: { label: string; desc: string }[];
+  costItems: { color: string; text: string; value: string }[];
+  costSegments: { pct: number; color: string; label: string }[];
+  costTotal: string;
+  schedule: { label: string; value: string }[];
+}
+
+const ZONE_DETAIL_DATA: Record<string, ZoneDetailData> = {
+  'Electric Utility Point': {
+    description: 'A critical electrical distribution point lies within the projected flood-impact zone. Without protection, storm surge could disable power to over 1,200 residents — disrupting traffic systems, residential services, and emergency response capacity across three adjacent blocks.',
+    steps: [
+      { label: 'Survey & Document Assets:', desc: 'Map all ground-level electrical infrastructure within the flood zone and prioritize items by exposure risk.' },
+      { label: 'Relocate Electrical Cabinets:', desc: 'Move transformer boxes and distribution units to at least 1.5 m above the projected flood elevation.' },
+      { label: 'Waterproof Key Infrastructure:', desc: 'Apply flood-grade sealing to conduits, junction boxes, and substation foundations across the impact zone.' },
+      { label: 'Install Backup Capacity:', desc: 'Add UPS systems and protected switching points to maintain grid continuity during partial outages.' },
+      { label: 'Test & Commission:', desc: 'Conduct full system testing under simulated load and certify all relocated and hardened infrastructure.' },
+    ],
+    costItems: [
+      { color: '#FFBB00', text: 'Equipment Relocation & Elevation', value: '1.8M' },
+      { color: '#FFD45A', text: 'Waterproofing Works', value: '0.9M' },
+      { color: '#FFEEA0', text: 'Backup & Switching Systems', value: '0.3M' },
+    ],
+    costSegments: [
+      { pct: 0.60, color: '#FFBB00', label: '60%' },
+      { pct: 0.30, color: '#FFD45A', label: '30%' },
+      { pct: 0.10, color: '#FFEEA0', label: '10%' },
+    ],
+    costTotal: '3M',
+    schedule: [
+      { label: 'Planning & Approvals', value: '0–3 months' },
+      { label: 'Relocation & Sealing', value: '3–11 months' },
+      { label: 'Testing & Sign-off', value: '11–13 months' },
+    ],
+  },
+  'Residential Edge Blocks': {
+    description: 'Ground-floor units along the exposed residential edge face repeated water intrusion during surge events. Shared entry points, below-grade mechanical systems, and limited site drainage create compounding vulnerabilities across three residential buildings.',
+    steps: [
+      { label: 'Assess Building Exposure:', desc: 'Document flood vulnerability across all affected units, identifying ground-floor access points and mechanical system locations.' },
+      { label: 'Seal Ground-Floor Entries:', desc: 'Install flood barriers and sealed doors at all ground-level access points across the affected residential buildings.' },
+      { label: 'Relocate Mechanical Systems:', desc: 'Move HVAC units and electrical panels above the projected flood elevation within all affected buildings.' },
+      { label: 'Improve Site Drainage:', desc: 'Connect building drainage to the upgraded stormwater network to prevent backflow and pooling during surge events.' },
+    ],
+    costItems: [
+      { color: '#bf5761', text: 'Entry Protection & Barriers', value: '2.2M' },
+      { color: '#D47D85', text: 'Mechanical Relocation', value: '1.8M' },
+      { color: '#E8ABAF', text: 'Site Drainage Works', value: '1M' },
+    ],
+    costSegments: [
+      { pct: 0.44, color: '#bf5761', label: '44%' },
+      { pct: 0.36, color: '#D47D85', label: '36%' },
+      { pct: 0.20, color: '#E8ABAF', label: '20%' },
+    ],
+    costTotal: '5M',
+    schedule: [
+      { label: 'Design & Permits', value: '0–3 months' },
+      { label: 'Construction Phase', value: '3–14 months' },
+      { label: 'Handover', value: '14–17 months' },
+    ],
+  },
+  'Increase pump capacity': {
+    description: 'The drainage network approaches overflow capacity during peak rainfall events. Backflow from undersized pump stations floods streets and triggers sewage overflow across low-lying areas — blocking emergency access and disrupting daily movement for hundreds of residents.',
+    steps: [
+      { label: 'Model Network Performance:', desc: 'Simulate drainage capacity under peak storm scenarios to identify highest-priority failure points and bottlenecks.' },
+      { label: 'Upgrade Pump Stations:', desc: 'Replace current units with higher-capacity pumps rated for a 100-year storm event at the three main drainage outfalls.' },
+      { label: 'Expand Retention Basins:', desc: 'Add underground retention capacity at critical network junctions to buffer peak discharge volumes.' },
+      { label: 'Upgrade Pipe Infrastructure:', desc: 'Replace undersized pipe segments along the main collection route to eliminate flow restrictions under heavy rainfall.' },
+      { label: 'Reroute Overflow Channels:', desc: 'Redirect excess flow to secondary discharge points to reduce peak load on the primary drainage network.' },
+      { label: 'Install Flow Monitoring:', desc: 'Place sensors at key network nodes and configure real-time monitoring for adaptive system management.' },
+    ],
+    costItems: [
+      { color: '#2864e4', text: 'Pump Station Upgrades', value: '3.5M' },
+      { color: '#6494EC', text: 'Retention Basin Expansion', value: '1.5M' },
+      { color: '#A8C0F4', text: 'Channel Rerouting Works', value: '1M' },
+    ],
+    costSegments: [
+      { pct: 0.58, color: '#2864e4', label: '58%' },
+      { pct: 0.25, color: '#6494EC', label: '25%' },
+      { pct: 0.17, color: '#A8C0F4', label: '17%' },
+    ],
+    costTotal: '6M',
+    schedule: [
+      { label: 'Planning & Design', value: '0–4 months' },
+      { label: 'Construction Works', value: '4–18 months' },
+      { label: 'Commissioning', value: '18–21 months' },
+    ],
+  },
+  'Vulnerable Residents': {
+    description: 'Elderly residents, people with mobility limitations, and car-free households across several blocks require coordinated support during flood events. Without pre-arranged action, delayed alerts and the absence of assisted evacuation create life-safety risks for this population.',
+    steps: [
+      { label: 'Open Community Support Hubs:', desc: 'Equip two accessible buildings as flood-safe gathering points with supplies, backup power, and communication.' },
+      { label: 'Deploy Multilingual Alert System:', desc: 'Activate SMS and PA alerts with clear flood-response instructions for all registered households in the zone.' },
+      { label: 'Coordinate Assisted Evacuation:', desc: 'Pre-register households requiring transport assistance and assign dedicated response vehicles for rapid evacuation.' },
+    ],
+    costItems: [
+      { color: '#84af79', text: 'Hub Setup & Supplies', value: '0.8M' },
+      { color: '#A6C79E', text: 'Alert Infrastructure', value: '0.6M' },
+      { color: '#C8DEC4', text: 'Evacuation Logistics', value: '0.6M' },
+    ],
+    costSegments: [
+      { pct: 0.40, color: '#84af79', label: '40%' },
+      { pct: 0.30, color: '#A6C79E', label: '30%' },
+      { pct: 0.30, color: '#C8DEC4', label: '30%' },
+    ],
+    costTotal: '2M',
+    schedule: [
+      { label: 'Assessment & Registration', value: '0–2 months' },
+      { label: 'Infrastructure Setup', value: '2–7 months' },
+      { label: 'Community Rollout', value: '7–9 months' },
+    ],
+  },
+};
+
+function ZoneDonutChart({ size = 146, segments, total }: {
+  size: number;
+  segments: { pct: number; color: string; label: string }[];
+  total: string;
+}) {
+  const vb = 186;
+  const cx = vb / 2, cy = vb / 2;
+  const r = 55;
+  const sw = 30;
+  const circum = 2 * Math.PI * r;
+  let offset = 0;
+  const arcs = segments.map((seg) => {
+    const dash = seg.pct * circum;
+    const gap = circum - dash;
+    const rotation = (offset / circum) * 360 - 90;
+    const midAngleDeg = rotation + seg.pct * 180;
+    const midAngleRad = midAngleDeg * Math.PI / 180;
+    const lx = cx + r * Math.cos(midAngleRad);
+    const ly = cy + r * Math.sin(midAngleRad);
+    offset += dash;
+    return { ...seg, dash, gap, rotation, lx, ly };
+  });
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg viewBox={`0 0 ${vb} ${vb}`} width={size} height={size}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f3f4f6" strokeWidth={sw} />
+        {arcs.map((arc, i) => (
+          <circle key={i} cx={cx} cy={cy} r={r}
+            fill="none" stroke={arc.color} strokeWidth={sw}
+            strokeDasharray={`${arc.dash} ${arc.gap}`}
+            strokeDashoffset={0}
+            transform={`rotate(${arc.rotation} ${cx} ${cy})`} />
+        ))}
+        {arcs.map((arc, i) => (
+          <text key={i} x={arc.lx} y={arc.ly}
+            fontSize={12} fontWeight="600" fill="#364153"
+            fontFamily="Inter, sans-serif" textAnchor="middle" dominantBaseline="middle">
+            {arc.label}
+          </text>
+        ))}
+      </svg>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 20, fontWeight: 700, color: '#323232', pointerEvents: 'none' }}>
+        {total}
+      </div>
+    </div>
+  );
+}
+
+function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBack: () => void; containerHeight: number }) {
+  const data = ZONE_DETAIL_DATA[zone];
+  const zoneInfo = ZONE_LIST.find(z => z.label === zone)!;
+  const accent = ZONE_ACCENT[zone] || '#888';
+  const [isEditing, setIsEditing] = useState(false);
+  if (!data || !zoneInfo) return null;
+  return (
+    <>
+      <style>{`.editable-field { border-radius: 4px; transition: background 0.15s; } .editable-field:hover { background: rgba(16,24,40,0.06); cursor: text; } .editable-field:focus { background: rgba(16,24,40,0.05); outline: none; }`}</style>
+      <div style={{ height: `${containerHeight}px`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 20, paddingRight: 20, paddingTop: 16, paddingBottom: 16, gap: 14, boxSizing: 'border-box' }}>
+
+          {/* Top card — colored banner + overview */}
+          <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ position: 'relative', height: 160, background: `linear-gradient(135deg, ${accent}18, ${accent}55, ${accent}33)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width={44} height={44} fill="none">
+                  <path d={zoneInfo.svgPath} fill={accent} />
+                </svg>
+              </div>
+              <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
+                <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
+              </button>
+            </div>
+            <div style={{ padding: '20px 28px 24px' }}>
+              <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+              <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                {data.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom two columns */}
+          <div style={{ flex: 1, display: 'flex', gap: 14, overflow: 'hidden', minHeight: 0 }}>
+
+            {/* Left — Implementation Steps */}
+            <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+              <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {data.steps.map((step, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ flexShrink: 0, paddingTop: 3 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: `${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#364153' }}>{i + 1}</span>
+                      </div>
+                    </div>
+                    <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                      <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
+                      <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — Cost & Budget + Schedule */}
+            <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'hidden' }}>
+
+              {/* Cost & Budget */}
+              <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flexShrink: 0 }}>
+                <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <ZoneDonutChart size={146} segments={data.costSegments} total={data.costTotal} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 16 }}>
+                    {data.costItems.map((item) => (
+                      <div key={item.text} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        <div style={{ width: 14, height: 14, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                        <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#505153', lineHeight: 'normal' }}>
+                          {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Implementation Schedule */}
+              <div className="no-scrollbar" style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
+                <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+                  {data.schedule.map((item) => (
+                    <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
+                      <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad, onVulnerableResidents, onElectricUtility, onResidentialEdge, onPumpCapacity, skipAnimation, map }: Props) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
@@ -318,7 +584,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
                   key={label}
                   onClick={() => {
                     if (expandedZone === label) { setExpandedZone(null); return; }
-                    if (label === 'Costal Road Access') { setExpandedZone(label); } else { ZONE_HANDLER[label]?.(); }
+                    setExpandedZone(label);
                   }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 13,
@@ -371,6 +637,9 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               }}>
                 {expandedZone === 'Costal Road Access' && (
                   <CoastalRoadAccessPage embedded containerHeight={rightPanelContainerH} onBack={() => setExpandedZone(null)} onApprove={() => setExpandedZone(null)} />
+                )}
+                {expandedZone && expandedZone !== 'Costal Road Access' && (
+                  <ZoneDetailPanel zone={expandedZone} onBack={() => setExpandedZone(null)} containerHeight={rightPanelContainerH} />
                 )}
               </div>
             </div>

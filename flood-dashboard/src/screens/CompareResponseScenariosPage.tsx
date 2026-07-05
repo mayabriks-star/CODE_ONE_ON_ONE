@@ -25,6 +25,7 @@ export interface ScenarioData {
   implementationTime: string;
   valueForEffort: EffortLevel;
   mainTradeoff: string;
+  coveragePcts?: Record<string, number>;
 }
 
 interface Props {
@@ -105,10 +106,14 @@ const SCENARIOS: ScenarioData[] = [
 // exactly what was selected on this screen, instead of new arbitrary numbers.
 export const SELECTED_SCENARIO = SCENARIOS.find((s) => s.id === 'selected')!;
 
-function CheckCell({ v }: { v: MeasureValue }) {
+function CheckCell({ v, coveragePct }: { v: MeasureValue; coveragePct?: number }) {
   if (v === 'yes') return <span style={{ color: '#00a63e', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✓</span>;
   if (v === 'no') return <span style={{ color: '#b91d1d', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✗</span>;
-  return <span style={{ fontSize: 13, fontWeight: 600, color: '#101828', letterSpacing: '-0.2px' }}>Partial</span>;
+  return (
+    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>
+      partial{coveragePct !== undefined ? ` · ${coveragePct}%` : ''}
+    </span>
+  );
 }
 
 function RiskBar({ pct }: { pct: number }) {
@@ -207,12 +212,12 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
   const availLabel = `$${(AVAILABLE_BUDGET / 1_000_000).toFixed(0)}M`;
 
   const measureRows: { label: string; render: (s: ScenarioData) => React.ReactNode }[] = [
-    { label: 'Sea wall', render: s => <CheckCell v={s.seaWall} /> },
-    { label: 'Raised roads', render: s => <CheckCell v={s.raisedRoads} /> },
-    { label: 'Elevated buildings', render: s => <CheckCell v={s.elevatedBuildings} /> },
-    { label: 'Elevated walkways', render: s => <CheckCell v={s.elevatedWalkways} /> },
-    { label: 'Drainage upgrade', render: s => <CheckCell v={s.drainageUpgrade} /> },
-    { label: 'Utility protection', render: s => <CheckCell v={s.utilityProtection} /> },
+    { label: 'Sea wall', render: s => <CheckCell v={s.seaWall} coveragePct={s.coveragePcts?.seaWall} /> },
+    { label: 'Raised roads', render: s => <CheckCell v={s.raisedRoads} coveragePct={s.coveragePcts?.raisedRoads} /> },
+    { label: 'Elevated buildings', render: s => <CheckCell v={s.elevatedBuildings} coveragePct={s.coveragePcts?.elevatedBuildings} /> },
+    { label: 'Elevated walkways', render: s => <CheckCell v={s.elevatedWalkways} coveragePct={s.coveragePcts?.elevatedWalkways} /> },
+    { label: 'Drainage upgrade', render: s => <CheckCell v={s.drainageUpgrade} coveragePct={s.coveragePcts?.drainageUpgrade} /> },
+    { label: 'Utility protection', render: s => <CheckCell v={s.utilityProtection} coveragePct={s.coveragePcts?.utilityProtection} /> },
   ];
 
   const outcomeRows: { label: string; render: (s: ScenarioData) => React.ReactNode }[] = [

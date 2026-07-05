@@ -100,22 +100,64 @@ function DonutChart({ pct, size = 130 }: { pct: number; size?: number }) {
   );
 }
 
-function ToggleRow({ measure, active, onToggle }: { measure: Measure; active: boolean; onToggle: () => void }) {
+const PCT_OPTIONS = [25, 50, 75, 100] as const;
+
+function CoverageSelector({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '20px' }}>{measure.label}</div>
-      <button
-        onClick={onToggle}
-        aria-label={`Toggle ${measure.label}`}
-        style={{
-          width: 32, height: 19, borderRadius: 100, border: 'none', padding: 2,
-          background: active ? TOGGLE_ON_COLOR : TOGGLE_OFF_COLOR,
-          cursor: 'pointer', transition: 'background 0.3s ease', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: active ? 'flex-end' : 'flex-start',
-        }}
-      >
-        <div style={{ width: 15, height: 15, borderRadius: '50%', background: 'white' }} />
-      </button>
+    <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ fontSize: 14, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px', lineHeight: '19px' }}>
+        What share of this measure do you want to implement?
+      </div>
+      <div style={{ display: 'flex', background: 'rgba(0,0,0,0.07)', borderRadius: 8, padding: 3, gap: 2 }}>
+        {PCT_OPTIONS.map(opt => {
+          const selected = value === opt;
+          return (
+            <button
+              key={opt}
+              onClick={() => onChange(opt)}
+              style={{
+                flex: 1, height: 28, borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: selected ? '#1e2939' : 'transparent',
+                color: selected ? 'white' : '#505153',
+                fontSize: 13, fontWeight: selected ? 600 : 500,
+                letterSpacing: '-0.2px',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >
+              {opt}%
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ToggleRow({ measure, active, onToggle, pct, onPctChange }: {
+  measure: Measure; active: boolean; onToggle: () => void;
+  pct?: number; onPctChange?: (v: number) => void;
+}) {
+  const hasSelector = measure.key !== 'seaWall' && !!onPctChange;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '20px' }}>{measure.label}</div>
+        <button
+          onClick={onToggle}
+          aria-label={`Toggle ${measure.label}`}
+          style={{
+            width: 32, height: 19, borderRadius: 100, border: 'none', padding: 2,
+            background: active ? TOGGLE_ON_COLOR : TOGGLE_OFF_COLOR,
+            cursor: 'pointer', transition: 'background 0.3s ease', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: active ? 'flex-end' : 'flex-start',
+          }}
+        >
+          <div style={{ width: 15, height: 15, borderRadius: '50%', background: 'white' }} />
+        </button>
+      </div>
+      {hasSelector && active && (
+        <CoverageSelector value={pct ?? 100} onChange={onPctChange!} />
+      )}
     </div>
   );
 }
@@ -132,6 +174,9 @@ function MetricCell({ label, value }: { label: string; value: string }) {
 export default function SimulateResponseScenariosPage({ onBack, onCompare, map }: Props) {
   const [active, setActive] = useState<Record<MeasureKey, boolean>>(
     () => Object.fromEntries(MEASURES.map((m) => [m.key, m.defaultOn])) as Record<MeasureKey, boolean>
+  );
+  const [pct, setPct] = useState<Record<MeasureKey, number>>(
+    () => Object.fromEntries(MEASURES.map((m) => [m.key, 100])) as Record<MeasureKey, number>
   );
 
   const [scale, setScale] = useState(() => {
@@ -192,15 +237,19 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
   function toggle(key: MeasureKey) {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   }
+  function setPctFor(key: MeasureKey, v: number) {
+    setPct((prev) => ({ ...prev, [key]: v }));
+  }
 
   const activeMeasures = MEASURES.filter((m) => active[m.key]);
   const offMeasures = MEASURES.filter((m) => !active[m.key]);
-  const totalCost = activeMeasures.reduce((s, m) => s + m.cost, 0);
-  const residentsProtected = activeMeasures.reduce((s, m) => s + m.residents, 0);
-  const floodRiskReduction = Math.min(95, activeMeasures.reduce((s, m) => s + m.risk, 0));
+  const mp = (m: Measure) => pct[m.key] / 100;
+  const totalCost = activeMeasures.reduce((s, m) => s + m.cost * mp(m), 0);
+  const residentsProtected = Math.round(activeMeasures.reduce((s, m) => s + m.residents * mp(m), 0));
+  const floodRiskReduction = Math.min(95, Math.round(activeMeasures.reduce((s, m) => s + m.risk * mp(m), 0)));
   const delayYears = activeMeasures.reduce((s, m) => s + m.delay, 0);
-  const timeMin = activeMeasures.reduce((s, m) => s + m.timeMin, 0);
-  const timeMax = activeMeasures.reduce((s, m) => s + m.timeMax, 0);
+  const timeMin = Math.round(activeMeasures.reduce((s, m) => s + m.timeMin * mp(m), 0));
+  const timeMax = Math.round(activeMeasures.reduce((s, m) => s + m.timeMax * mp(m), 0));
   const budgetPct = Math.round((totalCost / AVAILABLE_BUDGET) * 100);
   const effortRatio = totalCost > 0 ? (residentsProtected / 100 + floodRiskReduction) / (totalCost / 1_000_000) : 0;
   const valueForEffort = activeMeasures.length === 0 ? '—' : effortRatio >= 2 ? 'Strong' : effortRatio >= 1.2 ? 'Moderate' : 'Limited';
@@ -208,22 +257,27 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
     ? 'Full coverage across all measures'
     : `Lower coverage: ${offMeasures.map((m) => m.label).join(', ')} not included`;
 
-  function boolToMeasure(v: boolean): 'yes' | 'no' { return v ? 'yes' : 'no'; }
+  function toMeasureValue(key: MeasureKey, on: boolean): 'yes' | 'no' | 'partial' {
+    if (!on) return 'no';
+    return pct[key] < 100 ? 'partial' : 'yes';
+  }
   function effortLevel(v: string): 'high' | 'moderate' | 'low' {
     return v === 'Strong' ? 'high' : v === 'Moderate' ? 'moderate' : 'low';
   }
 
   function buildScenario(): ScenarioData {
+    const coveragePcts: Record<string, number> = {};
+    MEASURES.forEach(m => { if (active[m.key] && pct[m.key] < 100) coveragePcts[m.key] = pct[m.key]; });
     return {
       id: 'selected',
       roleLabel: 'Your Simulation',
       name: activeMeasures.length === 0 ? 'No measures selected' : activeMeasures.map(m => m.label).join(', '),
-      seaWall: boolToMeasure(active.seaWall),
-      raisedRoads: boolToMeasure(active.raisedRoads),
-      elevatedBuildings: boolToMeasure(active.elevatedBuildings),
-      elevatedWalkways: boolToMeasure(active.elevatedWalkways),
-      drainageUpgrade: boolToMeasure(active.drainageUpgrade),
-      utilityProtection: boolToMeasure(active.utilityProtection),
+      seaWall: toMeasureValue('seaWall', active.seaWall),
+      raisedRoads: toMeasureValue('raisedRoads', active.raisedRoads),
+      elevatedBuildings: toMeasureValue('elevatedBuildings', active.elevatedBuildings),
+      elevatedWalkways: toMeasureValue('elevatedWalkways', active.elevatedWalkways),
+      drainageUpgrade: toMeasureValue('drainageUpgrade', active.drainageUpgrade),
+      utilityProtection: toMeasureValue('utilityProtection', active.utilityProtection),
       residentSupport: 'no',
       totalCost: formatCost(totalCost),
       totalCostValue: totalCost,
@@ -234,6 +288,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
       implementationTime: `${timeMin}–${timeMax} months`,
       valueForEffort: effortLevel(valueForEffort),
       mainTradeoff,
+      coveragePcts,
     };
   }
 
@@ -379,7 +434,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
       </button>
 
       {/* Left column — scenario controls */}
-      <div style={{ position: 'fixed', left: 16, top: 141, width: 360, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', left: 16, top: 141, width: 400, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
         <div
           className="glass-shadow"
           style={{
@@ -402,8 +457,14 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             </p>
           </div>
           <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
-          {MEASURES.map((m) => (
-            <ToggleRow key={m.key} measure={m} active={active[m.key]} onToggle={() => toggle(m.key)} />
+          {MEASURES.map((m, i) => (
+            <div key={m.key}>
+              {i > 0 && <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', marginBottom: 12 }} />}
+              <ToggleRow
+                measure={m} active={active[m.key]} onToggle={() => toggle(m.key)}
+                pct={pct[m.key]} onPctChange={(v) => setPctFor(m.key, v)}
+              />
+            </div>
           ))}
           <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
           <button
@@ -411,7 +472,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             className="w-full flex items-center justify-center"
             style={{ height: 44, borderRadius: 14, background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer', pointerEvents: 'auto' }}
           >
-            <span className="font-medium text-[14px] text-white">Compare Scenarios</span>
+            <span className="font-medium text-[14px] text-white">Select This Scenario</span>
           </button>
         </div>
       </div>

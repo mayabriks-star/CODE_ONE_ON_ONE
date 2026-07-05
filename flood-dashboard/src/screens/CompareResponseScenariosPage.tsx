@@ -78,6 +78,7 @@ const SCENARIOS: ScenarioData[] = [
     implementationTime: '9 months',
     valueForEffort: 'moderate',
     mainTradeoff: 'Low long-term protection',
+    coveragePcts: { elevatedWalkways: 50 },
   },
   {
     id: 'option-b',
@@ -99,6 +100,7 @@ const SCENARIOS: ScenarioData[] = [
     implementationTime: '10 months',
     valueForEffort: 'moderate',
     mainTradeoff: 'Partial measures only',
+    coveragePcts: { raisedRoads: 50, drainageUpgrade: 50, utilityProtection: 50 },
   },
 ];
 
@@ -110,8 +112,8 @@ function CheckCell({ v, coveragePct }: { v: MeasureValue; coveragePct?: number }
   if (v === 'yes') return <span style={{ color: '#00a63e', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✓</span>;
   if (v === 'no') return <span style={{ color: '#b91d1d', fontSize: 19, fontWeight: 700, lineHeight: 1 }}>✗</span>;
   return (
-    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>
-      partial{coveragePct !== undefined ? ` · ${coveragePct}%` : ''}
+    <span style={{ fontSize: 14, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px' }}>
+      partial{coveragePct !== undefined ? ` (${coveragePct}%)` : ''}
     </span>
   );
 }

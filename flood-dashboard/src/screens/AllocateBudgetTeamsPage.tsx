@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import HomePageHeader from '../components/shared/HomePageHeader';
 import { MEASURES } from './SimulateResponseScenariosPage';
 import type { MeasureKey } from './SimulateResponseScenariosPage';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock, Users, Briefcase } from 'lucide-react';
 
 // Zone accent colors — same as ZONE_ACCENT in AssessCriticalZonesPage
 const MEASURE_ICON: Record<string, { icon: string; color: string }> = {
@@ -16,30 +16,31 @@ const MEASURE_ICON: Record<string, { icon: string; color: string }> = {
 };
 
 // Groups — mirrors the zones tab structure
-const MEASURE_GROUPS: { icon: string; color: string; label: string; keys: MeasureKey[] }[] = [
-  { icon: '/icons/tab-water.svg',    color: '#2864e4', label: 'Water Infrastructure', keys: ['seaWall', 'drainageUpgrade'] },
-  { icon: '/icons/tab-car.svg',      color: '#ea7836', label: 'Transportation',        keys: ['raisedRoads', 'elevatedWalkways'] },
-  { icon: '/icons/tab-building.svg', color: '#bf5761', label: 'Structures',            keys: ['elevatedBuildings'] },
-  { icon: '/icons/tab-electric.svg', color: '#ffbb00', label: 'Utilities',             keys: ['utilityProtection'] },
-  { icon: '/icons/tab-people.svg',   color: '#84af79', label: 'Community',             keys: ['residentSupport'] },
+const MEASURE_GROUPS: { icon: string; color: string; label: string; keys: MeasureKey[]; teamCount: number }[] = [
+  { icon: '/icons/tab-water.svg',    color: '#2864e4', label: 'Water Infrastructure', keys: ['seaWall', 'drainageUpgrade'],       teamCount: 4 },
+  { icon: '/icons/tab-car.svg',      color: '#ea7836', label: 'Transportation',        keys: ['raisedRoads', 'elevatedWalkways'],  teamCount: 4 },
+  { icon: '/icons/tab-building.svg', color: '#bf5761', label: 'Structures',            keys: ['elevatedBuildings'],                teamCount: 3 },
+  { icon: '/icons/tab-electric.svg', color: '#ffbb00', label: 'Utilities',             keys: ['utilityProtection'],                teamCount: 4 },
+  { icon: '/icons/tab-people.svg',   color: '#84af79', label: 'Community',             keys: ['residentSupport'],                  teamCount: 2 },
 ];
 
 interface Props { onBack: () => void; onContinue: () => void; map?: any; }
 
 interface Team {
   id: string; name: string; lead: string; initials: string;
-  avatarGrad: [string, string]; exp: number; projects: number;
-  capacity: number; specialty: string; limited?: boolean;
+  avatarGrad: [string, string]; exp: number; members: number;
+  cityProjects: number; specialty: string; limited?: boolean;
+  details: string[];
 }
 
 const TEAMS: Team[] = [
-  { id: 'coastal',   name: 'Coastal Engineering',       lead: 'M. Alvarez',  initials: 'MA', avatarGrad: ['#1e40af','#3b82f6'], exp: 12, projects: 2, capacity: 0.65, specialty: 'Marine barriers & flood control' },
-  { id: 'works',     name: 'Public Works',              lead: 'D. Chen',     initials: 'DC', avatarGrad: ['#5b21b6','#8b5cf6'], exp: 8,  projects: 3, capacity: 0.45, specialty: 'Roads, bridges & civil works' },
-  { id: 'water',     name: 'Water & Stormwater',        lead: 'S. Patel',    initials: 'SP', avatarGrad: ['#155e75','#22d3ee'], exp: 15, projects: 1, capacity: 0.80, specialty: 'Drainage systems & hydrology' },
-  { id: 'urban',     name: 'Urban Planning & Zoning',   lead: 'R. Osei',     initials: 'RO', avatarGrad: ['#92400e','#f59e0b'], exp: 9,  projects: 4, capacity: 0.28, specialty: 'Building codes & elevation zoning', limited: true },
-  { id: 'electric',  name: 'Electric Utility Auth.',    lead: 'J. Romero',   initials: 'JR', avatarGrad: ['#14532d','#22c55e'], exp: 11, projects: 2, capacity: 0.70, specialty: 'Grid hardening & power systems' },
-  { id: 'community', name: 'Community Services',        lead: 'L. Kim',      initials: 'LK', avatarGrad: ['#9d174d','#f472b6'], exp: 6,  projects: 1, capacity: 0.90, specialty: 'Resident programs & social outreach' },
-  { id: 'emergency', name: 'Emergency Management',      lead: 'K. Williams', initials: 'KW', avatarGrad: ['#581c87','#a855f7'], exp: 14, projects: 0, capacity: 0.85, specialty: 'Crisis coordination & rapid response' },
+  { id: 'coastal',   name: 'Coastal Engineering',       lead: 'M. Alvarez',  initials: 'MA', avatarGrad: ['#1e40af','#3b82f6'], exp: 12, members: 8,  cityProjects: 4,  specialty: 'Marine barriers & flood control',     details: ['Seawall & breakwater design certified', 'FEMA floodplain management accreditation', '3 completed coastal barrier projects in FL', 'Real-time storm surge monitoring integration'] },
+  { id: 'works',     name: 'Public Works',              lead: 'D. Chen',     initials: 'DC', avatarGrad: ['#5b21b6','#8b5cf6'], exp: 8,  members: 14, cityProjects: 26, specialty: 'Roads, bridges & civil works',           details: ['FDOT-certified road elevation planning', 'Bridge load rating & structural assessment', 'Active contracts in 3 Miami-Dade districts', 'Emergency access corridor prioritization'] },
+  { id: 'water',     name: 'Water & Stormwater',        lead: 'S. Patel',    initials: 'SP', avatarGrad: ['#155e75','#22d3ee'], exp: 15, members: 6,  cityProjects: 14, specialty: 'Drainage systems & hydrology',          details: ['Green infrastructure & bioretention design', 'SWFWMD stormwater management permit holder', 'Pump station capacity modeling', 'GIS-based flood routing analysis'] },
+  { id: 'urban',     name: 'Urban Planning & Zoning',   lead: 'R. Osei',     initials: 'RO', avatarGrad: ['#92400e','#f59e0b'], exp: 9,  members: 5,  cityProjects: 8,  specialty: 'Building codes & elevation zoning',    details: ['FEMA FIRM map amendment specialist', 'Miami 21 zoning code expertise', 'Currently supporting 4 active permit reviews', 'Elevation certificate processing & compliance'], limited: true },
+  { id: 'electric',  name: 'Electric Utility Auth.',    lead: 'J. Romero',   initials: 'JR', avatarGrad: ['#14532d','#22c55e'], exp: 11, members: 9,  cityProjects: 19, specialty: 'Grid hardening & power systems',        details: ['Substation flood-proofing to NERC CIP standards', 'Underground cable transition planning', 'Smart grid resilience upgrades', 'Generator placement & fuel logistics coordination'] },
+  { id: 'community', name: 'Community Services',        lead: 'L. Kim',      initials: 'LK', avatarGrad: ['#9d174d','#f472b6'], exp: 6,  members: 14, cityProjects: 31, specialty: 'Resident programs & social outreach',  details: ['Multi-language outreach in 5 languages', 'FEMA Individual Assistance program liaison', 'Temporary housing placement & case management', 'Community resilience hub operations'] },
+  { id: 'emergency', name: 'Emergency Management',      lead: 'K. Williams', initials: 'KW', avatarGrad: ['#581c87','#a855f7'], exp: 14, members: 7,  cityProjects: 9,  specialty: 'Crisis coordination & rapid response',  details: ['NIMS/ICS certified command structure', 'Miami-Dade EOC integration & liaison', 'Pre-positioned equipment in 2 staging areas', '24/7 on-call rapid deployment roster'] },
 ];
 
 const MATCH: Record<MeasureKey, Record<string, number>> = {
@@ -99,9 +100,18 @@ function Avatar({ team, size = 56 }: { team: Team; size?: number }) {
   );
 }
 
+const PANEL_FADE_STYLE = `@keyframes panelFadeIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }`;
+
 export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
-  // Assignments are per GROUP (one team handles all measures in a group)
-  const [expanded, setExpanded] = useState<string | null>(MEASURE_GROUPS[0].label);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [hoveredAssign, setHoveredAssign] = useState<string | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const t = setTimeout(() => setExpanded(MEASURE_GROUPS[0].label), 1000);
+    return () => clearTimeout(t);
+  }, []);
   const [assignments, setAssignments] = useState<Record<string, string | null>>(
     () => Object.fromEntries(MEASURE_GROUPS.map(g => [g.label, null]))
   );
@@ -122,12 +132,13 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
     return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
   }
 
-  const top4 = expandedGroup
-    ? [...TEAMS].sort((a, b) => groupScore(expandedGroup, b.id) - groupScore(expandedGroup, a.id)).slice(0, 4)
+  const topTeams = expandedGroup
+    ? [...TEAMS].sort((a, b) => groupScore(expandedGroup, b.id) - groupScore(expandedGroup, a.id)).slice(0, expandedGroup.teamCount)
     : [];
 
   return (
     <div className="screen-enter">
+      <style>{PANEL_FADE_STYLE}</style>
       <HomePageHeader />
 
       <button onClick={onBack} style={{
@@ -175,7 +186,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
         width: expanded ? 'calc(100vw - 32px)' : LEFT_W,
         borderRadius: 16, pointerEvents: 'auto', zIndex: 10,
         display: 'flex', flexDirection: 'row', overflow: 'hidden',
-        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'width 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
 
         {/* ── Left column — always visible ── */}
@@ -191,7 +202,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 12px' }} />
 
           <p style={{ margin: '10px 16px 0', fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
-            Select one team per domain — they'll handle all tasks in that category.
+            Your active city-contracted teams. Select one per domain to lead this flood response.
           </p>
 
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '10px 12px 0' }} />
@@ -215,29 +226,29 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                       padding: '9px 12px', cursor: 'pointer',
                       background: isOpen ? 'rgba(0,0,0,0.025)' : undefined,
                     }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: group.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img src={group.icon} alt="" width={19} height={19} />
-                    </div>
+                    <img src={group.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 18, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '22px' }}>{group.label}</div>
-                      <div style={{ fontSize: 14, fontWeight: 400, color: assignedTeam ? '#00a63e' : '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
-                        {assignedTeam ? `✓ ${assignedTeam.name}` : `${group.keys.length} task${group.keys.length > 1 ? 's' : ''}`}
-                      </div>
+                      {(assignedTeam || group.keys.length === 1) && (
+                        <div style={{ fontSize: 16, fontWeight: 400, color: assignedTeam ? '#00a63e' : '#6b7280', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+                          {assignedTeam ? `✓ ${assignedTeam.name}` : SUBTITLES[group.keys[0] as MeasureKey]}
+                        </div>
+                      )}
                     </div>
                     <ChevronRight size={14} color="rgba(30,41,57,0.25)" strokeWidth={2}
                       style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }} />
                   </div>
-                  {/* Task names — static, indented, no chevron */}
+                  {/* Task names — two rows with divider */}
                   {group.keys.length > 1 && (
-                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', padding: '5px 12px 6px', paddingLeft: 52 }}>
-                      {group.keys.map(key => {
-                        const m = MEASURES.find(mx => mx.key === key)!;
-                        return (
-                          <div key={key} style={{ fontSize: 14, fontWeight: 400, color: '#6b7280', lineHeight: '19px', letterSpacing: '-0.2px' }}>
-                            · {m.label}
+                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingLeft: 54 }}>
+                      {group.keys.map((key, idx) => (
+                        <div key={key}>
+                          {idx > 0 && <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', marginRight: 12 }} />}
+                          <div style={{ padding: '6px 12px 6px 0', fontSize: 15, fontWeight: 400, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
+                            {SUBTITLES[key as MeasureKey]}
                           </div>
-                        );
-                      })}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -262,86 +273,178 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
         {/* ── Right panel — team picker ── */}
         {expanded && expandedGroup && (
-          <div style={{ flex: 1, borderLeft: '1px solid rgba(0,0,0,0.09)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, borderLeft: '1px solid rgba(0,0,0,0.09)', overflow: 'auto', display: 'flex', flexDirection: 'column',
+            animation: 'panelFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
 
-            {/* Panel header — top-padding matches left subtitle Y position */}
-            <div style={{ padding: '68px 24px 16px', borderBottom: '1px solid rgba(0,0,0,0.07)', flexShrink: 0 }}>
-              <p style={{ margin: 0, fontSize: 17, fontWeight: 500, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.44px' }}>
-                {GROUP_DESCRIPTIONS[expandedGroup.label] ?? ''}
-              </p>
-            </div>
+            {/* Cards area — aligned with left panel group cards (~130px from top) */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '130px 28px 28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
+                {(() => {
+                  const anyPicked = assignments[expanded!] !== null;
+                  return topTeams.map((team, i) => {
+                  const score = groupScore(expandedGroup, team.id);
+                  const isPicked = assignments[expanded!] === team.id;
+                  const capColor = team.capacity < 0.35 ? '#ef4444' : team.capacity < 0.6 ? '#eab308' : '#00a63e';
+                  const isBest = i === 0;
+                  const stars = Math.round(score / 20);
+                  const isHovered = hoveredCard === team.id;
+                  const isCardExpanded = expandedCards.has(team.id);
+                  const isDimmed = anyPicked && !isPicked;
 
-            {/* Team cards — 2×2 grid */}
-            <div style={{ flex: 1, overflow: 'auto', padding: '16px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 12 }}>
-              {top4.map((team, i) => {
-                const score = groupScore(expandedGroup, team.id);
-                const isPicked = assignments[expanded!] === team.id;
-                const scoreColor = score >= 85 ? '#15803d' : score >= 65 ? '#92400e' : '#6b778a';
-                const scoreBg   = score >= 85 ? 'rgba(0,166,62,0.1)' : score >= 65 ? 'rgba(234,179,8,0.1)' : 'rgba(0,0,0,0.05)';
-                const capColor  = team.capacity < 0.35 ? '#ef4444' : team.capacity < 0.6 ? '#eab308' : '#00a63e';
-
-                return (
-                  <button key={team.id} onClick={() => pick(expandedGroup.label, team.id)}
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center',
-                      padding: '10px 10px 10px',
-                      background: isPicked ? 'rgba(0,166,62,0.05)' : 'rgba(255,255,255,0.7)',
-                      border: isPicked ? '2px solid rgba(0,166,62,0.4)' : i === 0 ? '1.5px solid rgba(0,0,0,0.12)' : '1.5px solid rgba(0,0,0,0.07)',
-                      borderRadius: 14, cursor: 'pointer', textAlign: 'center',
-                      transition: 'border-color .18s, background .18s',
-                      position: 'relative',
-                    }}>
-
-                    {(i === 0 || isPicked) && (
-                      <div style={{
-                        position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                        background: isPicked ? '#00a63e' : '#1d4ed8',
-                        color: 'white', fontSize: 9, fontWeight: 700,
-                        borderRadius: '0 0 6px 6px', padding: '2px 10px', letterSpacing: '.3px',
+                  return (
+                    <div key={team.id}
+                      onMouseEnter={() => setHoveredCard(team.id)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      style={{
+                        flex: 1, display: 'flex', flexDirection: 'column',
+                        background: isPicked ? 'white' : isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.75)',
+                        border: isPicked ? '2px solid #1e2939' : isHovered ? '1.5px solid rgba(30,41,57,0.22)' : '1.5px solid rgba(0,0,0,0.1)',
+                        borderRadius: 18, position: 'relative',
+                        transition: 'border-color .18s, background .18s, box-shadow .18s, transform .18s, opacity .3s',
+                        boxShadow: isPicked ? '0 8px 28px rgba(0,0,0,0.16)' : isHovered ? '0 6px 22px rgba(0,0,0,0.13)' : '0 2px 8px rgba(0,0,0,0.07)',
+                        transform: isHovered && !isPicked ? 'translateY(-3px)' : 'translateY(0)',
+                        backdropFilter: 'blur(8px)', overflow: 'hidden',
+                        opacity: isDimmed ? 0.25 : 1,
                       }}>
-                        {isPicked ? '✓ ASSIGNED' : 'BEST FIT'}
-                      </div>
-                    )}
 
-                    <div style={{ marginTop: (i === 0 || isPicked) ? 10 : 0, marginBottom: 7 }}>
-                      <Avatar team={team} size={44} />
-                    </div>
-
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#101828', letterSpacing: '-0.2px', lineHeight: '17px' }}>{team.name}</p>
-                    <p style={{ margin: '2px 0 8px', fontSize: 11, color: '#6b7280' }}>{team.lead}</p>
-
-                    <div style={{ background: scoreBg, borderRadius: 100, padding: '3px 10px', marginBottom: 10 }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: scoreColor }}>{score}%</span>
-                      <span style={{ fontSize: 10, color: scoreColor, marginLeft: 3 }}>match</span>
-                    </div>
-
-                    <p style={{ margin: '0 0 7px', fontSize: 11, color: '#6b778a', lineHeight: '15px' }}>{team.specialty}</p>
-
-                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 5, textAlign: 'left' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, color: '#9ca3af' }}>Experience</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#364153' }}>{team.exp} yrs</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, color: '#9ca3af' }}>Active projects</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: team.projects >= 4 ? '#b45309' : '#364153' }}>{team.projects}</span>
-                      </div>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                          <span style={{ fontSize: 11, color: '#9ca3af' }}>Availability</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: '#364153' }}>{Math.round(team.capacity * 100)}%</span>
+                      {/* Badge — centered, attached to card top edge */}
+                      {(isBest || isPicked) && (
+                        <div style={{
+                          position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                          background: isPicked ? '#00a63e' : '#1d4ed8',
+                          color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: '0.4px',
+                          borderRadius: '0 0 10px 10px', padding: '3px 14px',
+                          zIndex: 10, whiteSpace: 'nowrap',
+                        }}>
+                          {isPicked ? '✓ ASSIGNED' : 'BEST MATCH'}
                         </div>
-                        <div style={{ height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${team.capacity * 100}%`, background: capColor, borderRadius: 2 }} />
-                        </div>
-                      </div>
-                      {team.limited && (
-                        <span style={{ marginTop: 2, fontSize: 10, fontWeight: 700, color: '#b45309', background: 'rgba(180,83,9,0.08)', borderRadius: 5, padding: '2px 7px', alignSelf: 'flex-start' }}>LIMITED CAPACITY</span>
                       )}
+
+                      {/* ── Photo zone ── fixed 120px */}
+                      <button onClick={() => pick(expandedGroup.label, team.id)}
+                        style={{
+                          height: 120, flexShrink: 0, position: 'relative', overflow: 'hidden',
+                          background: `linear-gradient(150deg, ${team.avatarGrad[0]} 0%, ${team.avatarGrad[1]} 100%)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: 'none', cursor: 'pointer', padding: 0, width: '100%',
+                        }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.18) 0%, transparent 70%)' }} />
+                        <div style={{
+                          width: 70, height: 70, borderRadius: '50%', position: 'relative', zIndex: 1,
+                          background: 'rgba(255,255,255,0.18)', border: '2.5px solid rgba(255,255,255,0.5)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          boxShadow: '0 4px 18px rgba(0,0,0,0.2)',
+                        }}>
+                          <span style={{ fontSize: 22, fontWeight: 700, color: 'white', letterSpacing: '0.5px' }}>
+                            {team.initials}
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* ── Info zone ── flex:1 so all cards stretch to same height */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '13px 14px 13px' }}>
+
+                        {/* Name — own row */}
+                        <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 700, color: '#101828', letterSpacing: '-0.3px', lineHeight: '22px' }}>
+                          {team.name}
+                        </p>
+
+                        {/* Stars — own row below name */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 7 }}>
+                          {[1,2,3,4,5].map(s => (
+                            <span key={s} style={{ fontSize: 15, lineHeight: 1, color: s <= stars ? '#f59e0b' : 'rgba(0,0,0,0.14)' }}>
+                              {s <= stars ? '★' : '☆'}
+                            </span>
+                          ))}
+                          <span style={{ fontSize: 13, color: '#9ca3af', marginLeft: 3 }}>{score}%</span>
+                        </div>
+
+                        {/* Lead */}
+                        <p style={{ margin: '0 0 6px', fontSize: 15, color: '#6b778a', letterSpacing: '-0.2px' }}>
+                          {team.lead}
+                        </p>
+
+                        {/* Specialty */}
+                        <p style={{ margin: '0 0 12px', fontSize: 15, color: '#6b778a', lineHeight: '20px', letterSpacing: '-0.2px' }}>
+                          {team.specialty}
+                        </p>
+
+                        {/* Feature checklist — Lucide icons in rounded-rect frames */}
+                        <div style={{ borderTop: '1px solid rgba(0,0,0,0.07)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 12 }}>
+                          {[
+                            { Icon: Clock,    text: `${team.exp} yrs experience`,         color: undefined },
+                            { Icon: Users,    text: `${team.members} team members`,        color: undefined },
+                            { Icon: Briefcase, text: `${team.cityProjects} projects for the city`, color: undefined },
+                          ].map(({ Icon, text, color }) => (
+                            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                              <div style={{
+                                width: 24, height: 22, borderRadius: 7, flexShrink: 0,
+                                background: color ? `${color}0f` : 'rgba(30,41,57,0.07)',
+                                border: `1px solid ${color ? `${color}25` : 'rgba(30,41,57,0.11)'}`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              }}>
+                                <Icon size={12} color={color ?? '#364153'} strokeWidth={2} />
+                              </div>
+                              <span style={{ fontSize: 15, color: color ?? '#364153', fontWeight: color ? 600 : 400, letterSpacing: '-0.2px' }}>
+                                {text}
+                              </span>
+                              {team.limited && text.includes('projects for the city') && (
+                                <span style={{ fontSize: 9, fontWeight: 700, color: '#b45309', background: 'rgba(180,83,9,0.08)', borderRadius: 4, padding: '1px 5px', marginLeft: 2 }}>
+                                  BUSY
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Read more toggle — right after checklist */}
+                        <button onClick={() => setExpandedCards(prev => { const s = new Set(prev); isCardExpanded ? s.delete(team.id) : s.add(team.id); return s; })}
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0 16px',
+                            display: 'flex', alignItems: 'center', gap: 4,
+                          }}>
+                          <span style={{ fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.1px', borderBottom: '1.5px solid #1e2939', paddingBottom: 1 }}>
+                            {isCardExpanded ? 'Show less' : 'Read more'}
+                          </span>
+                        </button>
+
+                        {/* Expandable details section */}
+                        <div style={{ maxHeight: isCardExpanded ? 200 : 0, overflow: 'hidden', transition: 'max-height 0.35s ease' }}>
+                          <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 9, display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 10 }}>
+                            {team.details.map(d => (
+                              <div key={d} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                <span style={{ fontSize: 13, color: '#c4c9d4', flexShrink: 0, marginTop: 2 }}>·</span>
+                                <span style={{ fontSize: 15, color: '#6b778a', lineHeight: '19px', letterSpacing: '-0.2px' }}>{d}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Spacer — pushes assign button to bottom */}
+                        <div style={{ flex: 1 }} />
+
+                        {/* Assign button — outline, fills on hover/picked */}
+                        <button onClick={() => pick(expandedGroup.label, team.id)}
+                          onMouseEnter={() => setHoveredAssign(team.id)}
+                          onMouseLeave={() => setHoveredAssign(null)}
+                          style={{
+                            width: '100%', height: 38, borderRadius: 20,
+                            background: isPicked ? '#00a63e' : hoveredAssign === team.id ? '#1e2939' : 'rgba(30,41,57,0.06)',
+                            border: isPicked ? '1.5px solid #00a63e' : '1.5px solid rgba(30,41,57,0.35)',
+                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'background .18s, border-color .18s',
+                          }}>
+                          <span style={{ fontSize: 15, fontWeight: 600, color: isPicked || hoveredAssign === team.id ? 'white' : '#1e2939', letterSpacing: '-0.2px', transition: 'color .18s' }}>
+                            {isPicked ? '✓ Assigned' : 'Assign Team'}
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </button>
-                );
-              })}
+                  );
+                  });
+                })()}
+              </div>
             </div>
 
           </div>

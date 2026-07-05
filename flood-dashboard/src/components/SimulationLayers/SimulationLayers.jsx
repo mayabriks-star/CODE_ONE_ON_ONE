@@ -298,8 +298,8 @@ const add = () => {
   const [ebCopied, setEbCopied] = useState(false)
   const ebElevationRef = useRef(ELEVATED_BUILDINGS_CONFIG.buildings[0].elevationMeters)
   const [ebElevation, setEbElevation] = useState(ebElevationRef.current)
-  const ebCornerMarkersRef = useRef([])   // [building][corner] → Marker
-  const ebHeightHandleRef  = useRef(null) // single height handle Marker
+  const ebCornerMarkersRef = useRef([])  // [building][corner] → Marker
+  const ebHeightHandleRef  = useRef([])  // [building] → Marker
 
   // ── Elevated buildings: add layers ────────────────────────────────────────
   useEffect(() => {
@@ -449,93 +449,93 @@ const add = () => {
     if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return
     const cfg = ELEVATED_BUILDINGS_CONFIG
 
-    const corners = ebCornersRefs.current[0]
-    const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
-    const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
+    ebHeightHandleRef.current = []
 
-    const el = document.createElement('div')
-    Object.assign(el.style, {
-      width: '22px', height: '22px', borderRadius: '50%',
-      background: '#ff9f00', border: '2.5px solid rgba(0,0,0,0.85)',
-      cursor: 'ns-resize', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: '11px', color: '#000', fontWeight: '900',
-    })
-    el.textContent = '↕'
-    el.title = 'גרור צפונה להאריך עמודים / דרומה לקצר'
+    cfg.buildings.forEach((bldg, i) => {
+      const corners = ebCornersRefs.current[i]
+      const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
+      const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
 
-    const marker = new maplibregl.Marker({ element: el, draggable: true })
-      .setLngLat([centerLng, centerLat]).addTo(map)
-    ebHeightHandleRef.current = marker
-
-    let startLat = centerLat
-    let startElev = ebElevationRef.current
-
-    marker.on('dragstart', () => {
-      startLat = marker.getLngLat().lat
-      startElev = ebElevationRef.current
-    })
-    marker.on('drag', () => {
-      const { lat: curLat, lng: curLng } = marker.getLngLat()
-      const newElev = Math.max(1, Math.round(startElev + (curLat - startLat) * 111000))
-      ebElevationRef.current = newElev
-      cfg.buildings.forEach((b, j) => {
-        if (map.getLayer(`eb-cols-${j}`)) map.setPaintProperty(`eb-cols-${j}`, 'fill-extrusion-height', newElev)
-        if (map.getLayer(`eb-block-${j}`)) {
-          map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-base', newElev)
-          map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-height', newElev + b.currentHeightMeters)
-        }
+      const el = document.createElement('div')
+      Object.assign(el.style, {
+        width: '22px', height: '22px', borderRadius: '50%',
+        background: '#ff9f00', border: '2.5px solid rgba(0,0,0,0.85)',
+        cursor: 'ns-resize', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '11px', color: '#000', fontWeight: '900',
       })
-      marker.setLngLat([curLng, curLat])
-      setEbElevation(newElev)
+      el.textContent = '↕'
+      el.title = `בניין ${i} — גרור צפונה להאריך / דרומה לקצר`
+
+      const marker = new maplibregl.Marker({ element: el, draggable: true })
+        .setLngLat([centerLng, centerLat]).addTo(map)
+      ebHeightHandleRef.current[i] = marker
+
+      let startLat = centerLat, startElev = ebElevationRef.current
+      marker.on('dragstart', () => { startLat = marker.getLngLat().lat; startElev = ebElevationRef.current })
+      marker.on('drag', () => {
+        const { lat: curLat, lng: curLng } = marker.getLngLat()
+        const newElev = Math.max(1, Math.round(startElev + (curLat - startLat) * 111000))
+        ebElevationRef.current = newElev
+        cfg.buildings.forEach((b, j) => {
+          if (map.getLayer(`eb-cols-${j}`)) map.setPaintProperty(`eb-cols-${j}`, 'fill-extrusion-height', newElev)
+          if (map.getLayer(`eb-block-${j}`)) {
+            map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-base', newElev)
+            map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-height', newElev + b.currentHeightMeters)
+          }
+        })
+        marker.setLngLat([curLng, curLat])
+        setEbElevation(newElev)
+      })
     })
 
-    return () => { marker.remove(); ebHeightHandleRef.current = null }
+    return () => { ebHeightHandleRef.current.forEach(m => m?.remove()); ebHeightHandleRef.current = [] }
   }, [map])
 
-  // ── Elevated buildings: translate handle ──────────────────────────────────
+  // ── Elevated buildings: translate handle (per building) ───────────────────
   useEffect(() => {
     if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return
+    const cfg = ELEVATED_BUILDINGS_CONFIG
+    const allHandles = []
 
-    const corners = ebCornersRefs.current[0]
-    const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
-    const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
+    cfg.buildings.forEach((_, bi) => {
+      const corners = ebCornersRefs.current[bi]
+      const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
+      const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
 
-    const el = document.createElement('div')
-    Object.assign(el.style, {
-      width: '26px', height: '26px', borderRadius: '6px',
-      background: '#7c3aed', border: '2.5px solid rgba(0,0,0,0.85)',
-      cursor: 'move', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: '14px', color: '#fff',
-    })
-    el.textContent = '✥'
-    el.title = 'גרור להזזת כל הבניין'
+      const el = document.createElement('div')
+      Object.assign(el.style, {
+        width: '26px', height: '26px', borderRadius: '6px',
+        background: '#7c3aed', border: '2.5px solid rgba(0,0,0,0.85)',
+        cursor: 'move', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '14px', color: '#fff',
+      })
+      el.textContent = '✥'
+      el.title = `גרור להזזת בניין ${bi}`
 
-    const marker = new maplibregl.Marker({ element: el, draggable: true })
-      .setLngLat([centerLng, centerLat]).addTo(map)
+      const marker = new maplibregl.Marker({ element: el, draggable: true })
+        .setLngLat([centerLng, centerLat]).addTo(map)
+      allHandles.push(marker)
 
-    let startLng = centerLng, startLat = centerLat
-    let startCorners = ebCornersRefs.current.map(cs => cs.map(c => [...c]))
+      let startLng = centerLng, startLat = centerLat
+      let startCorners = ebCornersRefs.current[bi].map(c => [...c])
 
-    marker.on('dragstart', () => {
-      const pos = marker.getLngLat()
-      startLng = pos.lng; startLat = pos.lat
-      startCorners = ebCornersRefs.current.map(cs => cs.map(c => [...c]))
-    })
+      marker.on('dragstart', () => {
+        const pos = marker.getLngLat()
+        startLng = pos.lng; startLat = pos.lat
+        startCorners = ebCornersRefs.current[bi].map(c => [...c])
+      })
 
-    marker.on('drag', () => {
-      const { lng: curLng, lat: curLat } = marker.getLngLat()
-      const dLng = curLng - startLng
-      const dLat = curLat - startLat
+      marker.on('drag', () => {
+        const { lng: curLng, lat: curLat } = marker.getLngLat()
+        const dLng = curLng - startLng
+        const dLat = curLat - startLat
 
-      ebCornersRefs.current = startCorners.map(cs =>
-        cs.map(([lng, lat]) => [+(lng + dLng).toFixed(6), +(lat + dLat).toFixed(6)])
-      )
+        ebCornersRefs.current[bi] = startCorners.map(([lng, lat]) =>
+          [+(lng + dLng).toFixed(6), +(lat + dLat).toFixed(6)])
 
-      // Redraw layers
-      ebCornersRefs.current.forEach((updatedCorners, bi) => {
-        const cfg = ELEVATED_BUILDINGS_CONFIG
+        const updatedCorners = ebCornersRefs.current[bi]
         const hw = cfg.columnWidthMeters / 2
         const { mPerLng, mPerLat } = pathScale(updatedCorners)
         const colFeatures = updatedCorners.map(([cLng, cLat]) => ({
@@ -551,21 +551,20 @@ const add = () => {
         map.getSource(`eb-block-src-${bi}`)?.setData({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [updatedCorners] }, properties: {} })
         map.getSource(`eb-debug-src-${bi}`)?.setData(debugGeoJSON(updatedCorners))
 
-        // Reposition corner markers
+        // Reposition corner markers for this building
         const cornerMarkers = ebCornerMarkersRef.current[bi] ?? []
         updatedCorners.forEach(([lng, lat], ci) => cornerMarkers[ci]?.setLngLat([lng, lat]))
+
+        // Reposition height handle for this building
+        const newCenterLng = updatedCorners.reduce((s, c) => s + c[0], 0) / updatedCorners.length
+        const newCenterLat = updatedCorners.reduce((s, c) => s + c[1], 0) / updatedCorners.length
+        ebHeightHandleRef.current[bi]?.setLngLat([newCenterLng, newCenterLat])
+
+        setEbDisplay(ebCornersRefs.current.map(c => [...c]))
       })
-
-      // Reposition height handle to new center
-      const newCorners = ebCornersRefs.current[0]
-      const newCenterLng = newCorners.reduce((s, c) => s + c[0], 0) / newCorners.length
-      const newCenterLat = newCorners.reduce((s, c) => s + c[1], 0) / newCorners.length
-      ebHeightHandleRef.current?.setLngLat([newCenterLng, newCenterLat])
-
-      setEbDisplay(ebCornersRefs.current.map(c => [...c]))
     })
 
-    return () => marker.remove()
+    return () => allHandles.forEach(m => m.remove())
   }, [map])
 
   // ── Copy helpers ───────────────────────────────────────────────────────────

@@ -32,6 +32,26 @@ export const ELEVATED_BUILDINGS_CONFIG = {
       currentHeightMeters: 120,
       elevationMeters:      12,
     },
+    {
+      corners: [
+        [-80.188977, 25.762266],  // C0
+        [-80.188949, 25.761891],  // C1
+        [-80.188211, 25.761754],  // C2
+        [-80.188179, 25.761996],  // C3
+      ],
+      currentHeightMeters: 120,
+      elevationMeters:      12,
+    },
+    {
+      corners: [
+        [-80.189121, 25.763047],  // C0
+        [-80.189093, 25.762672],  // C1
+        [-80.188355, 25.762535],  // C2
+        [-80.188323, 25.762777],  // C3
+      ],
+      currentHeightMeters: 120,
+      elevationMeters:      12,
+    },
   ],
 
   // ── GEOMETRY ──────────────────────────────────────────────────────────────

@@ -1,7 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
+// @ts-ignore
+import SimulationLayers from '../components/SimulationLayers/SimulationLayers';
+// @ts-ignore
+import { SIM_CAMERA } from '../components/SimulationLayers/simCameraConfig';
+// @ts-ignore
+import { SEA_WALL_CONFIG } from '../components/SimulationLayers/seaWallConfig';
+// @ts-ignore
+import CameraDebugOverlay from '../components/SimulationLayers/CameraDebugOverlay';
 
 interface Props {
   onBack: () => void;
@@ -38,12 +46,12 @@ export interface Measure {
 // scenario, matching CompareResponseScenariosPage's "Selected Scenario".
 export const MEASURES: Measure[] = [
   { key: 'seaWall', label: 'Sea wall', descriptor: 'High cost · Strong protection', color: '#0b1f3a', cost: 9_500_000, residents: 240, risk: 22, delay: 5, timeMin: 10, timeMax: 16, defaultOn: false },
-  { key: 'raisedRoads', label: 'Raised roads', descriptor: 'Medium-high cost · Improves access', color: '#ea7836', cost: 6_500_000, residents: 150, risk: 9, delay: 2, timeMin: 4, timeMax: 7, defaultOn: true },
+  { key: 'raisedRoads', label: 'Raised roads', descriptor: 'Medium-high cost · Improves access', color: '#ea7836', cost: 6_500_000, residents: 150, risk: 9, delay: 2, timeMin: 4, timeMax: 7, defaultOn: false },
   { key: 'elevatedBuildings', label: 'Elevated buildings', descriptor: 'High cost · Long-term resilience', color: '#bf5761', cost: 8_200_000, residents: 300, risk: 18, delay: 4, timeMin: 9, timeMax: 14, defaultOn: false },
   { key: 'elevatedWalkways', label: 'Elevated walkways', descriptor: 'Medium cost · Improves access', color: '#6b778a', cost: 3_400_000, residents: 70, risk: 5, delay: 1, timeMin: 4, timeMax: 6, defaultOn: false },
-  { key: 'drainageUpgrade', label: 'Drainage upgrade', descriptor: 'Medium cost · Reduces street flooding', color: '#2864e4', cost: 5_000_000, residents: 160, risk: 11, delay: 2, timeMin: 3, timeMax: 6, defaultOn: true },
-  { key: 'utilityProtection', label: 'Utility protection', descriptor: 'Medium cost · Protects power infrastructure', color: '#ffbb00', cost: 4_100_000, residents: 130, risk: 9, delay: 2, timeMin: 3, timeMax: 5, defaultOn: true },
-  { key: 'residentSupport', label: 'Resident support measures', descriptor: 'Low cost · Fast implementation', color: '#84af79', cost: 3_000_000, residents: 180, risk: 5, delay: 2, timeMin: 2, timeMax: 2, defaultOn: true },
+  { key: 'drainageUpgrade', label: 'Drainage upgrade', descriptor: 'Medium cost · Reduces street flooding', color: '#2864e4', cost: 5_000_000, residents: 160, risk: 11, delay: 2, timeMin: 3, timeMax: 6, defaultOn: false },
+  { key: 'utilityProtection', label: 'Utility protection', descriptor: 'Medium cost · Protects power infrastructure', color: '#ffbb00', cost: 4_100_000, residents: 130, risk: 9, delay: 2, timeMin: 3, timeMax: 5, defaultOn: false },
+  { key: 'residentSupport', label: 'Resident support measures', descriptor: 'Low cost · Fast implementation', color: '#84af79', cost: 3_000_000, residents: 180, risk: 5, delay: 2, timeMin: 2, timeMax: 2, defaultOn: false },
 ];
 
 const AVAILABLE_BUDGET = 24_000_000;
@@ -120,10 +128,39 @@ function MetricCell({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function SimulateResponseScenariosPage({ onBack, onCompare }: Props) {
+export default function SimulateResponseScenariosPage({ onBack, onCompare, map }: Props) {
   const [active, setActive] = useState<Record<MeasureKey, boolean>>(
     () => Object.fromEntries(MEASURES.map((m) => [m.key, m.defaultOn])) as Record<MeasureKey, boolean>
   );
+
+  // Fly to cinematic low-oblique camera on mount; restore on leave
+  useEffect(() => {
+    if (!map) return;
+    const prev = {
+      center:  map.getCenter(),
+      zoom:    map.getZoom(),
+      pitch:   map.getPitch(),
+      bearing: map.getBearing(),
+    };
+    map.flyTo({
+      center:   SIM_CAMERA.center,
+      zoom:     SIM_CAMERA.zoom,
+      pitch:    SIM_CAMERA.pitch,
+      bearing:  SIM_CAMERA.bearing,
+      duration: SIM_CAMERA.duration,
+      essential: true,
+    });
+    return () => {
+      map.flyTo({
+        center:   [prev.center.lng, prev.center.lat],
+        zoom:     prev.zoom,
+        pitch:    prev.pitch,
+        bearing:  prev.bearing,
+        duration: 800,
+        essential: true,
+      });
+    };
+  }, [map]);
 
   function toggle(key: MeasureKey) {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -158,6 +195,8 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare }: Pro
 
   return (
     <>
+      <SimulationLayers map={map} activeMeasures={active} />
+      {SEA_WALL_CONFIG.debugMode && <CameraDebugOverlay map={map} />}
       <ScaledLayout className="screen-enter">
         {/* Map overlays — layered "built asset" illustrations per active measure */}
         <svg
@@ -165,12 +204,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare }: Pro
           style={{ left: 0, top: 0, width: 1512, height: 1008, pointerEvents: 'none' }}
           viewBox="0 0 1512 1008"
         >
-          {/* Sea wall — thick wall band with base shadow + top highlight, rising from the water's edge */}
-          <g style={overlayGroupStyle(active.seaWall)}>
-            <path d="M 1403,164 Q 1453,500 1403,856" fill="none" stroke="#000" strokeOpacity={0.18} strokeWidth={14} strokeLinecap="round" />
-            <path d="M 1400,160 Q 1450,500 1400,860" fill="none" stroke={MEASURES[0].color} strokeWidth={11} strokeLinecap="round" />
-            <path d="M 1396,160 Q 1446,500 1396,860" fill="none" stroke="#fff" strokeOpacity={0.3} strokeWidth={3} strokeLinecap="round" />
-          </g>
+          {/* Sea wall — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
           {/* Raised roads — elevated deck band with shadow, highlight, and pier ticks */}
           <g style={overlayGroupStyle(active.raisedRoads)}>

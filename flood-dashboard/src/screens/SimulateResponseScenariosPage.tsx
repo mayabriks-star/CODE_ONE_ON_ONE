@@ -206,25 +206,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         >
           {/* Sea wall — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
-          {/* Raised roads — elevated deck band with shadow, highlight, and pier ticks */}
-          <g style={overlayGroupStyle(active.raisedRoads)}>
-            {[[560, 760, 700, 660], [700, 660, 860, 600], [860, 600, 1000, 560]].map(([x1, y1, x2, y2], i) => {
-              const dx = x2 - x1, dy = y2 - y1;
-              const len = Math.hypot(dx, dy) || 1;
-              const nx = -dy / len, ny = dx / len;
-              return (
-                <g key={i}>
-                  <line x1={x1 + 2} y1={y1 + 4} x2={x2 + 2} y2={y2 + 4} stroke="#000" strokeOpacity={0.16} strokeWidth={9} strokeLinecap="round" />
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={MEASURES[1].color} strokeWidth={8} strokeLinecap="round" />
-                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeOpacity={0.35} strokeWidth={2} strokeLinecap="round" />
-                  {[0.25, 0.5, 0.75].map((t, j) => {
-                    const px = x1 + dx * t, py = y1 + dy * t;
-                    return <line key={j} x1={px - nx * 7} y1={py - ny * 7} x2={px + nx * 7} y2={py + ny * 7} stroke={MEASURES[1].color} strokeWidth={3} strokeLinecap="round" />;
-                  })}
-                </g>
-              );
-            })}
-          </g>
+          {/* Raised roads — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
           {/* Elevated buildings — footprint on stilts with corner legs + ground shadow */}
           <g style={overlayGroupStyle(active.elevatedBuildings)}>

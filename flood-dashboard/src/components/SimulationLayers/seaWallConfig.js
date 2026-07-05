@@ -40,5 +40,5 @@ export const SEA_WALL_CONFIG = {
   // true  → draws the centerline (magenta line) + each control point (yellow dot)
   //         so you can verify placement against the actual 3D tiles.
   // false → only the extruded wall is visible.
-  debugMode: true,
+  debugMode: false,
 }

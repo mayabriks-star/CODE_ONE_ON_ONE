@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import { SEA_WALL_CONFIG } from './seaWallConfig.js'
 import { RAISED_ROADS_CONFIG } from './raisedRoadsConfig.js'
+import { ELEVATED_BUILDINGS_CONFIG } from './elevatedBuildingsConfig.js'
 
 // ─── Shared geometry helpers ──────────────────────────────────────────────────
 
@@ -291,6 +292,282 @@ const add = () => {
     return () => markers.forEach(m => m.remove())
   }, [map])
 
+  // ── Elevated buildings state ───────────────────────────────────────────────
+  const ebCornersRefs = useRef(ELEVATED_BUILDINGS_CONFIG.buildings.map(b => [...b.corners]))
+  const [ebDisplay, setEbDisplay] = useState(ebCornersRefs.current)
+  const [ebCopied, setEbCopied] = useState(false)
+  const ebElevationRef = useRef(ELEVATED_BUILDINGS_CONFIG.buildings[0].elevationMeters)
+  const [ebElevation, setEbElevation] = useState(ebElevationRef.current)
+  const ebCornerMarkersRef = useRef([])   // [building][corner] → Marker
+  const ebHeightHandleRef  = useRef(null) // single height handle Marker
+
+  // ── Elevated buildings: add layers ────────────────────────────────────────
+  useEffect(() => {
+    if (!map) return
+    const cfg = ELEVATED_BUILDINGS_CONFIG
+
+    const add = () => {
+      const deckLayerId = map.getStyle()?.layers?.find(l => l.type === 'custom')?.id
+
+      cfg.buildings.forEach((bldg, i) => {
+        const corners = ebCornersRefs.current[i]
+        const elev = bldg.elevationMeters
+        const top  = elev + bldg.currentHeightMeters
+
+        // Corner columns — extend 1m into the block to eliminate gap
+        const colsId  = `eb-cols-${i}`
+        const colsSrc = `eb-cols-src-${i}`
+        const { mPerLng, mPerLat } = pathScale(corners)
+        const hw = cfg.columnWidthMeters / 2
+        const colFeatures = corners.map(([lng, lat]) => ({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [[
+            [lng - hw / mPerLng, lat - hw / mPerLat],
+            [lng + hw / mPerLng, lat - hw / mPerLat],
+            [lng + hw / mPerLng, lat + hw / mPerLat],
+            [lng - hw / mPerLng, lat + hw / mPerLat],
+          ]]}, properties: {},
+        }))
+        try {
+          if (!map.getSource(colsSrc))
+            map.addSource(colsSrc, { type: 'geojson', data: { type: 'FeatureCollection', features: colFeatures } })
+          if (!map.getLayer(colsId))
+            map.addLayer({ id: colsId, type: 'fill-extrusion', source: colsSrc, paint: {
+              'fill-extrusion-color': cfg.columnColor, 'fill-extrusion-base': 0,
+              'fill-extrusion-height': elev, 'fill-extrusion-opacity': 0,
+              'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+            }}, deckLayerId)
+        } catch (e) { console.warn('[EB] columns error:', e) }
+
+        // Building block
+        const blkId  = `eb-block-${i}`
+        const blkSrc = `eb-block-src-${i}`
+        try {
+          if (!map.getSource(blkSrc))
+            map.addSource(blkSrc, { type: 'geojson',
+              data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [corners] }, properties: {} } })
+          if (!map.getLayer(blkId))
+            map.addLayer({ id: blkId, type: 'fill-extrusion', source: blkSrc, paint: {
+              'fill-extrusion-color': cfg.buildingColor, 'fill-extrusion-base': elev,
+              'fill-extrusion-height': top, 'fill-extrusion-opacity': 0,
+              'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+            }}, deckLayerId)
+        } catch (e) { console.warn('[EB] block error:', e) }
+
+        // Debug dots
+        if (cfg.debugMode) {
+          const dbgId  = `eb-debug-${i}`
+          const dbgSrc = `eb-debug-src-${i}`
+          if (!map.getSource(dbgSrc))
+            map.addSource(dbgSrc, { type: 'geojson', data: debugGeoJSON(corners) })
+          if (!map.getLayer(dbgId))
+            map.addLayer({ id: dbgId, type: 'circle', source: dbgSrc,
+              paint: { 'circle-radius': 7, 'circle-color': '#00ff88', 'circle-stroke-color': '#000', 'circle-stroke-width': 1.5 } })
+        }
+      })
+    }
+
+    const tryAdd = () => { if (!map.getSource('eb-block-src-0')) add() }
+    tryAdd()
+    map.on('styledata', tryAdd)
+    return () => {
+      map.off('styledata', tryAdd)
+      cfg.buildings.forEach((_, i) => {
+        ;[`eb-debug-${i}`, `eb-block-${i}`, `eb-cols-${i}`].forEach(id => { if (map.getLayer(id)) map.removeLayer(id) })
+        ;[`eb-debug-src-${i}`, `eb-block-src-${i}`, `eb-cols-src-${i}`].forEach(id => { if (map.getSource(id)) map.removeSource(id) })
+      })
+    }
+  }, [map])
+
+  // ── Elevated buildings: opacity toggle ────────────────────────────────────
+  useEffect(() => {
+    if (!map) return
+    const v = activeMeasures?.elevatedBuildings ? ELEVATED_BUILDINGS_CONFIG.opacity : 0
+    ELEVATED_BUILDINGS_CONFIG.buildings.forEach((_, i) => {
+      ;[`eb-block-${i}`, `eb-cols-${i}`].forEach(id => {
+        if (map.getLayer(id)) map.setPaintProperty(id, 'fill-extrusion-opacity', v)
+      })
+    })
+  }, [map, activeMeasures?.elevatedBuildings])
+
+  // ── Elevated buildings: draggable corner markers ──────────────────────────
+  useEffect(() => {
+    if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return
+    const cfg = ELEVATED_BUILDINGS_CONFIG
+    const allMarkers = []
+    ebCornerMarkersRef.current = []
+
+    cfg.buildings.forEach((bldg, bi) => {
+      const corners = ebCornersRefs.current[bi]
+      const buildingMarkers = corners.map(([lng, lat], ci) => {
+        const el = document.createElement('div')
+        Object.assign(el.style, {
+          width: '16px', height: '16px', borderRadius: '50%',
+          background: '#00ff88', border: '2.5px solid rgba(0,0,0,0.85)',
+          cursor: 'grab', boxShadow: '0 2px 8px rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '8px', fontWeight: 'bold', color: '#000',
+        })
+        el.textContent = `${bi}.${ci}`
+        const marker = new maplibregl.Marker({ element: el, draggable: true })
+          .setLngLat([lng, lat]).addTo(map)
+
+        const redrawBuilding = (bi, updatedCorners) => {
+          const hw = cfg.columnWidthMeters / 2
+          const { mPerLng, mPerLat } = pathScale(updatedCorners)
+          const colFeatures = updatedCorners.map(([cLng, cLat]) => ({
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [[
+              [cLng - hw / mPerLng, cLat - hw / mPerLat],
+              [cLng + hw / mPerLng, cLat - hw / mPerLat],
+              [cLng + hw / mPerLng, cLat + hw / mPerLat],
+              [cLng - hw / mPerLng, cLat + hw / mPerLat],
+            ]]}, properties: {},
+          }))
+          map.getSource(`eb-cols-src-${bi}`)?.setData({ type: 'FeatureCollection', features: colFeatures })
+          map.getSource(`eb-block-src-${bi}`)?.setData({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [updatedCorners] }, properties: {} })
+          map.getSource(`eb-debug-src-${bi}`)?.setData(debugGeoJSON(updatedCorners))
+        }
+
+        marker.on('drag', () => {
+          const { lng: nx, lat: ny } = marker.getLngLat()
+          ebCornersRefs.current[bi] = ebCornersRefs.current[bi].map((c, j) =>
+            j === ci ? [+nx.toFixed(6), +ny.toFixed(6)] : c)
+          redrawBuilding(bi, ebCornersRefs.current[bi])
+          setEbDisplay(ebCornersRefs.current.map(c => [...c]))
+        })
+        return marker
+      })
+      ebCornerMarkersRef.current[bi] = buildingMarkers
+      allMarkers.push(...buildingMarkers)
+    })
+    return () => { allMarkers.forEach(m => m.remove()); ebCornerMarkersRef.current = [] }
+  }, [map])
+
+  // ── Elevated buildings: height drag handle ────────────────────────────────
+  useEffect(() => {
+    if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return
+    const cfg = ELEVATED_BUILDINGS_CONFIG
+
+    const corners = ebCornersRefs.current[0]
+    const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
+    const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
+
+    const el = document.createElement('div')
+    Object.assign(el.style, {
+      width: '22px', height: '22px', borderRadius: '50%',
+      background: '#ff9f00', border: '2.5px solid rgba(0,0,0,0.85)',
+      cursor: 'ns-resize', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '11px', color: '#000', fontWeight: '900',
+    })
+    el.textContent = '↕'
+    el.title = 'גרור צפונה להאריך עמודים / דרומה לקצר'
+
+    const marker = new maplibregl.Marker({ element: el, draggable: true })
+      .setLngLat([centerLng, centerLat]).addTo(map)
+    ebHeightHandleRef.current = marker
+
+    let startLat = centerLat
+    let startElev = ebElevationRef.current
+
+    marker.on('dragstart', () => {
+      startLat = marker.getLngLat().lat
+      startElev = ebElevationRef.current
+    })
+    marker.on('drag', () => {
+      const { lat: curLat, lng: curLng } = marker.getLngLat()
+      const newElev = Math.max(1, Math.round(startElev + (curLat - startLat) * 111000))
+      ebElevationRef.current = newElev
+      cfg.buildings.forEach((b, j) => {
+        if (map.getLayer(`eb-cols-${j}`)) map.setPaintProperty(`eb-cols-${j}`, 'fill-extrusion-height', newElev)
+        if (map.getLayer(`eb-block-${j}`)) {
+          map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-base', newElev)
+          map.setPaintProperty(`eb-block-${j}`, 'fill-extrusion-height', newElev + b.currentHeightMeters)
+        }
+      })
+      marker.setLngLat([curLng, curLat])
+      setEbElevation(newElev)
+    })
+
+    return () => { marker.remove(); ebHeightHandleRef.current = null }
+  }, [map])
+
+  // ── Elevated buildings: translate handle ──────────────────────────────────
+  useEffect(() => {
+    if (!map || !ELEVATED_BUILDINGS_CONFIG.debugMode) return
+
+    const corners = ebCornersRefs.current[0]
+    const centerLng = corners.reduce((s, c) => s + c[0], 0) / corners.length
+    const centerLat = corners.reduce((s, c) => s + c[1], 0) / corners.length
+
+    const el = document.createElement('div')
+    Object.assign(el.style, {
+      width: '26px', height: '26px', borderRadius: '6px',
+      background: '#7c3aed', border: '2.5px solid rgba(0,0,0,0.85)',
+      cursor: 'move', boxShadow: '0 2px 10px rgba(0,0,0,0.7)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '14px', color: '#fff',
+    })
+    el.textContent = '✥'
+    el.title = 'גרור להזזת כל הבניין'
+
+    const marker = new maplibregl.Marker({ element: el, draggable: true })
+      .setLngLat([centerLng, centerLat]).addTo(map)
+
+    let startLng = centerLng, startLat = centerLat
+    let startCorners = ebCornersRefs.current.map(cs => cs.map(c => [...c]))
+
+    marker.on('dragstart', () => {
+      const pos = marker.getLngLat()
+      startLng = pos.lng; startLat = pos.lat
+      startCorners = ebCornersRefs.current.map(cs => cs.map(c => [...c]))
+    })
+
+    marker.on('drag', () => {
+      const { lng: curLng, lat: curLat } = marker.getLngLat()
+      const dLng = curLng - startLng
+      const dLat = curLat - startLat
+
+      ebCornersRefs.current = startCorners.map(cs =>
+        cs.map(([lng, lat]) => [+(lng + dLng).toFixed(6), +(lat + dLat).toFixed(6)])
+      )
+
+      // Redraw layers
+      ebCornersRefs.current.forEach((updatedCorners, bi) => {
+        const cfg = ELEVATED_BUILDINGS_CONFIG
+        const hw = cfg.columnWidthMeters / 2
+        const { mPerLng, mPerLat } = pathScale(updatedCorners)
+        const colFeatures = updatedCorners.map(([cLng, cLat]) => ({
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [[
+            [cLng - hw / mPerLng, cLat - hw / mPerLat],
+            [cLng + hw / mPerLng, cLat - hw / mPerLat],
+            [cLng + hw / mPerLng, cLat + hw / mPerLat],
+            [cLng - hw / mPerLng, cLat + hw / mPerLat],
+          ]]}, properties: {},
+        }))
+        map.getSource(`eb-cols-src-${bi}`)?.setData({ type: 'FeatureCollection', features: colFeatures })
+        map.getSource(`eb-block-src-${bi}`)?.setData({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [updatedCorners] }, properties: {} })
+        map.getSource(`eb-debug-src-${bi}`)?.setData(debugGeoJSON(updatedCorners))
+
+        // Reposition corner markers
+        const cornerMarkers = ebCornerMarkersRef.current[bi] ?? []
+        updatedCorners.forEach(([lng, lat], ci) => cornerMarkers[ci]?.setLngLat([lng, lat]))
+      })
+
+      // Reposition height handle to new center
+      const newCorners = ebCornersRefs.current[0]
+      const newCenterLng = newCorners.reduce((s, c) => s + c[0], 0) / newCorners.length
+      const newCenterLat = newCorners.reduce((s, c) => s + c[1], 0) / newCorners.length
+      ebHeightHandleRef.current?.setLngLat([newCenterLng, newCenterLat])
+
+      setEbDisplay(ebCornersRefs.current.map(c => [...c]))
+    })
+
+    return () => marker.remove()
+  }, [map])
+
   // ── Copy helpers ───────────────────────────────────────────────────────────
   function copyPath(pathRef, setCopied, key) {
     const lines = pathRef.current.map(([lng, lat], i) => `    [${lng}, ${lat}],  // P${i}`).join('\n')
@@ -357,6 +634,42 @@ const add = () => {
           ))}
           <button onClick={() => copyPath(rrPathRef, setRrCopied, 'pathCoordinates')} style={btnStyle(rrCopied, '#00ddff')}>
             {rrCopied ? '✓ Copied!' : '📋 Copy path'}
+          </button>
+        </div>
+      )}
+      {ELEVATED_BUILDINGS_CONFIG.debugMode && (
+        <div style={panelStyle(SEA_WALL_CONFIG.debugMode ? 480 : 240, '#00ff88')}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.5px', marginBottom: 4 }}>
+            🏢 ELEVATED BUILDINGS — drag green dots
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+            <span style={{ ...dotStyle('#ff9f00'), borderRadius: 4, fontSize: 10 }}>↕</span>
+            <span style={{ color: '#ff9f00', fontWeight: 700 }}>עמודים: {ebElevation}מ'</span>
+            <span style={{ color: '#64748b', fontSize: 10 }}>(גרור סמן כתום)</span>
+          </div>
+          {ebDisplay.map((corners, bi) => (
+            <div key={bi}>
+              {bi > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '4px 0' }} />}
+              {corners.map(([lng, lat], ci) => (
+                <div key={ci} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <span style={dotStyle('#00ff88')}>{bi}.{ci}</span>
+                  <span style={{ color: '#94a3b8' }}>{lng}, {lat}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              const lines = ebDisplay.map((corners, bi) =>
+                `    // Building ${bi}\n` + corners.map(([lng, lat], ci) => `    [${lng}, ${lat}],  // C${ci}`).join('\n')
+              ).join('\n')
+              navigator.clipboard.writeText(`corners: [\n${lines}\n  ],`).then(() => {
+                setEbCopied(true); setTimeout(() => setEbCopied(false), 2500)
+              })
+            }}
+            style={btnStyle(ebCopied, '#00ff88')}
+          >
+            {ebCopied ? '✓ Copied!' : '📋 Copy corners'}
           </button>
         </div>
       )}

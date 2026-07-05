@@ -9,6 +9,8 @@ import { SIM_CAMERA } from '../components/SimulationLayers/simCameraConfig';
 // @ts-ignore
 import { SEA_WALL_CONFIG } from '../components/SimulationLayers/seaWallConfig';
 // @ts-ignore
+import { ELEVATED_BUILDINGS_CONFIG } from '../components/SimulationLayers/elevatedBuildingsConfig';
+// @ts-ignore
 import CameraDebugOverlay from '../components/SimulationLayers/CameraDebugOverlay';
 
 interface Props {
@@ -162,6 +164,17 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
     };
   }, [map]);
 
+  // Fly to per-measure camera preset when elevated buildings toggle turns on/off
+  useEffect(() => {
+    if (!map) return;
+    const cam = ELEVATED_BUILDINGS_CONFIG.camera;
+    if (active.elevatedBuildings) {
+      map.flyTo({ center: cam.center, zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing, duration: cam.duration, essential: true });
+    } else {
+      map.flyTo({ center: SIM_CAMERA.center, zoom: SIM_CAMERA.zoom, pitch: SIM_CAMERA.pitch, bearing: SIM_CAMERA.bearing, duration: 1000, essential: true });
+    }
+  }, [map, active.elevatedBuildings]);
+
   function toggle(key: MeasureKey) {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   }
@@ -196,7 +209,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
   return (
     <>
       <SimulationLayers map={map} activeMeasures={active} />
-      {SEA_WALL_CONFIG.debugMode && <CameraDebugOverlay map={map} />}
+      {(SEA_WALL_CONFIG.debugMode || (ELEVATED_BUILDINGS_CONFIG.cameraDebugMode && active.elevatedBuildings)) && <CameraDebugOverlay map={map} />}
       <ScaledLayout className="screen-enter">
         {/* Map overlays — layered "built asset" illustrations per active measure */}
         <svg
@@ -208,22 +221,6 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
 
           {/* Raised roads — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
-          {/* Elevated buildings — footprint on stilts with corner legs + ground shadow */}
-          <g style={overlayGroupStyle(active.elevatedBuildings)}>
-            {[[640, 420], [780, 520], [690, 610]].map(([x, y], i) => {
-              const w = 46, h = 46;
-              return (
-                <g key={i}>
-                  <ellipse cx={x + w / 2} cy={y + h + 9} rx={w / 2 - 3} ry={5} fill="#000" opacity={0.15} />
-                  {[[x + 5, y + h], [x + w - 5, y + h], [x + 5, y + h - 4], [x + w - 5, y + h - 4]].map(([lx, ly], k) => (
-                    <line key={k} x1={lx} y1={ly} x2={lx} y2={ly + 9} stroke={MEASURES[2].color} strokeWidth={2.5} strokeLinecap="round" />
-                  ))}
-                  <rect x={x} y={y} width={w} height={h} rx={8} fill={MEASURES[2].color} fillOpacity={0.22} stroke={MEASURES[2].color} strokeWidth={3} />
-                  <rect x={x + 6} y={y + 6} width={w - 12} height={5} fill="#fff" opacity={0.4} rx={2} />
-                </g>
-              );
-            })}
-          </g>
 
           {/* Elevated walkways — boardwalk path with plank ticks + shadow */}
           <g style={overlayGroupStyle(active.elevatedWalkways)}>

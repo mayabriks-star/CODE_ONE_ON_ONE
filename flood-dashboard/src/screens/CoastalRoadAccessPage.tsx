@@ -1,13 +1,33 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+
+type PtKey = 'p0' | 'c0' | 'c1' | 'p1' | 'c2' | 'c3' | 'p2' | 'c4' | 'c5' | 'p3';
+type Pt = { x: number; y: number };
+type Pts = Record<PtKey, Pt>;
+
+const DEFAULT_PTS: Pts = {
+  p0: { x: 20,  y: 218 },
+  c0: { x: 120, y: 222 },
+  c1: { x: 240, y: 228 },
+  p1: { x: 370, y: 232 },
+  c2: { x: 480, y: 236 },
+  c3: { x: 580, y: 238 },
+  p2: { x: 680, y: 236 },
+  c4: { x: 780, y: 234 },
+  c5: { x: 880, y: 228 },
+  p3: { x: 980, y: 222 },
+};
+
+function buildPath(pts: Pts) {
+  return `M ${pts.p0.x},${pts.p0.y} C ${pts.c0.x},${pts.c0.y} ${pts.c1.x},${pts.c1.y} ${pts.p1.x},${pts.p1.y} C ${pts.c2.x},${pts.c2.y} ${pts.c3.x},${pts.c3.y} ${pts.p2.x},${pts.p2.y} C ${pts.c4.x},${pts.c4.y} ${pts.c5.x},${pts.c5.y} ${pts.p3.x},${pts.p3.y}`;
+}
 
 const ROAD_GLOW_STYLE = `
 @keyframes roadPulse {
-  0%, 100% { opacity: 0.45; }
-  50%       { opacity: 0.8; }
+  0%, 100% { opacity: 0.28; }
+  50%       { opacity: 0.48; }
 }
-.road-glow-outer { animation: roadPulse 2.8s ease-in-out infinite; }
-.road-glow-mid   { animation: roadPulse 2.8s ease-in-out infinite 0.4s; }
-.road-glow-inner { animation: roadPulse 2.8s ease-in-out infinite 0.15s; }
+.road-glow-outer { animation: roadPulse 3.2s ease-in-out infinite; }
+.road-glow-mid   { animation: roadPulse 3.2s ease-in-out infinite 0.5s; }
 `;
 import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 
@@ -115,6 +135,59 @@ const implementationSteps = [
 export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, containerHeight }: Props) {
   const embH = containerHeight ?? 826;
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingPath, setIsEditingPath] = useState(true);
+  const [animKey, setAnimKey] = useState(0);
+  const [pts, setPts] = useState<Pts>(() => {
+    try {
+      const saved = localStorage.getItem('coastal-road-pts');
+      return saved ? JSON.parse(saved) : DEFAULT_PTS;
+    } catch { return DEFAULT_PTS; }
+  });
+  const [pathLen, setPathLen] = useState(1500);
+  const [dashOffset, setDashOffset] = useState(1500);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const measureRef = useRef<SVGPathElement>(null);
+  const dragging = useRef<{ key: PtKey; startMx: number; startMy: number; startPt: Pt } | null>(null);
+
+  useEffect(() => {
+    if (isEditingPath) return;
+    const len = measureRef.current?.getTotalLength() ?? 1500;
+    setPathLen(len);
+    setDashOffset(len);
+    requestAnimationFrame(() => requestAnimationFrame(() => setDashOffset(0)));
+  }, [animKey, isEditingPath]);
+
+  const toSvgCoords = useCallback((mx: number, my: number): Pt => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return { x: (mx - rect.left) / rect.width * 1000, y: (my - rect.top) / rect.height * 260 };
+  }, []);
+
+  function onHandleDown(key: PtKey, e: React.MouseEvent) {
+    e.stopPropagation();
+    dragging.current = { key, startMx: e.clientX, startMy: e.clientY, startPt: { ...pts[key] } };
+  }
+
+  function onSvgMouseMove(e: React.MouseEvent) {
+    if (!dragging.current) return;
+    const { key, startMx, startMy, startPt } = dragging.current;
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const dx = (e.clientX - startMx) / rect.width * 1000;
+    const dy = (e.clientY - startMy) / rect.height * 260;
+    setPts(p => {
+      const updated = { ...p, [key]: { x: +(startPt.x + dx).toFixed(1), y: +(startPt.y + dy).toFixed(1) } };
+      localStorage.setItem('coastal-road-pts', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  function onSvgMouseUp() { dragging.current = null; }
+
+  const pathD = buildPath(pts);
+
+  const ANCHOR_KEYS: PtKey[] = ['p0', 'p1', 'p2', 'p3'];
+  const CTRL_KEYS: PtKey[] = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5'];
 
 
   return (
@@ -172,12 +245,18 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
             <img
               src="/coastal-road-tab.png"
               alt="Coastal road aerial view"
-              style={{ width: '100%', height: 260, objectFit: 'cover', objectPosition: 'center 40%', display: 'block' }}
+              style={{ width: '100%', height: 340, objectFit: 'cover', objectPosition: 'center 50%', display: 'block' }}
             />
-            {/* Orange road highlight */}
-            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-              <svg width="100%" height="100%" viewBox="0 0 1000 260" preserveAspectRatio="none"
-                style={{ position: 'absolute', inset: 0, display: 'block' }}>
+            {/* Orange road highlight + path editor */}
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: isEditingPath ? 'all' : 'none', overflow: 'hidden' }}>
+              <svg
+                ref={svgRef}
+                width="100%" height="100%" viewBox="0 0 1000 260" preserveAspectRatio="none"
+                style={{ position: 'absolute', inset: 0, display: 'block', cursor: isEditingPath ? 'crosshair' : 'default' }}
+                onMouseMove={onSvgMouseMove}
+                onMouseUp={onSvgMouseUp}
+                onMouseLeave={onSvgMouseUp}
+              >
                 <defs>
                   <filter id="rg-outer" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="18" />
@@ -186,22 +265,70 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
                     <feGaussianBlur stdDeviation="8" />
                   </filter>
                 </defs>
-                {/* Outer glow — wide, soft */}
-                <path className="road-glow-outer"
-                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
-                  stroke="rgba(234,120,54,0.38)" strokeWidth="70" fill="none" strokeLinecap="round"
-                  filter="url(#rg-outer)" />
-                {/* Mid glow */}
-                <path className="road-glow-mid"
-                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
-                  stroke="rgba(234,120,54,0.5)" strokeWidth="28" fill="none" strokeLinecap="round"
-                  filter="url(#rg-mid)" />
-                {/* Sharp core line */}
-                <path className="road-glow-inner"
-                  d="M -20,218 C 150,222 320,232 500,236 C 680,240 830,230 1020,220"
-                  stroke="rgba(251,146,60,0.65)" strokeWidth="5" fill="none" strokeLinecap="round" />
+
+                {/* Hidden path used only to measure total length */}
+                <path ref={measureRef} d={pathD} stroke="none" fill="none" />
+
+                {/* Glow layers — dash-animated along the actual path */}
+                <path className={isEditingPath ? undefined : 'road-glow-outer'}
+                  d={pathD} stroke="rgba(234,120,54,0.3)" strokeWidth="70" fill="none" strokeLinecap="round"
+                  filter="url(#rg-outer)"
+                  strokeDasharray={isEditingPath ? undefined : pathLen}
+                  strokeDashoffset={isEditingPath ? undefined : dashOffset}
+                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)' }} />
+                <path className={isEditingPath ? undefined : 'road-glow-mid'}
+                  d={pathD} stroke="rgba(234,120,54,0.4)" strokeWidth="28" fill="none" strokeLinecap="round"
+                  filter="url(#rg-mid)"
+                  strokeDasharray={isEditingPath ? undefined : pathLen}
+                  strokeDashoffset={isEditingPath ? undefined : dashOffset}
+                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)' }} />
+
+                {/* Edit handles — only in path-edit mode */}
+                {isEditingPath && (
+                  <>
+                    {/* Control-point guide lines */}
+                    <line x1={pts.p0.x} y1={pts.p0.y} x2={pts.c0.x} y2={pts.c0.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1={pts.p1.x} y1={pts.p1.y} x2={pts.c1.x} y2={pts.c1.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1={pts.p1.x} y1={pts.p1.y} x2={pts.c2.x} y2={pts.c2.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1={pts.p2.x} y1={pts.p2.y} x2={pts.c3.x} y2={pts.c3.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1={pts.p2.x} y1={pts.p2.y} x2={pts.c4.x} y2={pts.c4.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1={pts.p3.x} y1={pts.p3.y} x2={pts.c5.x} y2={pts.c5.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
+
+                    {/* Control points — hollow */}
+                    {CTRL_KEYS.map(k => (
+                      <circle key={k} cx={pts[k].x} cy={pts[k].y} r={7}
+                        fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.5"
+                        style={{ cursor: 'grab' }}
+                        onMouseDown={e => onHandleDown(k, e)} />
+                    ))}
+
+                    {/* Anchor points — filled orange */}
+                    {ANCHOR_KEYS.map(k => (
+                      <circle key={k} cx={pts[k].x} cy={pts[k].y} r={9}
+                        fill="#fb923c" stroke="white" strokeWidth="2"
+                        style={{ cursor: 'grab' }}
+                        onMouseDown={e => onHandleDown(k, e)} />
+                    ))}
+                  </>
+                )}
               </svg>
             </div>
+
+            {/* Path-edit toggle — bottom-left of image */}
+            <button
+              onClick={() => { setIsEditingPath(e => { if (e) setAnimKey(k => k + 1); return !e; }); }}
+              style={{
+                position: 'absolute', bottom: 12, left: 12, zIndex: 10,
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 100,
+                background: isEditingPath ? '#fb923c' : 'rgba(255,255,255,0.9)',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                color: isEditingPath ? 'white' : '#364153',
+              }}
+            >
+              {isEditingPath ? 'Done' : 'Edit road line'}
+            </button>
             {/* Edit button — over image, top-right */}
             <button
               onClick={() => setIsEditing(e => !e)}

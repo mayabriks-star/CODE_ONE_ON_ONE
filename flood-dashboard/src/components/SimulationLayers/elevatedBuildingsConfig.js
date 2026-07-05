@@ -12,10 +12,10 @@ export const ELEVATED_BUILDINGS_CONFIG = {
 
   // ── CAMERA ────────────────────────────────────────────────────────────────
   camera: {
-    center:   [-80.18849, 25.762179],
-    zoom:     17.67,
-    pitch:    80,
-    bearing:  -34.8,
+    center:   [-80.18953, 25.763018],
+    zoom:     17.17,
+    pitch:    79.5,
+    bearing:  -41.7,
     duration: 1400,
   },
   cameraDebugMode: false,

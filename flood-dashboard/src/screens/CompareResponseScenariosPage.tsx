@@ -2,11 +2,6 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import HomePageHeader from '../components/shared/HomePageHeader';
 
-interface Props {
-  onBack: () => void;
-  onContinue?: () => void;
-}
-
 type MeasureValue = 'yes' | 'no' | 'partial';
 type EffortLevel = 'high' | 'moderate' | 'low';
 
@@ -30,6 +25,12 @@ export interface ScenarioData {
   implementationTime: string;
   valueForEffort: EffortLevel;
   mainTradeoff: string;
+}
+
+interface Props {
+  onBack: () => void;
+  onContinue?: () => void;
+  selectedScenario?: ScenarioData;
 }
 
 export const AVAILABLE_BUDGET = 24_000_000;
@@ -191,13 +192,17 @@ export function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
   );
 }
 
-export default function CompareResponseScenariosPage({ onBack, onContinue }: Props) {
+export default function CompareResponseScenariosPage({ onBack, onContinue, selectedScenario }: Props) {
   const [hoveredCol, setHoveredCol] = useState<string | null>(null);
   const [selectedCol, setSelectedCol] = useState<string | null>(null);
 
+  const scenarios = selectedScenario
+    ? [selectedScenario, ...SCENARIOS.filter(s => s.id !== 'selected')]
+    : SCENARIOS;
+
   const activeCol = hoveredCol ?? selectedCol ?? null;
-  const chosenScenario = selectedCol ? SCENARIOS.find(s => s.id === selectedCol) : null;
-  const sel = SCENARIOS.find(s => s.id === 'selected')!;
+  const chosenScenario = selectedCol ? scenarios.find(s => s.id === selectedCol) : null;
+  const sel = scenarios.find(s => s.id === 'selected')!;
   const remainLabel = `$${((AVAILABLE_BUDGET - sel.totalCostValue) / 1_000_000).toFixed(1)}M`;
   const availLabel = `$${(AVAILABLE_BUDGET / 1_000_000).toFixed(0)}M`;
 
@@ -346,7 +351,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
               {/* Column headers */}
               <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                 <div style={{ width: 168, flexShrink: 0, padding: '9px 14px' }} />
-                {SCENARIOS.map(s => (
+                {scenarios.map(s => (
                   <div
                     key={s.id}
                     style={{ ...getHeaderStyle(s), cursor: 'pointer' }}
@@ -402,7 +407,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                     <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
                       <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                     </div>
-                    {SCENARIOS.map(s => (
+                    {scenarios.map(s => (
                       <div key={s.id} style={{ ...getCellStyle(s), cursor: 'pointer' }} onMouseEnter={() => setHoveredCol(s.id)} onMouseLeave={() => setHoveredCol(null)} onClick={() => setSelectedCol(s.id)}>
                         {row.render(s)}
                       </div>
@@ -427,7 +432,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue }: Pro
                   <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
                     <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
                   </div>
-                  {SCENARIOS.map(s => {
+                  {scenarios.map(s => {
                     const isActive = s.id === activeCol;
                     const rawVal = s[row.key];
                     const display = typeof rawVal === 'number'

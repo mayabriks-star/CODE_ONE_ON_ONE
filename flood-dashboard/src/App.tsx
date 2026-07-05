@@ -14,6 +14,7 @@ import ElectricUtilityPage from './screens/ElectricUtilityPage';
 import ResidentialEdgePage from './screens/ResidentialEdgePage';
 import PumpCapacityPage from './screens/PumpCapacityPage';
 import CompareResponseScenariosPage from './screens/CompareResponseScenariosPage';
+import type { ScenarioData } from './screens/CompareResponseScenariosPage';
 import SimulateResponseScenariosPage from './screens/SimulateResponseScenariosPage';
 import AllocateBudgetTeamsPage from './screens/AllocateBudgetTeamsPage';
 
@@ -28,6 +29,7 @@ export default function App() {
   const [transiting, setTransiting] = useState<'none' | 'zoom-in' | 'zoom-out'>('none');
   const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
   const [approvedZones, setApprovedZones] = useState<string[]>([]);
+  const [simulatedScenario, setSimulatedScenario] = useState<ScenarioData | null>(null);
   const assessVisited = useRef(false);
 
   const s2Ref = useRef<HTMLDivElement | null>(null);
@@ -85,7 +87,8 @@ export default function App() {
     setScreen('assess-critical-zones');
   }
 
-  function handleOpenComparison() {
+  function handleOpenComparison(scenario: ScenarioData) {
+    setSimulatedScenario(scenario);
     setScreen('compare-scenarios');
   }
 
@@ -255,7 +258,7 @@ export default function App() {
       {/* Screen — Compare Response Scenarios */}
       {screen === 'compare-scenarios' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
-          <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} onContinue={handleOpenAllocateBudget} />
+          <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} onContinue={handleOpenAllocateBudget} selectedScenario={simulatedScenario ?? undefined} />
         </div>
       )}
       {/* Screen — Allocate Budget & Teams */}

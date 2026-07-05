@@ -12,10 +12,11 @@ import { SEA_WALL_CONFIG } from '../components/SimulationLayers/seaWallConfig';
 import { ELEVATED_BUILDINGS_CONFIG } from '../components/SimulationLayers/elevatedBuildingsConfig';
 // @ts-ignore
 import CameraDebugOverlay from '../components/SimulationLayers/CameraDebugOverlay';
+import type { ScenarioData } from './CompareResponseScenariosPage';
 
 interface Props {
   onBack: () => void;
-  onCompare: () => void;
+  onCompare: (scenario: ScenarioData) => void;
   map?: any;
 }
 
@@ -133,6 +134,21 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
     () => Object.fromEntries(MEASURES.map((m) => [m.key, m.defaultOn])) as Record<MeasureKey, boolean>
   );
 
+  const [scale, setScale] = useState(() => {
+    const sw = window.innerWidth / 1512;
+    const sh = window.innerHeight / 1008;
+    return Math.min(1.0, sw, sh);
+  });
+  useEffect(() => {
+    const update = () => {
+      const sw = window.innerWidth / 1512;
+      const sh = window.innerHeight / 1008;
+      setScale(Math.min(1.0, sw, sh));
+    };
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
   // Fly to cinematic low-oblique camera on mount; restore on leave
   useEffect(() => {
     if (!map) return;
@@ -192,17 +208,34 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
     ? 'Full coverage across all measures'
     : `Lower coverage: ${offMeasures.map((m) => m.label).join(', ')} not included`;
 
-  // Structured the same way CompareResponseScenariosPage.ScenarioData expects,
-  // so a future round can pass this straight through as the Selected Scenario.
-  const selectedScenario = {
-    seaWall: active.seaWall, raisedRoads: active.raisedRoads, elevatedBuildings: active.elevatedBuildings,
-    elevatedWalkways: active.elevatedWalkways, drainageUpgrade: active.drainageUpgrade,
-    utilityProtection: active.utilityProtection,
-    totalCost: formatCost(totalCost), totalCostValue: totalCost, budgetPct, residentsProtected,
-    floodRiskReduction, delayToImpact: `+${delayYears} years`, implementationTime: `${timeMin}–${timeMax} months`,
-    valueForEffort, mainTradeoff,
-  };
-  void selectedScenario;
+  function boolToMeasure(v: boolean): 'yes' | 'no' { return v ? 'yes' : 'no'; }
+  function effortLevel(v: string): 'high' | 'moderate' | 'low' {
+    return v === 'Strong' ? 'high' : v === 'Moderate' ? 'moderate' : 'low';
+  }
+
+  function buildScenario(): ScenarioData {
+    return {
+      id: 'selected',
+      roleLabel: 'Your Simulation',
+      name: activeMeasures.length === 0 ? 'No measures selected' : activeMeasures.map(m => m.label).join(', '),
+      seaWall: boolToMeasure(active.seaWall),
+      raisedRoads: boolToMeasure(active.raisedRoads),
+      elevatedBuildings: boolToMeasure(active.elevatedBuildings),
+      elevatedWalkways: boolToMeasure(active.elevatedWalkways),
+      drainageUpgrade: boolToMeasure(active.drainageUpgrade),
+      utilityProtection: boolToMeasure(active.utilityProtection),
+      residentSupport: 'no',
+      totalCost: formatCost(totalCost),
+      totalCostValue: totalCost,
+      budgetPct,
+      residentsProtected,
+      floodRiskReduction,
+      delayToImpact: `+${delayYears} years`,
+      implementationTime: `${timeMin}–${timeMax} months`,
+      valueForEffort: effortLevel(valueForEffort),
+      mainTradeoff,
+    };
+  }
 
   return (
     <>
@@ -259,6 +292,69 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         </svg>
       </ScaledLayout>
 
+      {/* Progress bar — step 2 active */}
+      <div
+        className="glass-65 glass-shadow"
+        style={{
+          position: 'absolute',
+          top: Math.round(93 * scale),
+          left: 16 + Math.round(36 * scale) + 8,
+          right: 16,
+          height: Math.round(36 * scale),
+          borderRadius: Math.round(18 * scale),
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          zIndex: 20,
+        }}
+      >
+        <svg
+          width="100%" height="100%"
+          viewBox="0 0 1426 36"
+          preserveAspectRatio="none"
+          style={{ position: 'absolute', inset: 0, display: 'block' }}
+        >
+          {/* Step 1 completed */}
+          <polygon points="0,0 284,0 298,18 284,36 0,36" fill="rgba(30,41,57,0.25)" />
+          {/* Step 2 active */}
+          <polygon points="284,0 566,0 580,18 566,36 284,36 298,18" fill="#1e2939" />
+          <path d="M284,0 L298,18 L284,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M566,0 L580,18 L566,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M848,0 L862,18 L848,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+          <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
+        </svg>
+
+        {/* Step 1 */}
+        <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.7%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Assess critical zones
+          </span>
+        </div>
+        {/* Step 2 — active */}
+        <div style={{ position: 'absolute', left: '20.90%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Simulate response scenarios
+          </span>
+        </div>
+        {/* Step 3 */}
+        <div style={{ position: 'absolute', left: '40.67%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Compare intervention options
+          </span>
+        </div>
+        {/* Step 4 */}
+        <div style={{ position: 'absolute', left: '60.45%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Assign Teams & Tasks
+          </span>
+        </div>
+        {/* Step 5 */}
+        <div style={{ position: 'absolute', left: '80.22%', top: 0, width: '19.78%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.1%' }}>
+          <span style={{ fontSize: Math.round(13 * scale), fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Launch action plan
+          </span>
+        </div>
+      </div>
+
       <HomePageHeader reducedShadow={active.seaWall || active.raisedRoads} />
 
       {/* Left-side column — toggle panel stacked above the data card, as a
@@ -267,19 +363,19 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
           guessing). Rendered outside ScaledLayout with position:fixed so it
           stays flush with the true viewport left edge on any screen width
           (see ARCHITECTURE_AND_DESIGN_SYSTEM.md Section D pattern). */}
-      {/* Back button — same style as AssessCriticalZonesPage */}
+      {/* Back button — matches AssessCriticalZonesPage exactly */}
       <button
         onClick={onBack}
         style={{
-          position: 'fixed', top: 93, left: 16,
-          width: 36, height: 36, borderRadius: '50%',
+          position: 'absolute', top: Math.round(93 * scale), left: 16,
+          width: Math.round(36 * scale), height: Math.round(36 * scale), borderRadius: '50%',
           background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)',
           border: '1px solid rgba(0,0,0,0.10)', cursor: 'pointer', pointerEvents: 'auto', zIndex: 20,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 8px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.10)',
         }}
       >
-        <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
+        <span style={{ fontSize: Math.round(17 * scale), color: '#1e2939', lineHeight: 1 }}>←</span>
       </button>
 
       {/* Left column — scenario controls */}
@@ -311,7 +407,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
           ))}
           <div style={{ height: 1, background: 'rgba(0,0,0,0.08)' }} />
           <button
-            onClick={onCompare}
+            onClick={() => onCompare(buildScenario())}
             className="w-full flex items-center justify-center"
             style={{ height: 44, borderRadius: 14, background: 'rgba(16,24,40,0.9)', border: 'none', cursor: 'pointer', pointerEvents: 'auto' }}
           >
@@ -321,7 +417,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
       </div>
 
       {/* Top-right — summary card, horizontal layout */}
-      <div style={{ position: 'fixed', right: 16, top: 93, width: 520, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', right: 16, top: 141, width: 520, pointerEvents: 'none' }}>
         <div
           className="glass-shadow"
           style={{
@@ -348,7 +444,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
               <DonutChart pct={budgetPct} size={64} />
               <div>
                 <div style={{ fontSize: 20, fontWeight: 500, color: 'black', letterSpacing: '-0.44px', lineHeight: '24px' }}>{formatCost(totalCost)}</div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: '#6b778a' }}>of {formatCost(AVAILABLE_BUDGET)} · {budgetPct}%</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#6b778a' }}>of {formatCost(AVAILABLE_BUDGET)} · {budgetPct}%</div>
               </div>
             </div>
           </div>

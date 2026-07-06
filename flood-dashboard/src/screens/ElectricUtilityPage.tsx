@@ -93,13 +93,21 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
         gap: '14px', boxSizing: 'border-box',
       }}>
 
-        {/* Top card — image on top (260px) + text below */}
-        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
-          <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
+        {/* Top card — text left (1/3) + image right (2/3) */}
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
+          {/* Left — text */}
+          <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+            <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+              The utility point supports nearby residential and public-service areas. The response focuses on keeping essential power available during flood conditions by raising exposed electrical components and improving backup power reliability.
+            </p>
+          </div>
+          {/* Right — image (2/3) */}
+          <div style={{ flex: 2, position: 'relative' }}>
             <img
               src="/electric-utility-tab.png"
               alt="Electric utility area aerial view"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '28% 20%', display: 'block' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '40% 35%', display: 'block' }}
             />
             <button onClick={() => setIsEditing(e => !e)} style={{
               position: 'absolute', top: 12, right: 12, zIndex: 10,
@@ -112,12 +120,6 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
               <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
               <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
             </button>
-          </div>
-          <div style={{ padding: '20px 28px 24px' }}>
-            <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
-              The utility point supports nearby residential and public-service areas. The response focuses on keeping essential power available during flood conditions by raising exposed electrical components and improving backup power reliability.
-            </p>
           </div>
         </div>
 

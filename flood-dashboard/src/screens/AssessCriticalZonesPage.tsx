@@ -321,36 +321,55 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 20, paddingRight: 20, paddingTop: 16, paddingBottom: 16, gap: 14, boxSizing: 'border-box' }}>
 
           {/* Top card — image or colored banner + overview */}
-          <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
-            <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
-              {zoneImage ? (
-                <img
-                  src={zoneImage}
-                  alt={zone}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '28% 20%', display: 'block' }}
-                />
-              ) : (
-                <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${accent}18, ${accent}55, ${accent}33)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg viewBox="0 0 24 24" width={44} height={44} fill="none">
-                      <path d={zoneInfo.svgPath} fill={accent} />
-                    </svg>
+          {zone === 'Electric Utility Point' ? (
+            /* Side-by-side layout for Electric Utility (matches CoastalRoadAccessPage) */
+            <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
+              <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                  {data.description}
+                </p>
+              </div>
+              <div style={{ flex: 2, position: 'relative' }}>
+                <img src={zoneImage} alt={zone} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '40% 35%', display: 'block' }} />
+                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
+                  <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
+                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Stacked layout for all other zones */
+            <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
+              <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
+                {zoneImage ? (
+                  <img
+                    src={zoneImage}
+                    alt={zone}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '28% 20%', display: 'block' }}
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${accent}18, ${accent}55, ${accent}33)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg viewBox="0 0 24 24" width={44} height={44} fill="none">
+                        <path d={zoneInfo.svgPath} fill={accent} />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
-                <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
-              </button>
+                )}
+                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
+                  <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
+                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
+                </button>
+              </div>
+              <div style={{ padding: '20px 28px 24px' }}>
+                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                  {data.description}
+                </p>
+              </div>
             </div>
-            <div style={{ padding: '20px 28px 24px' }}>
-              <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
-              <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
-                {data.description}
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Bottom two columns */}
           <div style={{ flex: 1, display: 'flex', gap: 14, overflow: 'hidden', minHeight: 0 }}>

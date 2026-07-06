@@ -136,7 +136,7 @@ const implementationSteps = [
 ];
 
 export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, containerHeight }: Props) {
-  const embH = containerHeight ?? 826;
+  const embH = containerHeight ?? 852;
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPath, setIsEditingPath] = useState(false);
   const [animKey, setAnimKey] = useState(0);

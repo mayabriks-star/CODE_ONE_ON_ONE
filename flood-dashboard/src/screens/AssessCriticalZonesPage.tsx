@@ -491,7 +491,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
   // matching HomePageHeader's right-[16px], even when scale is height-constrained.
   const expandedWidth = Math.round((window.innerWidth - 16) / scale - 16);
   const rightPanelScale = (expandedWidth - 386) / 1512;
-  const rightPanelContainerH = Math.round(826 / rightPanelScale);
+  const rightPanelContainerH = Math.round(852 / rightPanelScale);
 
   // Maps each zone label to its navigation handler
   const ZONE_HANDLER: Record<string, (() => void) | undefined> = {

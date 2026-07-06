@@ -51,7 +51,7 @@ export default function ResidentialEdgePage({ onBack, onApprove: _onApprove, emb
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="screen-enter" style={{ height: embedded ? '826px' : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}>
+    <div className="screen-enter" style={{ height: embedded ? '852px' : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}>
       {embedded ? (
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
           <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#1e2939' }}>

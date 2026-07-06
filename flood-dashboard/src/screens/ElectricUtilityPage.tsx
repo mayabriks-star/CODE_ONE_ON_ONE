@@ -54,7 +54,7 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
   return (
     <div
       className="screen-enter"
-      style={{ height: embedded ? '826px' : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
+      style={{ height: embedded ? '852px' : '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
     >
       {embedded ? (
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>

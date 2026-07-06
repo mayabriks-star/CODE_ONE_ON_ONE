@@ -73,8 +73,19 @@ export default function App() {
         document.exitFullscreen().catch(() => {});
       }
     }
+    function handleFullscreenChange() {
+      // Give browser time to update dimensions, then notify map + components
+      setTimeout(() => {
+        mapRef.current?.resize();
+        window.dispatchEvent(new Event('resize'));
+      }, 80);
+    }
     window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      window.removeEventListener('keydown', handleKey);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -378,10 +389,10 @@ export default function App() {
             {/* Icon */}
             <div style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'linear-gradient(135deg,#00a63e,#34d36c)',
+              background: '#1e2939',
               margin: '0 auto 20px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(0,166,62,0.32)',
+              boxShadow: '0 8px 24px rgba(30,41,57,0.28)',
             }}>
               <svg width="26" height="20" viewBox="0 0 26 20" fill="none">
                 <path d="M2 10L9.5 17.5L24 2.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -391,7 +402,7 @@ export default function App() {
             <p style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.5px' }}>
               Plan Saved Successfully
             </p>
-            <p style={{ margin: '0 0 24px', fontSize: 14, fontWeight: 400, color: '#6b7280', lineHeight: '21px', letterSpacing: '-0.1px' }}>
+            <p style={{ margin: '0 0 24px', fontSize: 16, fontWeight: 400, color: '#6b7280', lineHeight: '24px', letterSpacing: '-0.1px' }}>
               Harbor District Adaptation Plan has been submitted for approval. All 5 team leads have been notified.
             </p>
 

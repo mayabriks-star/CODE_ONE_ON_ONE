@@ -242,17 +242,16 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
           boxSizing: 'border-box',
         }}
       >
-        {/* Top card — full-width image, text below */}
+        {/* Top card — image on top (260px) + text below */}
         <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
-          {/* Image full width */}
-          <div style={{ position: 'relative' }}>
-            <style>{ROAD_GLOW_STYLE}</style>
+          {/* Image section */}
+          <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
             <img
               src="/coastal-road-tab.png"
               alt="Coastal road aerial view"
-              style={{ width: '100%', height: 340, objectFit: 'cover', objectPosition: 'center 50%', display: 'block' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 50%', display: 'block' }}
             />
-            {/* Orange road highlight + path editor */}
+            {/* Path editor (edit handles only) */}
             <div style={{ position: 'absolute', inset: 0, pointerEvents: isEditingPath ? 'all' : 'none', overflow: 'hidden' }}>
               <svg
                 ref={svgRef}
@@ -262,79 +261,29 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
                 onMouseUp={onSvgMouseUp}
                 onMouseLeave={onSvgMouseUp}
               >
-                <defs>
-                  <filter id="rg-outer" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="18" />
-                  </filter>
-                  <filter id="rg-mid" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="8" />
-                  </filter>
-                </defs>
-
-                {/* Hidden path used only to measure total length */}
                 <path ref={measureRef} d={pathD} stroke="none" fill="none" />
-
-                {/* Glow layers — dash-animated along the actual path */}
-                <path className={isEditingPath ? undefined : 'road-glow-outer'}
-                  d={pathD} stroke="rgba(234,120,54,0.55)" strokeWidth="80" fill="none" strokeLinecap="round"
-                  filter="url(#rg-outer)"
-                  strokeDasharray={isEditingPath ? undefined : pathLen}
-                  strokeDashoffset={isEditingPath ? undefined : dashOffset}
-                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 2.2s cubic-bezier(0.4,0,0.2,1)' }} />
-                <path className={isEditingPath ? undefined : 'road-glow-mid'}
-                  d={pathD} stroke="rgba(251,146,60,0.65)" strokeWidth="32" fill="none" strokeLinecap="round"
-                  filter="url(#rg-mid)"
-                  strokeDasharray={isEditingPath ? undefined : pathLen}
-                  strokeDashoffset={isEditingPath ? undefined : dashOffset}
-                  style={isEditingPath ? undefined : { transition: 'stroke-dashoffset 2.2s cubic-bezier(0.4,0,0.2,1)' }} />
-
-                {/* Edit handles — only in path-edit mode */}
                 {isEditingPath && (
                   <>
-                    {/* Control-point guide lines */}
                     <line x1={pts.p0.x} y1={pts.p0.y} x2={pts.c0.x} y2={pts.c0.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
                     <line x1={pts.p1.x} y1={pts.p1.y} x2={pts.c1.x} y2={pts.c1.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
                     <line x1={pts.p1.x} y1={pts.p1.y} x2={pts.c2.x} y2={pts.c2.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
                     <line x1={pts.p2.x} y1={pts.p2.y} x2={pts.c3.x} y2={pts.c3.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
                     <line x1={pts.p2.x} y1={pts.p2.y} x2={pts.c4.x} y2={pts.c4.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
                     <line x1={pts.p3.x} y1={pts.p3.y} x2={pts.c5.x} y2={pts.c5.y} stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
-
-                    {/* Control points — hollow */}
                     {CTRL_KEYS.map(k => (
                       <circle key={k} cx={pts[k].x} cy={pts[k].y} r={7}
                         fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.5"
-                        style={{ cursor: 'grab' }}
-                        onMouseDown={e => onHandleDown(k, e)} />
+                        style={{ cursor: 'grab' }} onMouseDown={e => onHandleDown(k, e)} />
                     ))}
-
-                    {/* Anchor points — filled orange */}
                     {ANCHOR_KEYS.map(k => (
                       <circle key={k} cx={pts[k].x} cy={pts[k].y} r={9}
                         fill="#fb923c" stroke="white" strokeWidth="2"
-                        style={{ cursor: 'grab' }}
-                        onMouseDown={e => onHandleDown(k, e)} />
+                        style={{ cursor: 'grab' }} onMouseDown={e => onHandleDown(k, e)} />
                     ))}
                   </>
                 )}
               </svg>
             </div>
-
-            {/* Path-edit toggle — bottom-left of image */}
-            <button
-              onClick={() => { setIsEditingPath(e => { if (e) setAnimKey(k => k + 1); return !e; }); }}
-              style={{
-                position: 'absolute', bottom: 12, left: 12, zIndex: 10,
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 100,
-                background: isEditingPath ? '#fb923c' : 'rgba(255,255,255,0.9)',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-                color: isEditingPath ? 'white' : '#364153',
-              }}
-            >
-              {isEditingPath ? 'Done' : 'Edit road line'}
-            </button>
-            {/* Edit button — over image, top-right */}
             <button
               onClick={() => setIsEditing(e => !e)}
               style={{
@@ -343,19 +292,18 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
                 padding: '6px 14px 6px 10px', borderRadius: 100,
                 background: isEditing ? '#101828' : 'white',
                 boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
-                border: 'none', cursor: 'pointer',
-                transition: 'background 0.2s ease',
+                border: 'none', cursor: 'pointer', transition: 'background 0.2s ease',
               }}
             >
               <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
               <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
             </button>
           </div>
-          {/* Text below image */}
+          {/* Text section below image */}
           <div style={{ padding: '20px 28px 24px' }}>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
             <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
-              The coastal road serves 620 residents as a primary evacuation and emergency access corridor. Exposed to storm surge and rising sea levels, it faces critical elevation vulnerabilities — without intervention, access to the Harbor District will be compromised during high-water events, disrupting evacuation routes and daily mobility.
+              The coastal road is the primary evacuation route for 620 residents. Rising sea levels and storm surge create critical elevation vulnerabilities — without intervention, Harbor District access will be lost during high-water events.
             </p>
           </div>
         </div>

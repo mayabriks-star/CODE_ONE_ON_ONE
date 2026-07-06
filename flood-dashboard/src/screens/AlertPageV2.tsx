@@ -395,11 +395,11 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                     padding: `${18 * s}px ${14 * s}px`,
                     display: 'flex', flexDirection: 'column',
                     background: isActive
-                      ? 'rgba(30,41,57,0.96)'
-                      : isHovered ? 'rgba(0,0,0,0.055)' : 'rgba(0,0,0,0.03)',
+                      ? 'linear-gradient(rgba(40,100,228,0.06),rgba(40,100,228,0.06)), #fff'
+                      : isHovered ? 'rgba(255,255,255,0.95)' : 'white',
                     cursor: isActive ? 'pointer' : 'default',
                     transition: 'background 0.15s ease',
-                    border: isActive ? 'none' : `1px solid rgba(0,0,0,0.07)`,
+                    border: isActive ? '1px solid rgba(30,41,57,0.2)' : '1px solid rgba(0,0,0,0.1)',
                     minWidth: 0,
                   }}
                   onMouseEnter={() => setHoveredStep(i)}
@@ -410,12 +410,13 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 * s }}>
                     <div style={{
                       width: 34 * s, height: 34 * s, borderRadius: 10 * s, flexShrink: 0,
-                      background: isActive ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)',
+                      background: isActive ? 'rgba(30,41,57,0.08)' : 'rgba(0,0,0,0.06)',
+                      border: isActive ? '1px solid rgba(30,41,57,0.15)' : '1px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <StepIcon size={16 * s} color={isActive ? 'rgba(255,255,255,0.85)' : '#6b7280'} strokeWidth={2} />
+                      <StepIcon size={16 * s} color={isActive ? '#1e2939' : '#6b7280'} strokeWidth={2} />
                     </div>
-                    <span style={{ fontSize: 20 * s, fontWeight: 700, letterSpacing: '-0.5px', color: isActive ? 'white' : 'rgba(0,0,0,0.15)' }}>
+                    <span style={{ fontSize: 20 * s, fontWeight: 700, letterSpacing: '-0.5px', color: isActive ? '#1e2939' : 'rgba(0,0,0,0.15)' }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                   </div>
@@ -423,7 +424,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                   {/* Title */}
                   <span style={{
                     fontSize: 17 * s, fontWeight: 700,
-                    color: isActive ? 'white' : '#1e2939',
+                    color: '#1e2939',
                     letterSpacing: '-0.4px', lineHeight: `${23 * s}px`,
                     marginBottom: 7 * s,
                   }}>
@@ -433,23 +434,23 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                   {/* Description */}
                   <span style={{
                     fontSize: 15 * s, fontWeight: 500,
-                    color: isActive ? 'rgba(255,255,255,0.55)' : '#6b7280',
+                    color: '#6b7280',
                     lineHeight: `${21 * s}px`, letterSpacing: '-0.2px',
                     marginBottom: 14 * s,
                   }}>
                     {step.description}
                   </span>
 
-                  <div style={{ height: 1, background: isActive ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)', marginBottom: 11 * s, flexShrink: 0 }} />
+                  <div style={{ height: 1, background: isActive ? 'rgba(40,100,228,0.12)' : 'rgba(0,0,0,0.07)', marginBottom: 11 * s, flexShrink: 0 }} />
 
                   {/* Bullet points */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 7 * s }}>
                     {step.points.map(pt => (
                       <div key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 * s }}>
-                        <ChevronRight size={13 * s} color={isActive ? 'rgba(255,255,255,0.4)' : '#9ca3af'} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 3 * s }} />
+                        <ChevronRight size={13 * s} color="#9ca3af" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 3 * s }} />
                         <span style={{
                           fontSize: 14 * s, fontWeight: 500,
-                          color: isActive ? 'rgba(255,255,255,0.68)' : '#6b7280',
+                          color: '#6b7280',
                           lineHeight: `${20 * s}px`, letterSpacing: '-0.2px',
                         }}>
                           {pt}

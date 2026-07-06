@@ -27,11 +27,25 @@ function easeOut(t: number): number {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
+  const [screenHistory, setScreenHistory] = useState<Screen[]>([]);
   const [transiting, setTransiting] = useState<'none' | 'zoom-in' | 'zoom-out'>('none');
   const [detailReturnScreen, setDetailReturnScreen] = useState<'assess-critical-zones' | 'planning'>('assess-critical-zones');
   const [approvedZones, setApprovedZones] = useState<string[]>([]);
   const [simulatedScenario, setSimulatedScenario] = useState<ScenarioData | null>(null);
   const [planActivated, setPlanActivated] = useState(false);
+
+  function navigate(to: Screen) {
+    setScreenHistory(h => [...h, screen]);
+    setScreen(to);
+  }
+
+  function handleMenuBack() {
+    setScreenHistory(h => {
+      const prev = h[h.length - 1];
+      if (prev) setScreen(prev);
+      return h.slice(0, -1);
+    });
+  }
   const assessVisited = useRef(false);
 
   const s2Ref = useRef<HTMLDivElement | null>(null);
@@ -86,40 +100,40 @@ export default function App() {
   }
 
   function handleOpenAssessCriticalZones() {
-    setScreen('assess-critical-zones');
+    navigate('assess-critical-zones');
   }
 
   function handleOpenComparison(scenario: ScenarioData) {
     setSimulatedScenario(scenario);
-    setScreen('compare-scenarios');
+    navigate('compare-scenarios');
   }
 
   function handleOpenAllocateBudget() {
-    setScreen('allocate-budget-teams');
+    navigate('allocate-budget-teams');
   }
 
   function handleOpenSimulateScenarios() {
-    setScreen('simulate-scenarios');
+    navigate('simulate-scenarios');
   }
 
   function handleOpenCoastalRoad(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
     setDetailReturnScreen(from);
-    setScreen('coastal-road');
+    navigate('coastal-road');
   }
 
   function handleOpenVulnerableResidents(from: 'assess-critical-zones' | 'planning' = 'assess-critical-zones') {
     setDetailReturnScreen(from);
-    setScreen('vulnerable-residents');
+    navigate('vulnerable-residents');
   }
 
   function handleOpenElectricUtility() {
     setDetailReturnScreen('assess-critical-zones');
-    setScreen('electric-utility');
+    navigate('electric-utility');
   }
 
   function handleOpenResidentialEdge() {
     setDetailReturnScreen('assess-critical-zones');
-    setScreen('residential-edge');
+    navigate('residential-edge');
   }
 
   function handleOpenPumpCapacity() {
@@ -207,7 +221,7 @@ export default function App() {
             : { zIndex: 10, pointerEvents: 'none' }
           }
         >
-          <HomePageAlert onRedZoneClick={handleRedZoneClick} map={mapRef.current} planActivated={planActivated} />
+          <HomePageAlert onRedZoneClick={handleRedZoneClick} map={mapRef.current} planActivated={planActivated} onMenu={screenHistory.length > 0 ? handleMenuBack : undefined} />
         </div>
       )}
 
@@ -269,7 +283,18 @@ export default function App() {
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AllocateBudgetTeamsPage
             onBack={() => setScreen('compare-scenarios')}
-            onContinue={() => { setPlanActivated(true); setScreen('home-alert'); }}
+            onContinue={() => {
+              setPlanActivated(true);
+              navigate('home-alert');
+              mapRef.current?.flyTo({
+                center: [-80.1918, 25.765],
+                zoom: 15.3,
+                pitch: 50,
+                bearing: -20,
+                duration: 1200,
+                essential: true,
+              });
+            }}
             map={mapRef.current}
           />
         </div>

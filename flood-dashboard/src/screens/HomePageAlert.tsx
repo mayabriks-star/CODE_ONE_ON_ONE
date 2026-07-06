@@ -14,6 +14,7 @@ interface Props {
   onRedZoneClick: () => void;
   map?: any;
   planActivated?: boolean;
+  onMenu?: () => void;
 }
 
 // Hazard-zone outline, captured as real lng/lat via the click-to-pin debug tool
@@ -113,7 +114,7 @@ const HAZARD_ZONE_POLYGON = {
 // Strip this whole block out once the new HAZARD_ZONE_RING is hardcoded.
 const DEBUG_MODE = new URLSearchParams(window.location.search).get('debug') === '1';
 
-export default function HomePageAlert({ onRedZoneClick, map, planActivated }: Props) {
+export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMenu }: Props) {
   const [zoneVisible, setZoneVisible] = useState(DEBUG_MODE);
   const [zoneHovered, setZoneHovered] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
@@ -452,7 +453,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated }: Pr
         />
       )}
 
-      <HomePageHeader showBadge map={map} />
+      <HomePageHeader showBadge map={map} onMenu={onMenu} />
     </>
   );
 }

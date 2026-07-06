@@ -212,9 +212,8 @@ const ZONE_DETAIL_DATA: Record<string, ZoneDetailData> = {
     steps: [
       { label: 'Model Network Performance:', desc: 'Simulate drainage capacity under peak storm scenarios to identify highest-priority failure points and bottlenecks.' },
       { label: 'Upgrade Pump Stations:', desc: 'Replace current units with higher-capacity pumps rated for a 100-year storm event at the three main drainage outfalls.' },
-      { label: 'Expand Retention Basins:', desc: 'Add underground retention capacity at critical network junctions to buffer peak discharge volumes.' },
+      { label: 'Expand Retention & Reroute Overflow:', desc: 'Add underground retention capacity at critical junctions and redirect excess flow to secondary discharge points to reduce peak load.' },
       { label: 'Upgrade Pipe Infrastructure:', desc: 'Replace undersized pipe segments along the main collection route to eliminate flow restrictions under heavy rainfall.' },
-      { label: 'Reroute Overflow Channels:', desc: 'Redirect excess flow to secondary discharge points to reduce peak load on the primary drainage network.' },
       { label: 'Install Flow Monitoring:', desc: 'Place sensors at key network nodes and configure real-time monitoring for adaptive system management.' },
     ],
     costItems: [

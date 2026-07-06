@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
 
 interface Props {
@@ -6,90 +6,31 @@ interface Props {
   onApprove: () => void;
 }
 
-function RiskGauge() {
-  const cx = 50;
-  const cy = 46;
-  const r = 34;
-  const strokeW = 7;
-  const startAngle = 215;
-  const endAngle = 145;
-  const fillPct = 8.1 / 10;
-
-  function polarToXY(angle: number, radius: number) {
-    const rad = ((angle - 90) * Math.PI) / 180;
-    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
-  }
-
-  function arcPath(from: number, to: number) {
-    const s = polarToXY(from, r);
-    const e = polarToXY(to, r);
-    const clockwiseSpan = ((to - from) % 360 + 360) % 360;
-    const large = clockwiseSpan > 180 ? 1 : 0;
-    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
-  }
-
-  const totalSpan = ((endAngle - startAngle) % 360 + 360) % 360;
-  const activeEnd = (startAngle + totalSpan * fillPct) % 360;
-
-  return (
-    <svg viewBox="0 0 100 82" width={100} height={82}>
-      <path d={arcPath(startAngle, endAngle)} fill="none" stroke="#e5e7eb" strokeWidth={strokeW} strokeLinecap="round" />
-      <path d={arcPath(startAngle, activeEnd)} fill="none" stroke="#0b1f3a" strokeWidth={strokeW} strokeLinecap="round" />
-      <text x={cx} y={52} textAnchor="middle" fontSize={19} fontWeight="bold" fill="#0b1f3a" fontFamily="Inter, sans-serif">8.1</text>
-      <text x={cx} y={64} textAnchor="middle" fontSize={6.5} fill="#6b778a" fontFamily="Inter, sans-serif">Risk Score</text>
-    </svg>
-  );
-}
-
 function DonutChart() {
-  const cx = 93;
-  const cy = 93;
-  const r = 55;
-  const circum = 2 * Math.PI * r;
-
-  // 46% dark blue, 29% medium blue, 25% light blue
+  const cx = 73, cy = 73, r = 43, circum = 2 * Math.PI * r;
   const segments = [
-    { pct: 0.46, color: '#1A3C9E', label: '46%', lx: 148, ly: 86 },
-    { pct: 0.29, color: '#2864E4', label: '29%', lx: 60,  ly: 137 },
-    { pct: 0.25, color: '#7AA5F0', label: '25%', lx: 54,  ly: 54 },
+    { pct: 0.46, color: '#1A3C9E' },
+    { pct: 0.29, color: '#2864E4' },
+    { pct: 0.25, color: '#7AA5F0' },
   ];
-
   let offset = 0;
-  const arcs = segments.map((seg) => {
-    const dash = seg.pct * circum;
-    const gap = circum - dash;
+  const arcs = segments.map(seg => {
+    const dash = seg.pct * circum, gap = circum - dash;
     const rotation = (offset / circum) * 360 - 90;
     offset += dash;
     return { ...seg, dash, gap, rotation };
   });
-
   return (
-    <div style={{ position: 'relative', width: 186, height: 186, flexShrink: 0 }}>
-      <svg viewBox="0 0 186 186" width={186} height={186}>
-        <circle cx={cx} cy={cy} r={55} fill="none" stroke="#f3f4f6" strokeWidth={30} />
-        {arcs.map((arc) => (
-          <circle
-            key={arc.label}
-            cx={cx}
-            cy={cy}
-            r={r}
-            fill="none"
-            stroke={arc.color}
-            strokeWidth={30}
-            strokeDasharray={`${arc.dash} ${arc.gap}`}
-            strokeDashoffset={0}
-            transform={`rotate(${arc.rotation} ${cx} ${cy})`}
-          />
-        ))}
-        {segments.map((seg) => (
-          <text key={seg.label} x={seg.lx} y={seg.ly} fontSize={12} fontWeight="600" fill="#364153" fontFamily="Inter, sans-serif" textAnchor="middle">
-            {seg.label}
-          </text>
+    <div style={{ position: 'relative', width: 146, height: 146, flexShrink: 0 }}>
+      <svg viewBox="0 0 146 146" width={146} height={146}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f3f4f6" strokeWidth={24} />
+        {arcs.map((arc, i) => (
+          <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={arc.color} strokeWidth={24}
+            strokeDasharray={`${arc.dash} ${arc.gap}`} strokeDashoffset={0}
+            transform={`rotate(${arc.rotation} ${cx} ${cy})`} />
         ))}
       </svg>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 20, fontWeight: 700, color: '#323232', pointerEvents: 'none' }}>
-        9.2M
-      </div>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 17, fontWeight: 700, color: '#323232' }}>9.2M</div>
     </div>
   );
 }
@@ -105,32 +46,11 @@ const implementationSteps = [
 const ACCENT = '#2864e4';
 const ACCENT_BG = 'rgba(40,100,228,0.2)';
 
-export default function PumpCapacityPage({ onBack, onApprove }: Props) {
-  const DESIGN_RIGHT_HEIGHT = 788;
-  const [rightScale, setRightScale] = useState(() =>
-    Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT)
-  );
+export default function PumpCapacityPage({ onBack, onApprove: _onApprove }: Props) {
   const [isEditing, setIsEditing] = useState(false);
-  useEffect(() => {
-    const update = () =>
-      setRightScale(Math.min(1, (window.innerHeight - 135) / DESIGN_RIGHT_HEIGHT));
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
-
-  const editStyle: React.CSSProperties = isEditing ? {
-    outline: '1.5px dashed rgba(0,0,0,0.18)',
-    borderRadius: 4,
-    padding: '2px 4px',
-    cursor: 'text',
-  } : {};
 
   return (
-    <div
-      className="screen-enter"
-      style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}
-    >
-      {/* Header */}
+    <div className="screen-enter" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}>
       <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
           <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
@@ -145,214 +65,95 @@ export default function PumpCapacityPage({ onBack, onApprove }: Props) {
             <ArrowLeft size={20} />
           </button>
           <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-            Assess Critical Zones- Increase pump capacity
+            Assess Critical Zones — Increase Pump Capacity
           </span>
         </div>
       </div>
 
-      {/* Body */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          overflow: 'hidden',
-          paddingLeft: '70px',
-          paddingRight: '70px',
-          paddingTop: '20px',
-          paddingBottom: 0,
-          gap: '42px',
-          boxSizing: 'border-box',
-        }}
-      >
-        {/* Left column — scrollable */}
-        <div className="no-scrollbar" style={{ width: '724px', flexShrink: 0, overflowY: 'auto', paddingBottom: '35px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: '70px', paddingRight: '70px', paddingTop: '16px', paddingBottom: '16px', gap: '14px', boxSizing: 'border-box' }}>
 
-          {/* Map image with overlay tab */}
-          <div style={{ position: 'relative' }}>
-            <img
-              src="/costal-road-map.jpg"
-              alt="Pump capacity area aerial view"
-              style={{ width: '100%', height: '341px', objectFit: 'cover', borderRadius: '20px 20px 0 0', display: 'block' }}
-            />
-            <div style={{ position: 'absolute', bottom: '30px', left: '365px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.9)', borderRadius: '9999px', padding: '4px 10px 4px 4px' }}>
-                <img src="/icons/tab-water.svg" alt="" width={27} height={27} style={{ flexShrink: 0 }} />
-                <div>
-                  <p style={{ margin: 0, fontSize: '9px', fontWeight: 600, color: '#101828', lineHeight: '14px' }}>Increase pump capacity</p>
-                  <p style={{ margin: 0, fontSize: '9px', fontWeight: 500, color: '#505153', lineHeight: '14px' }}>Back-flow risk</p>
-                </div>
-              </div>
-              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.7)', marginLeft: 18 }} />
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(255,255,255,0.7)', marginLeft: 14 }} />
-            </div>
+        {/* Top card — image on top (260px) + text below */}
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
+          <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
+            <img src="/costal-road-map.jpg" alt="Pump capacity area" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 50%', display: 'block' }} />
+            <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s ease' }}>
+              <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
+            </button>
           </div>
-
-          {/* White action plan card */}
-          <div style={{ background: 'white', borderRadius: '0 0 20px 20px', padding: '20px 24px 24px 24px', boxSizing: 'border-box' }}>
-
-            <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Action Plan Overview</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '512px', ...editStyle }}>
+          <div style={{ padding: '20px 28px 24px' }}>
+            <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
               The drainage system must handle higher water levels, storm surge, and street runoff without allowing floodwater and sewage overflow to block local roads. The response focuses on increasing pump capacity, improving drainage routes, and protecting outflow points.
             </p>
+          </div>
+        </div>
 
-            <div style={{ borderTop: '1px solid #cfcccc', marginTop: '20px' }} />
+        {/* Bottom two columns */}
+        <div style={{ flex: 1, display: 'flex', gap: '14px', overflow: 'hidden', minHeight: 0 }}>
 
-            <p style={{ margin: '20px 0 0 0', fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Implementation Steps</p>
-            <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px', width: '512px' }}>
-              {implementationSteps.map((step) => (
-                <div key={step.n} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                  <div style={{ flexShrink: 0, paddingTop: '2px' }}>
-                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '8.8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.18px' }}>{step.n}</span>
+          {/* Left — Implementation Steps */}
+          <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+            <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {implementationSteps.map(step => (
+                <div key={step.n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, paddingTop: 3 }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{step.n}</span>
                     </div>
                   </div>
-                  <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '13px', lineHeight: '20.15px', letterSpacing: '-0.08px', ...editStyle }}>
-                    <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>
-                    {' '}
+                  <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                    <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
                     <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
                   </p>
                 </div>
               ))}
             </div>
-
-            <div style={{ borderTop: '1px solid #cfcccc', marginTop: '20px' }} />
-
-            <p style={{ margin: '20px 0 0 0', fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.31px', lineHeight: '24px' }}>Implementation Approach</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '578px', ...editStyle }}>
-              Drainage upgrades should prioritize locations where flooded streets block access or create unsafe conditions. Work should be coordinated with road access planning and utility teams to prevent conflicts and support continuous local movement during implementation.
-            </p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '20.8px', letterSpacing: '-0.08px', width: '579px', ...editStyle }}>
-              Phased commissioning and testing will confirm system performance before storm season. Monitoring points will support ongoing maintenance and early-warning response during high-water periods.
-            </p>
-
-            {/* Bottom image card */}
-            <div style={{ marginTop: '16px', border: '1px solid #cfcccc', borderRadius: '15px', display: 'flex', overflow: 'hidden', alignItems: 'stretch', width: '100%' }}>
-              <img
-                src="/costal-road-pile.jpg"
-                alt="Pump and drainage capacity upgrade"
-                style={{ width: '325px', flexShrink: 0, objectFit: 'cover' }}
-              />
-              <div style={{ flex: 1, padding: '20px 20px 20px 24px' }}>
-                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#364153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
-                  Pump and Drainage Capacity Upgrade
-                </p>
-                <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '8px 0 0 0', fontSize: '11px', fontWeight: 400, color: '#505153', lineHeight: '20px', letterSpacing: '-0.44px', ...editStyle }}>
-                  Increasing pump capacity and improving drainage routes helps reduce sewage overflow, road flooding, and blocked local access.
-                </p>
-              </div>
-            </div>
-
           </div>
-        </div>
 
-        {/* Right column — proportionally scaled to viewport height */}
-        <div style={{ width: '606px', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: `${100 / rightScale}%`,
-              transformOrigin: 'top left',
-              transform: `scale(${rightScale})`,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+          {/* Right — Cost & Budget + Schedule */}
+          <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
 
-              {/* Problem Summary */}
-              <div style={{ background: 'white', borderRadius: '20px', height: '151px', display: 'flex', alignItems: 'center', gap: '45px', padding: '0 16px', flexShrink: 0 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingTop: '12px', paddingBottom: '16px' }}>
-                  <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '19.5px', letterSpacing: '-0.08px', whiteSpace: 'nowrap' }}>Problem Summary</p>
-                  <p style={{ margin: '6px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '19.2px', width: '359px' }}>
-                    Sewage overflow and road flooding from overloaded drainage channels block streets and disrupt local access. Increased pump capacity is required to reduce standing water and support faster drainage during high-water events.
-                  </p>
-                </div>
-                <div style={{ width: '1px', height: '91px', background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100px', flexShrink: 0 }}>
-                  <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '19.5px', whiteSpace: 'nowrap' }}>Risk Level</p>
-                  <RiskGauge />
-                </div>
-              </div>
-
-              {/* Cost & Budget */}
-              <div style={{ background: 'white', borderRadius: '20px', height: '286px', padding: '0 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexShrink: 0 }}>
-                <div style={{ paddingLeft: '25px' }}>
-                  <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', lineHeight: '18px', letterSpacing: '-0.15px', whiteSpace: 'nowrap' }}>Cost &amp; Budget</p>
-                  <p style={{ margin: '10px 0 0 0', fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: '16px', letterSpacing: '0.06px', maxWidth: '519px' }}>
-                    Implementation is estimated over 12–16 months with an estimated total budget of $9.2M, allocated across pump station upgrades, drainage expansion, and outflow protection systems.
-                  </p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '25px', gap: '75px' }}>
-                  <DonutChart />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '17px', width: '280px', flexShrink: 0 }}>
-                    {[
-                      { color: '#1A3C9E', text: 'Pump Station Upgrade', value: '$4.2M' },
-                      { color: '#2864E4', text: 'Drainage Channel Expansion', value: '$2.7M' },
-                      { color: '#7AA5F0', text: 'Outflow Protection & Monitoring', value: '$2.3M' },
-                    ].map((item) => (
-                      <div key={item.value} style={{ display: 'flex', gap: '15px', alignItems: 'flex-start' }}>
-                        <div style={{ width: 17, height: 17, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: 400, color: '#505153', lineHeight: 'normal' }}>
-                          {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Implementation Schedule */}
-              <div style={{ background: 'white', borderRadius: '20px', height: '196px', paddingLeft: '43px', paddingRight: '43px', display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center', flexShrink: 0 }}>
-                <p style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#364153' }}>Implementation Schedule</p>
-                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '38px' }}>
-                  <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: '116px', background: '#364153', zIndex: 0 }} />
+            <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flexShrink: 0 }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                <DonutChart />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 16 }}>
                   {[
-                    { label: 'Hydraulic Review & Planning', value: '0–3 months' },
-                    { label: 'Pump and Drainage Works', value: '3–12 months' },
-                    { label: 'Testing & Optimization', value: '12–16 months' },
-                  ].map((item) => (
-                    <div key={item.label} style={{ display: 'flex', gap: '15px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                      <p style={{ margin: 0, fontSize: '14px', color: '#364153', whiteSpace: 'nowrap' }}>
-                        <span style={{ color: '#505153' }}>{item.label}</span>
-                        {' '}
-                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                    { color: '#1A3C9E', text: 'Pump Station Upgrade', value: '4.2M' },
+                    { color: '#2864E4', text: 'Drainage Channel Expansion', value: '2.7M' },
+                    { color: '#7AA5F0', text: 'Outflow Protection & Monitoring', value: '2.3M' },
+                  ].map(item => (
+                    <div key={item.text} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <div style={{ width: 14, height: 14, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                      <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#505153', lineHeight: 'normal' }}>
+                        {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
                       </p>
                     </div>
                   ))}
                 </div>
               </div>
-
             </div>
 
-            {/* Buttons */}
-            <div style={{ marginTop: '55px', display: 'flex', gap: '30px', justifyContent: 'center' }}>
-              <button
-                onClick={() => setIsEditing(e => !e)}
-                style={{
-                  width: '233px', height: '40px',
-                  border: '1px solid #323232', borderRadius: '100px',
-                  background: 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '17px',
-                  cursor: 'pointer', fontSize: '16px', fontWeight: 500, color: '#323232', letterSpacing: '-0.44px',
-                }}
-              >
-                <Pencil size={16} />
-                {isEditing ? 'Done' : 'Edit plan'}
-              </button>
-              <button
-                onClick={onApprove}
-                style={{
-                  width: '233px', height: '40px',
-                  background: '#323232', border: '1px solid #323232', borderRadius: '100px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', fontSize: '16px', fontWeight: 500, color: '#f8f8f8', letterSpacing: '-0.44px',
-                }}
-              >
-                Approve area plan
-              </button>
+            <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
+              <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
+              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+                {[
+                  { label: 'Hydraulic Review & Planning', value: '0–3 months' },
+                  { label: 'Pump and Drainage Works', value: '3–12 months' },
+                  { label: 'Testing & Optimization', value: '12–16 months' },
+                ].map(item => (
+                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
+                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
+                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                      <span style={{ fontWeight: 700 }}>{item.value}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>

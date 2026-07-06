@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl'
 import { SEA_WALL_CONFIG } from './seaWallConfig.js'
 import { RAISED_ROADS_CONFIG } from './raisedRoadsConfig.js'
 import { ELEVATED_BUILDINGS_CONFIG } from './elevatedBuildingsConfig.js'
+import { ELEVATED_WALKWAY_CONFIG } from './elevatedWalkwayConfig.js'
 
 // ─── Shared geometry helpers ──────────────────────────────────────────────────
 
@@ -130,6 +131,21 @@ function buildColumnsGeoJSON(path, cfg) {
   }
 }
 
+
+// ─── Elevated walkway helpers ─────────────────────────────────────────────────
+
+function offsetPath(path, offsetMeters) {
+  const { mPerLng, mPerLat } = pathScale(path)
+  return path.map((pt, i) => {
+    const a = path[Math.max(0, i - 1)]
+    const b = path[Math.min(path.length - 1, i + 1)]
+    const dx = (b[0] - a[0]) * mPerLng
+    const dy = (b[1] - a[1]) * mPerLat
+    const len = Math.hypot(dx, dy) || 1
+    const px = -dy / len, py = dx / len
+    return [pt[0] + px * offsetMeters / mPerLng, pt[1] + py * offsetMeters / mPerLat]
+  })
+}
 
 // ─── Draggable marker factory ─────────────────────────────────────────────────
 
@@ -300,6 +316,11 @@ const add = () => {
   const [ebElevation, setEbElevation] = useState(ebElevationRef.current)
   const ebCornerMarkersRef = useRef([])  // [building][corner] → Marker
   const ebHeightHandleRef  = useRef([])  // [building] → Marker
+
+  // ── Elevated walkway state ─────────────────────────────────────────────────
+  const ewPathRef = useRef([...ELEVATED_WALKWAY_CONFIG.pathCoordinates])
+  const [ewDisplay, setEwDisplay] = useState(ewPathRef.current)
+  const [ewCopied, setEwCopied] = useState(false)
 
   // ── Elevated buildings: add layers ────────────────────────────────────────
   useEffect(() => {
@@ -576,6 +597,110 @@ const add = () => {
     return () => allHandles.forEach(m => m.remove())
   }, [map])
 
+  // ── Elevated walkway: add layers ───────────────────────────────────────────
+  useEffect(() => {
+    if (!map) return
+    const cfg = ELEVATED_WALKWAY_CONFIG
+    const slabBase = cfg.deckHeightMeters - cfg.slabThicknessMeters
+    const railingTop = cfg.deckHeightMeters + cfg.railingHeightMeters
+    const edgeOffset = (cfg.deckWidthMeters / 2) - (cfg.railingWidthMeters / 2)
+
+    const add = () => {
+      const deckLayerId = map.getStyle()?.layers?.find(l => l.type === 'custom')?.id
+
+      try {
+        if (!map.getSource('ew-cols-src'))
+          map.addSource('ew-cols-src', { type: 'geojson', data: buildColumnsGeoJSON(ewPathRef.current, cfg) })
+        if (!map.getLayer('ew-cols-layer'))
+          map.addLayer({ id: 'ew-cols-layer', type: 'fill-extrusion', source: 'ew-cols-src', paint: {
+            'fill-extrusion-color': cfg.columnColor, 'fill-extrusion-base': 0,
+            'fill-extrusion-height': slabBase, 'fill-extrusion-opacity': 0,
+            'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+          }}, deckLayerId)
+      } catch (e) { console.warn('[EW] columns error:', e) }
+
+      try {
+        if (!map.getSource('ew-deck-src'))
+          map.addSource('ew-deck-src', { type: 'geojson',
+            data: polygonFeature(buildRibbonPolygon(ewPathRef.current, cfg.deckWidthMeters)) })
+        if (!map.getLayer('ew-deck-layer'))
+          map.addLayer({ id: 'ew-deck-layer', type: 'fill-extrusion', source: 'ew-deck-src', paint: {
+            'fill-extrusion-color': cfg.deckColor, 'fill-extrusion-base': slabBase,
+            'fill-extrusion-height': cfg.deckHeightMeters, 'fill-extrusion-opacity': 0,
+            'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+          }}, deckLayerId)
+      } catch (e) { console.warn('[EW] deck error:', e) }
+
+      try {
+        if (!map.getSource('ew-rail-left-src'))
+          map.addSource('ew-rail-left-src', { type: 'geojson',
+            data: polygonFeature(buildRibbonPolygon(offsetPath(ewPathRef.current, edgeOffset), cfg.railingWidthMeters)) })
+        if (!map.getLayer('ew-rail-left-layer'))
+          map.addLayer({ id: 'ew-rail-left-layer', type: 'fill-extrusion', source: 'ew-rail-left-src', paint: {
+            'fill-extrusion-color': cfg.railingColor, 'fill-extrusion-base': cfg.deckHeightMeters,
+            'fill-extrusion-height': railingTop, 'fill-extrusion-opacity': 0,
+            'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+          }}, deckLayerId)
+      } catch (e) { console.warn('[EW] left railing error:', e) }
+
+      try {
+        if (!map.getSource('ew-rail-right-src'))
+          map.addSource('ew-rail-right-src', { type: 'geojson',
+            data: polygonFeature(buildRibbonPolygon(offsetPath(ewPathRef.current, -edgeOffset), cfg.railingWidthMeters)) })
+        if (!map.getLayer('ew-rail-right-layer'))
+          map.addLayer({ id: 'ew-rail-right-layer', type: 'fill-extrusion', source: 'ew-rail-right-src', paint: {
+            'fill-extrusion-color': cfg.railingColor, 'fill-extrusion-base': cfg.deckHeightMeters,
+            'fill-extrusion-height': railingTop, 'fill-extrusion-opacity': 0,
+            'fill-extrusion-opacity-transition': { duration: cfg.transitionDuration, delay: 0 },
+          }}, deckLayerId)
+      } catch (e) { console.warn('[EW] right railing error:', e) }
+
+      if (cfg.debugMode) {
+        if (!map.getSource('ew-debug-src'))
+          map.addSource('ew-debug-src', { type: 'geojson', data: debugGeoJSON(ewPathRef.current) })
+        if (!map.getLayer('ew-debug-dots'))
+          map.addLayer({ id: 'ew-debug-dots', type: 'circle', source: 'ew-debug-src',
+            paint: { 'circle-radius': 7, 'circle-color': '#ffd700', 'circle-stroke-color': '#000', 'circle-stroke-width': 1.5 } })
+      }
+      console.log('[EW] layers added. deck src:', !!map.getSource('ew-deck-src'), 'deck layer:', !!map.getLayer('ew-deck-layer'))
+    }
+
+    const tryAdd = () => { if (!map.getSource('ew-deck-src')) add() }
+    tryAdd()
+    map.on('styledata', tryAdd)
+    return () => {
+      map.off('styledata', tryAdd)
+      ;['ew-debug-dots', 'ew-rail-right-layer', 'ew-rail-left-layer', 'ew-deck-layer', 'ew-cols-layer'].forEach(id => { if (map.getLayer(id)) map.removeLayer(id) })
+      ;['ew-debug-src', 'ew-rail-right-src', 'ew-rail-left-src', 'ew-deck-src', 'ew-cols-src'].forEach(id => { if (map.getSource(id)) map.removeSource(id) })
+    }
+  }, [map])
+
+  // ── Elevated walkway: opacity toggle ───────────────────────────────────────
+  useEffect(() => {
+    if (!map) return
+    const v = activeMeasures?.elevatedWalkways ? ELEVATED_WALKWAY_CONFIG.opacity : 0
+    ;['ew-cols-layer', 'ew-deck-layer', 'ew-rail-left-layer', 'ew-rail-right-layer'].forEach(id => {
+      if (map.getLayer(id)) map.setPaintProperty(id, 'fill-extrusion-opacity', v)
+    })
+  }, [map, activeMeasures?.elevatedWalkways])
+
+  // ── Elevated walkway: draggable markers ────────────────────────────────────
+  useEffect(() => {
+    if (!map || !ELEVATED_WALKWAY_CONFIG.debugMode) return
+    const cfg = ELEVATED_WALKWAY_CONFIG
+    const edgeOffset = (cfg.deckWidthMeters / 2) - (cfg.railingWidthMeters / 2)
+
+    const markers = makeDraggableMarkers(map, ewPathRef, () => {
+      map.getSource('ew-cols-src')?.setData(buildColumnsGeoJSON(ewPathRef.current, cfg))
+      map.getSource('ew-deck-src')?.setData(polygonFeature(buildRibbonPolygon(ewPathRef.current, cfg.deckWidthMeters)))
+      map.getSource('ew-rail-left-src')?.setData(polygonFeature(buildRibbonPolygon(offsetPath(ewPathRef.current, edgeOffset), cfg.railingWidthMeters)))
+      map.getSource('ew-rail-right-src')?.setData(polygonFeature(buildRibbonPolygon(offsetPath(ewPathRef.current, -edgeOffset), cfg.railingWidthMeters)))
+      map.getSource('ew-debug-src')?.setData(debugGeoJSON(ewPathRef.current))
+      setEwDisplay([...ewPathRef.current])
+    })
+    return () => markers.forEach(m => m.remove())
+  }, [map])
+
   // ── Copy helpers ───────────────────────────────────────────────────────────
   function copyPath(pathRef, setCopied, key) {
     const lines = pathRef.current.map(([lng, lat], i) => `    [${lng}, ${lat}],  // P${i}`).join('\n')
@@ -642,6 +767,22 @@ const add = () => {
           ))}
           <button onClick={() => copyPath(rrPathRef, setRrCopied, 'pathCoordinates')} style={btnStyle(rrCopied, '#00ddff')}>
             {rrCopied ? '✓ Copied!' : '📋 Copy path'}
+          </button>
+        </div>
+      )}
+      {ELEVATED_WALKWAY_CONFIG.debugMode && (
+        <div style={panelStyle(RAISED_ROADS_CONFIG.debugMode ? 280 : 24, '#ffd700')}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.5px', marginBottom: 4 }}>
+            🚶 ELEVATED WALKWAY — drag gold dots
+          </div>
+          {ewDisplay.map(([lng, lat], i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <span style={dotStyle('#ffd700')}>{i}</span>
+              <span style={{ color: '#94a3b8' }}>{lng}, {lat}</span>
+            </div>
+          ))}
+          <button onClick={() => copyPath(ewPathRef, setEwCopied, 'pathCoordinates')} style={btnStyle(ewCopied, '#ffd700')}>
+            {ewCopied ? '✓ Copied!' : '📋 Copy path'}
           </button>
         </div>
       )}

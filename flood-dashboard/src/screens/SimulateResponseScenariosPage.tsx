@@ -11,6 +11,8 @@ import { SEA_WALL_CONFIG } from '../components/SimulationLayers/seaWallConfig';
 // @ts-ignore
 import { ELEVATED_BUILDINGS_CONFIG } from '../components/SimulationLayers/elevatedBuildingsConfig';
 // @ts-ignore
+import { ELEVATED_WALKWAY_CONFIG } from '../components/SimulationLayers/elevatedWalkwayConfig';
+// @ts-ignore
 import CameraDebugOverlay from '../components/SimulationLayers/CameraDebugOverlay';
 import type { ScenarioData } from './CompareResponseScenariosPage';
 
@@ -234,6 +236,17 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
     }
   }, [map, active.elevatedBuildings]);
 
+  // Fly to per-measure camera preset when elevated walkways toggle turns on/off
+  useEffect(() => {
+    if (!map) return;
+    const cam = ELEVATED_WALKWAY_CONFIG.camera;
+    if (active.elevatedWalkways) {
+      map.flyTo({ center: cam.center, zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing, duration: cam.duration, essential: true });
+    } else {
+      map.flyTo({ center: SIM_CAMERA.center, zoom: SIM_CAMERA.zoom, pitch: SIM_CAMERA.pitch, bearing: SIM_CAMERA.bearing, duration: 1000, essential: true });
+    }
+  }, [map, active.elevatedWalkways]);
+
   function toggle(key: MeasureKey) {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   }
@@ -295,7 +308,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
   return (
     <>
       <SimulationLayers map={map} activeMeasures={active} />
-      {(SEA_WALL_CONFIG.debugMode || (ELEVATED_BUILDINGS_CONFIG.cameraDebugMode && active.elevatedBuildings)) && <CameraDebugOverlay map={map} />}
+      {(SEA_WALL_CONFIG.debugMode || (ELEVATED_BUILDINGS_CONFIG.cameraDebugMode && active.elevatedBuildings) || (ELEVATED_WALKWAY_CONFIG.cameraDebugMode && active.elevatedWalkways)) && <CameraDebugOverlay map={map} />}
       <ScaledLayout className="screen-enter">
         {/* Map overlays — layered "built asset" illustrations per active measure */}
         <svg
@@ -308,14 +321,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
           {/* Raised roads — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
 
-          {/* Elevated walkways — boardwalk path with plank ticks + shadow */}
-          <g style={overlayGroupStyle(active.elevatedWalkways)}>
-            <path d="M 622,822 C 762,782 882,802 1022,742" fill="none" stroke="#000" strokeOpacity={0.14} strokeWidth={6} strokeLinecap="round" />
-            <path d="M 620,820 C 760,780 880,800 1020,740" fill="none" stroke={MEASURES[3].color} strokeWidth={4} strokeLinecap="round" />
-            {[[620, 820], [720, 795], [820, 790], [920, 765], [1020, 740]].map(([px, py], i) => (
-              <line key={i} x1={px - 5} y1={py - 7} x2={px + 5} y2={py + 7} stroke={MEASURES[3].color} strokeWidth={3} strokeLinecap="round" />
-            ))}
-          </g>
+          {/* Elevated walkways — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
           {/* Drainage upgrade — infrastructure marker: ring + core + funnel glyph */}
           <g style={overlayGroupStyle(active.drainageUpgrade)}>

@@ -82,6 +82,27 @@ const GROUP_DESCRIPTIONS: Record<string, string> = {
 };
 
 const MAX_MONTHS = Math.max(...MEASURES.map(m => m.timeMax));
+
+function computeGroupScore(group: typeof MEASURE_GROUPS[0], teamId: string) {
+  const scores = group.keys.map(k => MATCH[k][teamId] ?? 0);
+  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+}
+
+// Pre-assign teams to groups so no team appears in more than one group.
+// Each group claims its best available teams greedily (highest match score first).
+const GROUP_TEAMS: Record<string, Team[]> = (() => {
+  const result: Record<string, Team[]> = {};
+  const usedIds = new Set<string>();
+  for (const group of MEASURE_GROUPS) {
+    const top = [...TEAMS]
+      .filter(t => !usedIds.has(t.id))
+      .sort((a, b) => computeGroupScore(group, b.id) - computeGroupScore(group, a.id))
+      .slice(0, Math.max(3, group.teamCount));
+    result[group.label] = top;
+    top.forEach(t => usedIds.add(t.id));
+  }
+  return result;
+})();
 const LEFT_W = 386;
 
 function Avatar({ team, size = 56 }: { team: Team; size?: number }) {
@@ -125,15 +146,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
   const expandedGroup = expanded ? MEASURE_GROUPS.find(g => g.label === expanded) ?? null : null;
 
-  // Average match score across all measures in the group
-  function groupScore(group: typeof MEASURE_GROUPS[0], teamId: string) {
-    const scores = group.keys.map(k => MATCH[k][teamId] ?? 0);
-    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-  }
-
-  const topTeams = expandedGroup
-    ? [...TEAMS].sort((a, b) => groupScore(expandedGroup, b.id) - groupScore(expandedGroup, a.id)).slice(0, Math.max(3, expandedGroup.teamCount))
-    : [];
+  const topTeams = expandedGroup ? (GROUP_TEAMS[expandedGroup.label] ?? []) : [];
 
   return (
     <div className="screen-enter">
@@ -284,43 +297,38 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '130px 28px 28px' }}>
               <div style={{ display: 'flex', flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
                 {(() => {
-                  const anyPicked = assignments[expanded!] !== null;
                   return topTeams.map((team, i) => {
-                  const score = groupScore(expandedGroup, team.id);
+                  const score = computeGroupScore(expandedGroup, team.id);
                   const isPicked = assignments[expanded!] === team.id;
-                  const capColor = team.capacity < 0.35 ? '#ef4444' : team.capacity < 0.6 ? '#eab308' : '#00a63e';
                   const isBest = i === 0;
                   const stars = Math.round(score / 20);
                   const isHovered = hoveredCard === team.id;
                   const isCardExpanded = expandedCards.has(team.id);
-                  const isDimmed = anyPicked && !isPicked;
-
                   return (
                     <div key={team.id}
                       onMouseEnter={() => setHoveredCard(team.id)}
                       onMouseLeave={() => setHoveredCard(null)}
                       style={{
                         flex: 1, display: 'flex', flexDirection: 'column',
-                        background: isPicked ? 'white' : isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.75)',
-                        border: isPicked ? '2px solid #1e2939' : isHovered ? '1.5px solid rgba(30,41,57,0.22)' : '1.5px solid rgba(0,0,0,0.1)',
+                        background: isPicked ? 'linear-gradient(rgba(40,100,228,0.06),rgba(40,100,228,0.06)), #fff' : isHovered ? 'rgba(255,255,255,0.95)' : 'white',
+                        border: isPicked ? '1.5px solid rgba(40,100,228,0.28)' : isHovered ? '1.5px solid rgba(30,41,57,0.22)' : '1.5px solid rgba(0,0,0,0.1)',
                         borderRadius: 18, position: 'relative',
                         transition: 'border-color .18s, background .18s, box-shadow .18s, transform .18s, opacity .3s',
-                        boxShadow: isPicked ? '0 8px 28px rgba(0,0,0,0.16)' : isHovered ? '0 6px 22px rgba(0,0,0,0.13)' : '0 2px 8px rgba(0,0,0,0.07)',
+                        boxShadow: isPicked ? '0 2px 8px rgba(0,0,0,0.08)' : isHovered ? '0 6px 22px rgba(0,0,0,0.13)' : '0 2px 8px rgba(0,0,0,0.07)',
                         transform: isHovered && !isPicked ? 'translateY(-3px)' : 'translateY(0)',
                         backdropFilter: 'blur(8px)', overflow: 'hidden',
-                        opacity: isDimmed ? 0.25 : 1,
                       }}>
 
                       {/* Badge — centered, attached to card top edge */}
-                      {(isBest || isPicked) && (
+                      {isBest && (
                         <div style={{
                           position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                          background: isPicked ? '#00a63e' : '#1d4ed8',
+                          background: '#1e2939',
                           color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: '0.4px',
                           borderRadius: '0 0 10px 10px', padding: '3px 14px',
                           zIndex: 10, whiteSpace: 'nowrap',
                         }}>
-                          {isPicked ? '✓ ASSIGNED' : 'BEST MATCH'}
+                          BEST MATCH
                         </div>
                       )}
 
@@ -348,7 +356,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                             <div style={{
                               position: 'absolute', bottom: -2, right: -2,
                               width: 22, height: 22, borderRadius: '50%',
-                              background: '#1e2939', border: '2px solid white',
+                              background: 'rgba(40,100,228,0.9)', border: '2px solid white',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
@@ -390,20 +398,20 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         {/* Feature checklist — Lucide icons in rounded-rect frames */}
                         <div style={{ borderTop: '1px solid rgba(0,0,0,0.07)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 12 }}>
                           {[
-                            { Icon: Clock,    text: `${team.exp} yrs experience`,         color: undefined },
-                            { Icon: Users,    text: `${team.members} team members`,        color: undefined },
-                            { Icon: Briefcase, text: `${team.cityProjects} projects for the city`, color: undefined },
-                          ].map(({ Icon, text, color }) => (
+                            { Icon: Clock,    text: `${team.exp} yrs experience` },
+                            { Icon: Users,    text: `${team.members} team members` },
+                            { Icon: Briefcase, text: `${team.cityProjects} projects for the city` },
+                          ].map(({ Icon, text }) => (
                             <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                               <div style={{
                                 width: 24, height: 22, borderRadius: 7, flexShrink: 0,
-                                background: color ? `${color}0f` : 'rgba(30,41,57,0.07)',
-                                border: `1px solid ${color ? `${color}25` : 'rgba(30,41,57,0.11)'}`,
+                                background: 'rgba(30,41,57,0.07)',
+                                border: '1px solid rgba(30,41,57,0.11)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                               }}>
-                                <Icon size={12} color={color ?? '#364153'} strokeWidth={2} />
+                                <Icon size={12} color="#364153" strokeWidth={2} />
                               </div>
-                              <span style={{ fontSize: 15, color: color ?? '#364153', fontWeight: color ? 600 : 400, letterSpacing: '-0.2px' }}>
+                              <span style={{ fontSize: 15, color: '#364153', letterSpacing: '-0.2px' }}>
                                 {text}
                               </span>
                               {team.limited && text.includes('projects for the city') && (
@@ -447,8 +455,8 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                           onMouseLeave={() => setHoveredAssign(null)}
                           style={{
                             width: '100%', height: 38, borderRadius: 20,
-                            background: isPicked ? '#00a63e' : hoveredAssign === team.id ? '#1e2939' : 'rgba(30,41,57,0.06)',
-                            border: isPicked ? '1.5px solid #00a63e' : '1.5px solid rgba(30,41,57,0.35)',
+                            background: isPicked || hoveredAssign === team.id ? '#1e2939' : 'rgba(30,41,57,0.06)',
+                            border: '1.5px solid rgba(30,41,57,0.35)',
                             cursor: 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             transition: 'background .18s, border-color .18s',

@@ -131,7 +131,7 @@ function RiskBar({ pct }: { pct: number }) {
 }
 
 function MiniBar({ pct, isOver }: { pct: number; isOver: boolean }) {
-  const color = isOver ? '#b91d1d' : '#364153';
+  const color = isOver ? '#b91d1d' : '#1e2939';
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ width: 52, height: 4, borderRadius: 4, background: 'rgba(0,0,0,0.08)', flexShrink: 0 }}>
@@ -161,7 +161,7 @@ export function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
             transform={`rotate(${-90 + (usedPct / 100) * 360} ${cx} ${cy})`}
           />
           <circle
-            cx={cx} cy={cy} r={r} fill="none" stroke="#364153" strokeWidth={9}
+            cx={cx} cy={cy} r={r} fill="none" stroke="#1e2939" strokeWidth={9}
             strokeDasharray={`${usedDash} ${remainDash}`}
             transform={`rotate(-90 ${cx} ${cy})`}
           />
@@ -170,28 +170,28 @@ export function BudgetDonut({ usedPct, costLabel, availLabel, remainLabel }: {
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)', textAlign: 'center', pointerEvents: 'none',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#364153', lineHeight: 1 }}>{usedPct}%</div>
-          <div style={{ fontSize: 8, color: '#6b778a', marginTop: 2 }}>used</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e2939', lineHeight: 1 }}>{usedPct}%</div>
+          <div style={{ fontSize: 8, color: '#6b7280', marginTop: 2 }}>used</div>
         </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px', marginBottom: 2 }}>Selected cost</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px', lineHeight: 1 }}>{costLabel}</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.2px', marginBottom: 2 }}>Selected cost</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: 1 }}>{costLabel}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#364153', flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px' }}>Budget used · {usedPct}%</span>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1e2939', flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: '#6b7280', letterSpacing: '-0.2px' }}>Budget used · {usedPct}%</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#e5e7eb', border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px' }}>Remaining · {remainLabel}</span>
+            <span style={{ fontSize: 12, color: '#6b7280', letterSpacing: '-0.2px' }}>Remaining · {remainLabel}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: '#6b778a', letterSpacing: '-0.2px' }}>Available budget · {availLabel}</span>
+            <span style={{ fontSize: 12, color: '#6b7280', letterSpacing: '-0.2px' }}>Available budget · {availLabel}</span>
           </div>
         </div>
       </div>
@@ -223,12 +223,12 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
   ];
 
   const outcomeRows: { label: string; render: (s: ScenarioData) => React.ReactNode }[] = [
-    { label: 'Total cost', render: s => <span style={{ fontSize: 13, fontWeight: 700, color: '#364153', letterSpacing: '-0.44px' }}>{s.totalCost}</span> },
-    { label: 'Residents protected', render: s => <span style={{ fontSize: 13, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px' }}>{s.residentsProtected.toLocaleString()}</span> },
+    { label: 'Total cost', render: s => <span style={{ fontSize: 13, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.44px' }}>{s.totalCost}</span> },
+    { label: 'Residents protected', render: s => <span style={{ fontSize: 13, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>{s.residentsProtected.toLocaleString()}</span> },
     { label: 'Flood-risk reduction', render: s => <RiskBar pct={s.floodRiskReduction} /> },
-    { label: 'First impact year', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
-    { label: 'Implementation time', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.44px' }}>{s.implementationTime}</span> },
-    { label: 'Main trade-off', render: s => <span style={{ fontSize: 12, color: '#505153', letterSpacing: '-0.2px', lineHeight: 1.4 }}>{s.mainTradeoff}</span> },
+    { label: 'First impact year', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.44px' }}>{s.delayToImpact}</span> },
+    { label: 'Implementation time', render: s => <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.44px' }}>{s.implementationTime}</span> },
+    { label: 'Main trade-off', render: s => <span style={{ fontSize: 12, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: 1.4 }}>{s.mainTradeoff}</span> },
   ];
 
   const tableSections = [
@@ -242,10 +242,10 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
     return {
       flex: 1,
       padding: '11px 12px',
-      background: active ? '#364153' : 'transparent',
+      background: active ? '#1e2939' : 'transparent',
       borderTop: isSelected
         ? '3px solid #00a63e'
-        : `2px solid ${active ? '#364153' : 'transparent'}`,
+        : `2px solid ${active ? '#1e2939' : 'transparent'}`,
       borderLeft: '1px solid rgba(0,0,0,0.06)',
       display: 'flex',
       flexDirection: 'column' as const,
@@ -312,10 +312,10 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
           <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
         </svg>
         <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.7%' }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#101828', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Assess critical zones</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Assess critical zones</span>
         </div>
         <div style={{ position: 'absolute', left: '20.90%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
-          <span style={{ fontSize: 13, fontWeight: 500, color: '#101828', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Simulate response scenarios</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Simulate response scenarios</span>
         </div>
         <div style={{ position: 'absolute', left: '40.67%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Compare intervention options</span>
@@ -368,14 +368,14 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
                   >
                     <span style={{
                       fontSize: 15, fontWeight: 600,
-                      color: s.id === activeCol ? 'white' : '#364153',
+                      color: s.id === activeCol ? 'white' : '#1e2939',
                       letterSpacing: '-0.3px', lineHeight: 1.3, textAlign: 'center',
                     }}>
                       {s.roleLabel}
                       {s.id === 'selected' && (
                         <span style={{
                           fontSize: 14, fontWeight: 400,
-                          color: s.id === activeCol ? 'rgba(255,255,255,0.7)' : '#6b778a',
+                          color: s.id === activeCol ? 'rgba(255,255,255,0.7)' : '#6b7280',
                           letterSpacing: '-0.2px',
                         }}>
                           {' '}(best value)
@@ -401,8 +401,8 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
                     onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(40,100,228,0.06)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
                   >
-                    <span style={{ fontSize: 16, color: '#6b778a', lineHeight: 1, fontWeight: 400 }}>+</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#101828', letterSpacing: '-0.1px', whiteSpace: 'nowrap' }}>Add scenario</span>
+                    <span style={{ fontSize: 16, color: '#6b7280', lineHeight: 1, fontWeight: 400 }}>+</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.1px', whiteSpace: 'nowrap' }}>Add scenario</span>
                   </button>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
                 {measureRows.map((row, rowIdx) => (
                   <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: rowIdx < measureRows.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
                     <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
-                      <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
+                      <span style={{ fontSize: 15, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px' }}>{row.label}</span>
                     </div>
                     {scenarios.map(s => (
                       <div key={s.id} style={{ ...getCellStyle(s), cursor: 'pointer' }} onMouseEnter={() => setHoveredCol(s.id)} onMouseLeave={() => setHoveredCol(null)} onClick={() => setSelectedCol(s.id)}>
@@ -437,7 +437,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
               ].map((row, idx, arr) => (
                 <div key={row.label} style={{ display: 'flex', alignItems: 'stretch', borderBottom: idx < arr.length - 1 ? '1px solid rgba(0,0,0,0.05)' : undefined }}>
                   <div style={{ width: 168, flexShrink: 0, padding: '11px 14px', display: 'flex', alignItems: 'center' }}>
-                    <span style={{ fontSize: 15, fontWeight: 500, color: '#364153', letterSpacing: '-0.3px' }}>{row.label}</span>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.3px' }}>{row.label}</span>
                   </div>
                   {scenarios.map(s => {
                     const isActive = s.id === activeCol;
@@ -459,7 +459,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
                           transition: 'background 0.15s ease',
                         }}
                       >
-                        <span style={{ fontSize: row.bold ? 16 : 14, fontWeight: row.bold ? 700 : 600, color: '#364153', letterSpacing: '-0.3px' }}>
+                        <span style={{ fontSize: row.bold ? 16 : 14, fontWeight: row.bold ? 700 : 600, color: '#1e2939', letterSpacing: '-0.3px' }}>
                           {display}
                         </span>
                       </div>

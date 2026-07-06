@@ -303,13 +303,13 @@ function ZoneDonutChart({ size = 146, segments, total }: {
         ))}
         {arcs.map((arc, i) => (
           <text key={i} x={arc.lx} y={arc.ly}
-            fontSize={12} fontWeight="600" fill="#364153"
+            fontSize={12} fontWeight="600" fill="#1e2939"
             fontFamily="Inter, sans-serif" textAnchor="middle" dominantBaseline="middle">
             {arc.label}
           </text>
         ))}
       </svg>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 20, fontWeight: 700, color: '#323232', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 20, fontWeight: 700, color: '#1e2939', pointerEvents: 'none' }}>
         {total}
       </div>
     </div>
@@ -334,16 +334,16 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
             /* Side-by-side layout (matches CoastalRoadAccessPage) */
             <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
               <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
-                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#6b7280', lineHeight: '30px', letterSpacing: '-0.08px' }}>
                   {data.description}
                 </p>
               </div>
               <div style={{ flex: 2, position: 'relative' }}>
                 <img src={zoneImage} alt={zone} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: zone === 'Residential Edge Blocks' ? '46% 44%' : zone === 'Increase pump capacity' ? '26% 45%' : zone === 'Vulnerable Residents' ? '20% 19%' : '40% 35%', display: 'block' }} />
-                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
-                  <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
-                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
+                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#1e2939' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
+                  <Pencil size={13} color={isEditing ? 'white' : '#1e2939'} />
+                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#1e2939', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
                 </button>
               </div>
             </div>
@@ -366,14 +366,14 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
                     </div>
                   </div>
                 )}
-                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
-                  <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
-                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
+                <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#1e2939' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
+                  <Pencil size={13} color={isEditing ? 'white' : '#1e2939'} />
+                  <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#1e2939', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>
                 </button>
               </div>
               <div style={{ padding: '20px 28px 24px' }}>
-                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
-                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+                <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#6b7280', lineHeight: '30px', letterSpacing: '-0.08px' }}>
                   {data.description}
                 </p>
               </div>
@@ -385,7 +385,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
 
             {/* Left - Implementation Steps */}
             <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
+              <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {data.steps.map((step, i) => {
                   const icons = (ZONE_STEP_ICONS as Record<string, React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>[]>)[zone] ?? [];
@@ -401,8 +401,8 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
                         </div>
                       </div>
                       <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
-                        <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
-                        <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
+                        <span style={{ fontWeight: 600, color: '#1e2939' }}>{step.label}</span>{' '}
+                        <span style={{ fontWeight: 400, color: '#6b7280' }}>{step.desc}</span>
                       </p>
                     </div>
                   );
@@ -415,15 +415,15 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
 
               {/* Cost & Budget */}
               <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flexShrink: 0 }}>
-                <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
+                <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                   <ZoneDonutChart size={146} segments={data.costSegments} total={data.costTotal} />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 16 }}>
                     {data.costItems.map((item) => (
                       <div key={item.text} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         <div style={{ width: 14, height: 14, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-                        <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#505153', lineHeight: 'normal' }}>
-                          {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
+                        <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#6b7280', lineHeight: 'normal' }}>
+                          {item.text} <span style={{ fontWeight: 600, color: '#1e2939' }}>{item.value}</span>
                         </p>
                       </div>
                     ))}
@@ -433,7 +433,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
 
               {/* Implementation Schedule */}
               <div className="no-scrollbar" style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
-                <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
+                <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {data.schedule.map((item, i) => {
                     const isLast = i === data.schedule.length - 1;
@@ -446,8 +446,8 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
                           </div>
                           {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: lineColor }} />}
                         </div>
-                        <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
-                          <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#1e2939' }}>
+                          <span style={{ color: '#6b7280' }}>{item.label}</span>{' '}
                           <span style={{ fontWeight: 700 }}>{item.value}</span>
                         </p>
                       </div>

@@ -179,7 +179,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
           { label: 'Launch action plan', pct: '80.22%', w: '19.78%' },
         ].map(s => (
           <div key={s.label} style={{ position: 'absolute', left: s.pct, top: 0, width: s.w, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
-            <span style={{ fontSize: 13, fontWeight: (s as any).active ? 600 : 500, color: (s as any).active ? 'white' : '#101828', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.2px' }}>
+            <span style={{ fontSize: 13, fontWeight: (s as any).active ? 600 : 500, color: (s as any).active ? 'white' : '#1e2939', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.2px' }}>
               {s.label}
             </span>
           </div>
@@ -233,7 +233,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                       {assignedTeam ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                           <div style={{ width: 7, height: 7, borderRadius: '50%', background: group.color, flexShrink: 0 }} />
-                          <span style={{ fontSize: 16, fontWeight: 400, color: '#364153', letterSpacing: '-0.2px', lineHeight: '20px' }}>
+                          <span style={{ fontSize: 16, fontWeight: 400, color: '#1e2939', letterSpacing: '-0.2px', lineHeight: '20px' }}>
                             {assignedTeam.name}
                           </span>
                         </div>
@@ -368,7 +368,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '52px 14px 13px' }}>
 
                         {/* Name - own row */}
-                        <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 700, color: '#101828', letterSpacing: '-0.3px', lineHeight: '22px' }}>
+                        <p style={{ margin: '0 0 5px', fontSize: 16, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.3px', lineHeight: '21px' }}>
                           {team.name}
                         </p>
 
@@ -383,12 +383,12 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         </div>
 
                         {/* Lead */}
-                        <p style={{ margin: '0 0 6px', fontSize: 15, color: '#6b778a', letterSpacing: '-0.2px' }}>
+                        <p style={{ margin: '0 0 6px', fontSize: 15, color: '#6b7280', letterSpacing: '-0.2px' }}>
                           {team.lead}
                         </p>
 
                         {/* Specialty */}
-                        <p style={{ margin: '0 0 12px', fontSize: 15, color: '#6b778a', lineHeight: '20px', letterSpacing: '-0.2px' }}>
+                        <p style={{ margin: '0 0 12px', fontSize: 15, color: '#6b7280', lineHeight: '20px', letterSpacing: '-0.2px' }}>
                           {team.specialty}
                         </p>
 
@@ -406,9 +406,9 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                                 border: '1px solid rgba(30,41,57,0.11)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                               }}>
-                                <Icon size={12} color="#364153" strokeWidth={2} />
+                                <Icon size={12} color="#1e2939" strokeWidth={2} />
                               </div>
-                              <span style={{ fontSize: 15, color: '#364153', letterSpacing: '-0.2px' }}>
+                              <span style={{ fontSize: 15, color: '#1e2939', letterSpacing: '-0.2px' }}>
                                 {text}
                               </span>
                               {team.limited && text.includes('projects for the city') && (
@@ -437,7 +437,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                             {team.details.map(d => (
                               <div key={d} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                                 <span style={{ fontSize: 13, color: '#c4c9d4', flexShrink: 0, marginTop: 2 }}>·</span>
-                                <span style={{ fontSize: 15, color: '#6b778a', lineHeight: '19px', letterSpacing: '-0.2px' }}>{d}</span>
+                                <span style={{ fontSize: 15, color: '#6b7280', lineHeight: '19px', letterSpacing: '-0.2px' }}>{d}</span>
                               </div>
                             ))}
                           </div>

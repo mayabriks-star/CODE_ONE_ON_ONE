@@ -350,19 +350,19 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
             <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
               <button
                 onClick={() => setDebugPoints((prev) => prev.slice(0, -1))}
-                style={{ background: '#374151', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                style={{ background: '#6b7280', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
               >
                 Undo
               </button>
               <button
                 onClick={() => setDebugPoints([])}
-                style={{ background: '#374151', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                style={{ background: '#6b7280', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
               >
                 Clear (start fresh)
               </button>
               <button
                 onClick={() => setDebugPoints(HAZARD_ZONE_RING)}
-                style={{ background: '#374151', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                style={{ background: '#6b7280', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
               >
                 Reload current zone
               </button>
@@ -370,7 +370,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
                 onClick={() => navigator.clipboard.writeText(
                   smoothRing(debugPoints).map(([lng, lat]) => `[${lng.toFixed(6)}, ${lat.toFixed(6)}]`).join(', ')
                 )}
-                style={{ background: '#374151', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                style={{ background: '#6b7280', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
               >
                 Copy smoothed
               </button>

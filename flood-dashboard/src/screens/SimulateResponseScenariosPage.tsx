@@ -52,7 +52,7 @@ export const MEASURES: Measure[] = [
   { key: 'seaWall', label: 'Sea wall', descriptor: 'High cost · Strong protection', color: '#0b1f3a', cost: 18_000_000, residents: 240, risk: 22, delay: 5, timeMin: 10, timeMax: 16, defaultOn: false },
   { key: 'raisedRoads', label: 'Raised roads', descriptor: 'Medium-high cost · Improves access', color: '#ea7836', cost: 12_000_000, residents: 150, risk: 9, delay: 2, timeMin: 4, timeMax: 7, defaultOn: false },
   { key: 'elevatedBuildings', label: 'Elevated buildings', descriptor: 'High cost · Long-term resilience', color: '#bf5761', cost: 15_000_000, residents: 300, risk: 18, delay: 4, timeMin: 9, timeMax: 14, defaultOn: false },
-  { key: 'elevatedWalkways', label: 'Elevated walkways', descriptor: 'Medium cost · Improves access', color: '#6b778a', cost: 3_400_000, residents: 70, risk: 5, delay: 1, timeMin: 4, timeMax: 6, defaultOn: false },
+  { key: 'elevatedWalkways', label: 'Elevated walkways', descriptor: 'Medium cost · Improves access', color: '#6b7280', cost: 3_400_000, residents: 70, risk: 5, delay: 1, timeMin: 4, timeMax: 6, defaultOn: false },
   { key: 'drainageUpgrade', label: 'Drainage upgrade', descriptor: 'Medium cost · Reduces street flooding', color: '#2864e4', cost: 5_000_000, residents: 160, risk: 11, delay: 2, timeMin: 3, timeMax: 6, defaultOn: false },
   { key: 'utilityProtection', label: 'Utility protection', descriptor: 'Medium cost · Protects power infrastructure', color: '#ffbb00', cost: 4_100_000, residents: 130, risk: 9, delay: 2, timeMin: 3, timeMax: 5, defaultOn: false },
 ];
@@ -107,7 +107,7 @@ const PCT_OPTIONS = [25, 50, 75, 100] as const;
 function CoverageSelector({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ fontSize: 14, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.2px', lineHeight: '19px' }}>
+      <div style={{ fontSize: 14, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.2px', lineHeight: '19px' }}>
         What share of this measure do you want to implement?
       </div>
       <div style={{ display: 'flex', background: 'rgba(0,0,0,0.07)', borderRadius: 8, padding: 3, gap: 2 }}>
@@ -120,7 +120,7 @@ function CoverageSelector({ value, onChange }: { value: number; onChange: (v: nu
               style={{
                 flex: 1, height: 28, borderRadius: 6, border: 'none', cursor: 'pointer',
                 background: selected ? '#1e2939' : 'transparent',
-                color: selected ? 'white' : '#505153',
+                color: selected ? 'white' : '#6b7280',
                 fontSize: 13, fontWeight: selected ? 600 : 500,
                 letterSpacing: '-0.2px',
                 transition: 'background 0.15s, color 0.15s',
@@ -143,7 +143,7 @@ function ToggleRow({ measure, active, onToggle, pct, onPctChange }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '20px' }}>{measure.label}</div>
+        <div style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '20px' }}>{measure.label}</div>
         <button
           onClick={onToggle}
           aria-label={`Toggle ${measure.label}`}
@@ -167,7 +167,7 @@ function ToggleRow({ measure, active, onToggle, pct, onPctChange }: {
 function MetricCell({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div style={{ fontSize: 15, fontWeight: 500, color: '#6b778a', letterSpacing: '-0.3px', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: '#6b7280', letterSpacing: '-0.3px', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 20, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>{value}</div>
     </div>
   );
@@ -442,7 +442,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             <p className="font-semibold text-[18px] leading-[23px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
               Simulate Response Scenarios
             </p>
-            <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '6px 0 0 0', color: '#6b778a', letterSpacing: '-0.3px' }}>
+            <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '6px 0 0 0', color: '#6b7280', letterSpacing: '-0.3px' }}>
               Toggle infrastructure measures to explore their combined impact on flood resilience, cost, and protected residents.
             </p>
           </div>
@@ -487,7 +487,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
               <p className="font-semibold text-[18px] leading-[23px] tracking-[-0.44px] text-[#1e2939]" style={{ margin: 0 }}>
                 Current Simulated Scenario
               </p>
-              <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '5px 0 0 0', color: '#6b778a', letterSpacing: '-0.3px' }}>
+              <p className="font-medium text-[15px] leading-[21px]" style={{ margin: '5px 0 0 0', color: '#6b7280', letterSpacing: '-0.3px' }}>
                 Live outcome of the active protection measures
               </p>
             </div>
@@ -495,7 +495,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
               <DonutChart pct={budgetPct} size={64} />
               <div>
                 <div style={{ fontSize: 20, fontWeight: 500, color: 'black', letterSpacing: '-0.44px', lineHeight: '24px' }}>{formatCost(totalCost)}</div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: '#6b778a' }}>of {formatCost(AVAILABLE_BUDGET)} · {budgetPct}%</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>of {formatCost(AVAILABLE_BUDGET)} · {budgetPct}%</div>
               </div>
             </div>
           </div>

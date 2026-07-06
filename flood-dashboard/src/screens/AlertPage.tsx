@@ -61,12 +61,12 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   <div className="w-[24px] h-[24px] rounded-full bg-[#ff6b00] flex-shrink-0" />
                   <div>
                     <p className="font-medium text-[20px] leading-[28px] tracking-[-0.44px] text-[#1e2939]">High</p>
-                    <p className="font-medium text-[14px] leading-[28px] tracking-[-0.44px] text-[#505153]">Overall risk level</p>
+                    <p className="font-medium text-[14px] leading-[28px] tracking-[-0.44px] text-[#6b7280]">Overall risk level</p>
                   </div>
                 </div>
                 <div className="flex gap-[14px] items-center">
                   <div className="w-[24px] h-[14px] flex-shrink-0" />
-                  <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#505153]">
+                  <p className="font-medium text-[16px] leading-[21px] tracking-[-0.44px] text-[#6b7280]">
                     Sea level has reached the city's early action threshold. This district now requires preventive review before coastal impact begins.
                   </p>
                 </div>
@@ -103,7 +103,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   {/* Vertical connecting line - same token values as the
                       Implementation Schedule stepper used on the zone detail
                       screens (e.g. CoastalRoadAccessPage.tsx). */}
-                  <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: `${(STEPS.length - 1) * 40}px`, background: '#364153', zIndex: 0 }} />
+                  <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: `${(STEPS.length - 1) * 40}px`, background: '#1e2939', zIndex: 0 }} />
                   {STEPS.map((step, i) => {
                     const isActive = i === 0;
                     return (
@@ -112,16 +112,16 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                           style={{
                             width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: isActive ? '#364153' : 'white',
-                            border: '1.5px solid #364153',
+                            background: isActive ? '#1e2939' : 'white',
+                            border: '1.5px solid #1e2939',
                           }}
                         >
-                          <span style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : '#364153' }}>{i + 1}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : '#1e2939' }}>{i + 1}</span>
                         </div>
                         <span
                           style={{
                             fontSize: 15, fontWeight: isActive ? 600 : 500,
-                            color: isActive ? '#1e2939' : '#505153',
+                            color: isActive ? '#1e2939' : '#6b7280',
                           }}
                         >
                           {step}
@@ -192,10 +192,10 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
             >
               {/* Title + subtitle */}
               <div style={{ padding: '0 25px' }}>
-                <p style={{ fontWeight: 600, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', margin: 0 }}>
+                <p style={{ fontWeight: 600, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', margin: 0 }}>
                   Impact Timeline: Compare projected impact
                 </p>
-                <p style={{ fontWeight: 500, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', margin: 0 }}>
+                <p style={{ fontWeight: 500, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', margin: 0 }}>
                   The timeline updates as protection measures progress
                 </p>
               </div>
@@ -203,11 +203,11 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               <div style={{ position: 'relative', width: 153, height: 64, flexShrink: 0 }}>
                 <div style={{ position: 'absolute', top: 0, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 20, height: 2, background: '#468137', flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, fontWeight: 400, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', whiteSpace: 'nowrap' }}>With protection</span>
+                  <span style={{ fontSize: 14, fontWeight: 400, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', whiteSpace: 'nowrap' }}>With protection</span>
                 </div>
                 <div style={{ position: 'absolute', top: 36, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 20, height: 2, background: '#c0392b', flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, fontWeight: 400, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', whiteSpace: 'nowrap' }}>Without protection</span>
+                  <span style={{ fontSize: 14, fontWeight: 400, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', whiteSpace: 'nowrap' }}>Without protection</span>
                 </div>
               </div>
             </div>

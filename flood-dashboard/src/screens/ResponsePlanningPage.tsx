@@ -52,13 +52,13 @@ function ActionCard({ icon, color, label, value, desc, contentGap = '10px', cont
           boxSizing: 'border-box',
         }}
       >
-        <p style={{ fontSize: '12px', fontWeight: 600, color: '#364153', margin: 0, letterSpacing: '-0.44px' }}>
+        <p style={{ fontSize: '12px', fontWeight: 600, color: '#1e2939', margin: 0, letterSpacing: '-0.44px' }}>
           {label}
         </p>
         <p style={{ fontSize: '30px', fontWeight: 500, color: 'black', margin: 0, letterSpacing: '-0.44px', lineHeight: '21px' }}>
           {value}
         </p>
-        <p style={{ fontSize: '12px', fontWeight: 500, color: '#505153', margin: 0, letterSpacing: '-0.44px', lineHeight: '21px' }}>
+        <p style={{ fontSize: '12px', fontWeight: 500, color: '#6b7280', margin: 0, letterSpacing: '-0.44px', lineHeight: '21px' }}>
           {desc}
         </p>
         {reviewAlignLeft ? (
@@ -200,11 +200,11 @@ function ImpactTimelineChart() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '190px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ width: '20px', borderTop: '2px solid #84af79', flexShrink: 0 }} />
-          <span style={{ fontSize: '12px', color: '#364153', letterSpacing: '-0.44px' }}>With protection measures</span>
+          <span style={{ fontSize: '12px', color: '#1e2939', letterSpacing: '-0.44px' }}>With protection measures</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ width: '20px', borderTop: '2px solid #e05252', flexShrink: 0 }} />
-          <span style={{ fontSize: '12px', color: '#364153', letterSpacing: '-0.44px' }}>Without protection measures</span>
+          <span style={{ fontSize: '12px', color: '#1e2939', letterSpacing: '-0.44px' }}>Without protection measures</span>
         </div>
       </div>
     </div>
@@ -241,20 +241,20 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
       <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         {/* Menu + Bell row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1e2939', padding: 0, display: 'flex' }}>
             <Menu size={20} />
           </button>
           <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Bell size={20} color="#364153" />
+            <Bell size={20} color="#1e2939" />
           </div>
         </div>
 
         {/* Back + Title */}
         <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1e2939', padding: 0, display: 'flex' }}>
             <ArrowLeft size={20} />
           </button>
-          <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+          <span style={{ fontSize: '26px', fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
             Response Planning
           </span>
         </div>
@@ -283,7 +283,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
             position: 'relative',
           }}
         >
-          <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+          <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
             Projected Impact
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '45px' }}>
@@ -343,7 +343,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
               cursor: 'pointer',
               fontSize: '16px',
               fontWeight: 500,
-              color: '#323232',
+              color: '#1e2939',
               letterSpacing: '-0.44px',
             }}
           >
@@ -361,10 +361,10 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
               paddingRight: '25px',
               boxSizing: 'border-box' as const,
             }}>
-              <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
                 Impact Timeline: Compare projected impact
               </p>
-              <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+              <p style={{ margin: 0, fontSize: '16px', fontWeight: 400, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
                 The timeline updates as protection measures progress
               </p>
               <div style={{ marginTop: '20px' }}>
@@ -382,7 +382,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
             marginBottom: 0,
             fontSize: '18px',
             fontWeight: 600,
-            color: '#364153',
+            color: '#1e2939',
             letterSpacing: '-0.44px',
             lineHeight: '1.25',
           }}

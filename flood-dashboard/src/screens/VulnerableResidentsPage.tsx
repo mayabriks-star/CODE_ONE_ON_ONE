@@ -30,7 +30,7 @@ function DonutChart() {
             transform={`rotate(${arc.rotation} ${cx} ${cy})`} />
         ))}
       </svg>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 17, fontWeight: 700, color: '#323232' }}>5M</div>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 17, fontWeight: 700, color: '#1e2939' }}>5M</div>
     </div>
   );
 }
@@ -53,18 +53,18 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
     <div className="screen-enter" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8f8f8' }}>
       <div style={{ flexShrink: 0, paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1e2939', padding: 0, display: 'flex' }}>
             <Menu size={20} />
           </button>
           <div style={{ background: 'rgba(247,247,247,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Bell size={20} color="#364153" />
+            <Bell size={20} color="#1e2939" />
           </div>
         </div>
         <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '19px' }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#364153', padding: 0, display: 'flex' }}>
+          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1e2939', padding: 0, display: 'flex' }}>
             <ArrowLeft size={20} />
           </button>
-          <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
+          <span style={{ fontSize: '26px', fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
             Assess Critical Zones - Vulnerable Residents
           </span>
         </div>
@@ -75,8 +75,8 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
         {/* Top card - text left (1/3) + image right (2/3) */}
         <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
           <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
-            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
+            <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
+            <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#6b7280', lineHeight: '30px', letterSpacing: '-0.08px' }}>
               The Harbor District includes a concentration of elderly residents, mobility-limited households, and ground-floor apartments exposed to coastal flooding. This plan focuses on safer access, building-entry adaptation, emergency support, and continuity of essential services during high-water events.
             </p>
           </div>
@@ -87,12 +87,12 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
               position: 'absolute', top: 12, right: 12, zIndex: 10,
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '6px 14px 6px 10px', borderRadius: 100,
-              background: isEditing ? '#101828' : 'white',
+              background: isEditing ? '#1e2939' : 'white',
               boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer',
               transition: 'background 0.2s ease',
             }}>
-              <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
-              <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
+              <Pencil size={13} color={isEditing ? 'white' : '#1e2939'} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#1e2939', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
             </button>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
 
           {/* Left - Implementation Steps */}
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-            <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
+            <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {implementationSteps.map((step, i) => (
                 <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
@@ -112,8 +112,8 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
-                    <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
-                    <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
+                    <span style={{ fontWeight: 600, color: '#1e2939' }}>{step.label}</span>{' '}
+                    <span style={{ fontWeight: 400, color: '#6b7280' }}>{step.desc}</span>
                   </p>
                 </div>
               ))}
@@ -124,7 +124,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
           <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
 
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flexShrink: 0 }}>
-              <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
+              <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                 <DonutChart />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingLeft: 16 }}>
@@ -135,8 +135,8 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
                   ].map(item => (
                     <div key={item.text} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                       <div style={{ width: 14, height: 14, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-                      <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#505153', lineHeight: 'normal' }}>
-                        {item.text} <span style={{ fontWeight: 600, color: '#364153' }}>{item.value}</span>
+                      <p style={{ margin: 0, fontSize: 18, fontWeight: 400, color: '#6b7280', lineHeight: 'normal' }}>
+                        {item.text} <span style={{ fontWeight: 600, color: '#1e2939' }}>{item.value}</span>
                       </p>
                     </div>
                   ))}
@@ -145,7 +145,7 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
             </div>
 
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
-              <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
+              <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Planning & Resident Notification', value: '0–2 months' },
@@ -161,8 +161,8 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
                         </div>
                         {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: '#3d6b31' }} />}
                       </div>
-                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
-                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#1e2939' }}>
+                        <span style={{ color: '#6b7280' }}>{item.label}</span>{' '}
                         <span style={{ fontWeight: 700 }}>{item.value}</span>
                       </p>
                     </div>

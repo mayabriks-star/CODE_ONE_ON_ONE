@@ -81,7 +81,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
           { label: 'Launch action plan',           pct: '80.22%', w: '19.78%', active: true },
         ].map(s => (
           <div key={s.label} style={{ position: 'absolute', left: s.pct, top: 0, width: s.w, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
-            <span style={{ fontSize: 13, fontWeight: (s as any).active ? 600 : 500, color: (s as any).active ? 'white' : '#101828', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.2px' }}>
+            <span style={{ fontSize: 13, fontWeight: (s as any).active ? 600 : 500, color: (s as any).active ? 'white' : '#1e2939', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.2px' }}>
               {s.label}
             </span>
           </div>
@@ -184,7 +184,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
                   <path d="M1 3L3 5L7 1" stroke="#1e2939" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#364153', letterSpacing: '-0.2px' }}>{item}</p>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px' }}>{item}</p>
             </div>
           ))}
         </div>
@@ -241,7 +241,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
                 { label: 'Teams notified', value: '5 / 5' },
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: 'rgba(30,41,57,0.05)', borderRadius: 9, padding: '10px 12px', textAlign: 'left' }}>
-                  <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 500, color: '#364153', letterSpacing: '-0.2px' }}>{label}</p>
+                  <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 500, color: '#1e2939', letterSpacing: '-0.2px' }}>{label}</p>
                   <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.25px' }}>{value}</p>
                 </div>
               ))}

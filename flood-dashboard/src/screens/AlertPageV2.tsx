@@ -235,17 +235,17 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
             </button>
             <div style={{ width: 944, height: 64, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 88 }}>
               <div style={{ padding: '0 25px' }}>
-                <p style={{ fontWeight: 600, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', margin: 0 }}>Impact Timeline: Compare projected impact</p>
-                <p style={{ fontWeight: 500, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#364153', margin: 0 }}>The timeline updates as protection measures progress</p>
+                <p style={{ fontWeight: 600, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', margin: 0 }}>Impact Timeline: Compare projected impact</p>
+                <p style={{ fontWeight: 500, fontSize: 16, lineHeight: '28px', letterSpacing: '-0.44px', color: '#1e2939', margin: 0 }}>The timeline updates as protection measures progress</p>
               </div>
               <div style={{ position: 'relative', width: 153, height: 64, flexShrink: 0 }}>
                 <div style={{ position: 'absolute', top: 0, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 20, height: 2, background: '#468137', flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, fontWeight: 400, color: '#364153', whiteSpace: 'nowrap' }}>With protection</span>
+                  <span style={{ fontSize: 14, fontWeight: 400, color: '#1e2939', whiteSpace: 'nowrap' }}>With protection</span>
                 </div>
                 <div style={{ position: 'absolute', top: 36, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 20, height: 2, background: '#c0392b', flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, fontWeight: 400, color: '#364153', whiteSpace: 'nowrap' }}>Without protection</span>
+                  <span style={{ fontSize: 14, fontWeight: 400, color: '#1e2939', whiteSpace: 'nowrap' }}>Without protection</span>
                 </div>
               </div>
             </div>
@@ -486,7 +486,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                           </div>
                           <span style={{
                             fontSize: 13 * s, fontWeight: 500,
-                            color: isActive ? '#374151' : '#9ca3af',
+                            color: isActive ? '#6b7280' : '#9ca3af',
                             lineHeight: `${18 * s}px`, letterSpacing: '-0.1px',
                           }}>
                             {pt.text}

@@ -33,6 +33,7 @@ export default function App() {
   const [approvedZones, setApprovedZones] = useState<string[]>([]);
   const [simulatedScenario, setSimulatedScenario] = useState<ScenarioData | null>(null);
   const [planActivated, setPlanActivated] = useState(false);
+  const [showPlanConfirmation, setShowPlanConfirmation] = useState(false);
 
   function navigate(to: Screen) {
     setScreenHistory(h => [...h, screen]);
@@ -284,7 +285,6 @@ export default function App() {
           <AllocateBudgetTeamsPage
             onBack={() => setScreen('compare-scenarios')}
             onContinue={() => {
-              setPlanActivated(true);
               navigate('home-alert');
               mapRef.current?.flyTo({
                 center: [-80.1918, 25.765],
@@ -294,6 +294,7 @@ export default function App() {
                 duration: 1200,
                 essential: true,
               });
+              setTimeout(() => setShowPlanConfirmation(true), 600);
             }}
             map={mapRef.current}
           />
@@ -336,6 +337,65 @@ export default function App() {
       {screen === 'pump-capacity' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <PumpCapacityPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Increase pump capacity')} />
+        </div>
+      )}
+
+      {/* ── Plan confirmation overlay ── appears over the map after finish */}
+      {showPlanConfirmation && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(10,18,30,0.32)', backdropFilter: 'blur(18px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            animation: 'planConfirmFadeIn 0.35s ease both',
+          }}
+        >
+          <style>{`
+            @keyframes planConfirmFadeIn { from { opacity:0 } to { opacity:1 } }
+            @keyframes planConfirmPop { 0%{transform:scale(0.86);opacity:0} 100%{transform:scale(1);opacity:1} }
+          `}</style>
+          <div style={{
+            background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(24px)',
+            borderRadius: 24, padding: '36px 36px 28px',
+            maxWidth: 420, width: '90%', textAlign: 'center',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.22)',
+            animation: 'planConfirmPop 0.42s cubic-bezier(0.16,1,0.3,1) both',
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: 'linear-gradient(135deg,#00a63e,#34d36c)',
+              margin: '0 auto 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(0,166,62,0.32)',
+            }}>
+              <svg width="26" height="20" viewBox="0 0 26 20" fill="none">
+                <path d="M2 10L9.5 17.5L24 2.5" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <p style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#1e2939', letterSpacing: '-0.5px' }}>
+              Plan Saved Successfully
+            </p>
+            <p style={{ margin: '0 0 24px', fontSize: 14, fontWeight: 400, color: '#6b7280', lineHeight: '21px', letterSpacing: '-0.1px' }}>
+              Harbor District Adaptation Plan has been submitted for approval. All 5 team leads have been notified.
+            </p>
+
+            <button
+              onClick={() => {
+                setShowPlanConfirmation(false);
+                setPlanActivated(true);
+              }}
+              style={{
+                width: '100%', height: 48, borderRadius: 12,
+                background: '#1e2939',
+                border: 'none', cursor: 'pointer',
+                fontSize: 15, fontWeight: 600, color: 'white', letterSpacing: '-0.2px',
+              }}
+            >
+              Finish & Return to Monitoring
+            </button>
+          </div>
         </div>
       )}
     </div>

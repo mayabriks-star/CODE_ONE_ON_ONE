@@ -18,7 +18,7 @@ interface Props {
 }
 
 // Hazard-zone outline, captured as real lng/lat via the click-to-pin debug tool
-// (map.unproject() on each click) — geo-anchored so it stays glued to these
+// (map.unproject() on each click) - geo-anchored so it stays glued to these
 // buildings regardless of window size, zoom, or pitch.
 const HAZARD_ZONE_RING: [number, number][] = [
   [-80.188278, 25.765910],
@@ -63,7 +63,7 @@ export const HAZARD_ZONE_CENTROID: [number, number] = (() => {
   return [sum[0] / HAZARD_ZONE_RING.length, sum[1] / HAZARD_ZONE_RING.length];
 })();
 
-// Catmull-Rom spline through a closed ring of control points — lets a handful
+// Catmull-Rom spline through a closed ring of control points - lets a handful
 // of loosely-placed points produce an actual smooth curve (e.g. a rounded
 // waterfront edge) instead of straight segments between them. Near-straight
 // runs of points stay effectively straight, so this is safe to apply to the
@@ -174,7 +174,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
     // Non-interleaved overlay: renders as a flat, always-on-top 2D screen
     // layer, immune to depth-occlusion from the interleaved 3D building
     // tiles (a native MapLibre fill layer at ground level gets hidden under
-    // the buildings from this oblique camera — this overlay doesn't).
+    // the buildings from this oblique camera - this overlay doesn't).
     const overlay = new MapboxOverlay({ interleaved: false, layers: [] });
     map.addControl(overlay);
 
@@ -208,10 +208,10 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
     revealRef.current = () => {
       if (zoneVisibleRef.current) return;
 
-      // Step 1 — card + banner switch immediately
+      // Step 1 - card + banner switch immediately
       setZoneVisible(true);
 
-      // Step 2 — map zone fades in after 900ms (as a result of the alert)
+      // Step 2 - map zone fades in after 900ms (as a result of the alert)
       const DELAY_MS  = 900;
       const FADE_MS   = 1300;
       const PULSE_MS  = 900;
@@ -285,7 +285,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
 
       {/* Blocks the very first click from ever reaching the map canvas, so the
           Photoreal3DLayer's own click-to-zoom can't fire on the reveal click.
-          A real DOM element is the only reliable way to stop this — deck.gl's
+          A real DOM element is the only reliable way to stop this - deck.gl's
           picking resolves on pointerdown/pointerup, before any 'click' event
           could be intercepted via JS event listeners. Unmounts after one click. */}
       {!zoneVisible && !DEBUG_MODE && (
@@ -297,7 +297,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
 
       {/* Debug click-to-pin markers + smoothed-curve preview + readout panel
           (?debug=1 only). The dashed preview is a Catmull-Rom spline through
-          the raw control points, not straight segments — lets a handful of
+          the raw control points, not straight segments - lets a handful of
           loosely-placed points produce an actual smooth curve. */}
       {DEBUG_MODE && map && (
         <>
@@ -383,7 +383,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
         </>
       )}
 
-      {/* Zone detail card — pinned to bottom-right of the zone via map.project().
+      {/* Zone detail card - pinned to bottom-right of the zone via map.project().
           Appears together with the red zone and stays anchored as the map moves. */}
       {zoneVisible && zoneHovered && cardPos && (
         <div
@@ -436,7 +436,7 @@ export default function HomePageAlert({ onRedZoneClick, map, planActivated, onMe
 
             {/* Explanatory text */}
             <p style={{ margin: '0 0 11px', fontSize: 17, fontWeight: 500, color: 'rgba(255,255,255,0.85)', lineHeight: '25px', letterSpacing: '-0.2px' }}>
-              Sea levels rose <strong style={{ color: 'white' }}>38 mm above baseline</strong>, putting <strong style={{ color: 'white' }}>8,400 residents</strong> at risk. First flooding expected within <strong style={{ color: 'white' }}>18–24 months</strong> — critical deadline <strong style={{ color: 'white' }}>May 2027</strong>.
+              Sea levels rose <strong style={{ color: 'white' }}>38 mm above baseline</strong>, putting <strong style={{ color: 'white' }}>8,400 residents</strong> at risk. First flooding expected within <strong style={{ color: 'white' }}>18–24 months</strong> - critical deadline <strong style={{ color: 'white' }}>May 2027</strong>.
             </p>
 
             <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.1px' }}>

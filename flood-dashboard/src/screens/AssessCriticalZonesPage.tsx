@@ -166,7 +166,7 @@ interface ZoneDetailData {
 
 const ZONE_DETAIL_DATA: Record<string, ZoneDetailData> = {
   'Electric Utility Point': {
-    description: 'A critical electrical distribution point lies within the projected flood-impact zone. Without protection, storm surge could disable power to over 1,200 residents — disrupting traffic systems, residential services, and emergency response capacity across three adjacent blocks.',
+    description: 'A critical electrical distribution point lies within the projected flood-impact zone. Without protection, storm surge could disable power to over 1,200 residents - disrupting traffic systems, residential services, and emergency response capacity across three adjacent blocks.',
     steps: [
       { label: 'Survey & Document Assets:', desc: 'Map all ground-level electrical infrastructure within the flood zone and prioritize items by exposure risk.' },
       { label: 'Relocate Electrical Cabinets:', desc: 'Move transformer boxes and distribution units to at least 1.5 m above the projected flood elevation.' },
@@ -217,7 +217,7 @@ const ZONE_DETAIL_DATA: Record<string, ZoneDetailData> = {
     ],
   },
   'Increase pump capacity': {
-    description: 'The drainage network approaches overflow capacity during peak rainfall events. Backflow from undersized pump stations floods streets and triggers sewage overflow across low-lying areas — blocking emergency access and disrupting daily movement for hundreds of residents.',
+    description: 'The drainage network approaches overflow capacity during peak rainfall events. Backflow from undersized pump stations floods streets and triggers sewage overflow across low-lying areas - blocking emergency access and disrupting daily movement for hundreds of residents.',
     steps: [
       { label: 'Model Network Performance:', desc: 'Simulate drainage capacity under peak storm scenarios to identify highest-priority failure points and bottlenecks.' },
       { label: 'Upgrade Pump Stations:', desc: 'Replace current units with higher-capacity pumps rated for a 100-year storm event at the three main drainage outfalls.' },
@@ -329,7 +329,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
       <div style={{ height: `${containerHeight}px`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 20, paddingRight: 20, paddingTop: 16, paddingBottom: 16, gap: 14, boxSizing: 'border-box' }}>
 
-          {/* Top card — image or colored banner + overview */}
+          {/* Top card - image or colored banner + overview */}
           {(zone === 'Electric Utility Point' || zone === 'Residential Edge Blocks' || zone === 'Increase pump capacity' || zone === 'Vulnerable Residents') ? (
             /* Side-by-side layout (matches CoastalRoadAccessPage) */
             <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
@@ -383,7 +383,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
           {/* Bottom two columns */}
           <div style={{ flex: 1, display: 'flex', gap: 14, overflow: 'hidden', minHeight: 0 }}>
 
-            {/* Left — Implementation Steps */}
+            {/* Left - Implementation Steps */}
             <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
               <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -410,7 +410,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
               </div>
             </div>
 
-            {/* Right — Cost & Budget + Schedule */}
+            {/* Right - Cost & Budget + Schedule */}
             <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'hidden' }}>
 
               {/* Cost & Budget */}
@@ -502,7 +502,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     'Vulnerable Residents': onVulnerableResidents,
   };
 
-  // Debug drag state — only active when ?debug is in the URL
+  // Debug drag state - only active when ?debug is in the URL
   const [debugLngLats, setDebugLngLats] = useState<[number, number][]>(() => {
     if (IS_DEBUG) {
       try {
@@ -547,7 +547,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
     return () => clearTimeout(t);
   }, []);
 
-  // Geo-anchored tab positions — recomputed from each tab's lngLat via
+  // Geo-anchored tab positions - recomputed from each tab's lngLat via
   // map.project() so they move together with the map on pan/zoom, the same
   // pattern used for the hazard-zone hover card in HomePageAlert.tsx.
   const [tabPositions, setTabPositions] = useState<{ x: number; y: number }[] | null>(null);
@@ -594,7 +594,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
       `}</style>
       <ScaledLayout className="screen-enter">
 
-        {/* Left info card — expands right when a zone is selected */}
+        {/* Left info card - expands right when a zone is selected */}
         <div
           className="absolute glass-65 glass-shadow"
           style={{
@@ -607,9 +607,9 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          {/* Left column — always visible zone list */}
+          {/* Left column - always visible zone list */}
           <div style={{ width: 386, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-            {/* Header — title only */}
+            {/* Header - title only */}
             <div style={{ padding: '14px 16px 13px' }}>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px', lineHeight: '28px' }}>
                 Critical Zones
@@ -670,7 +670,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
               ))}
             </div>
 
-            {/* Simulate button — pinned to bottom */}
+            {/* Simulate button - pinned to bottom */}
             <div style={{ padding: '14px 16px 16px', marginTop: 'auto' }}>
               <button
                 onClick={onPlan}
@@ -686,7 +686,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             </div>
           </div>
 
-          {/* Right panel — zone detail, scaled to fit */}
+          {/* Right panel - zone detail, scaled to fit */}
           {expandedZone && (
             <div style={{ flex: 1, borderLeft: '1px solid rgba(0,0,0,0.09)', overflow: 'hidden', position: 'relative' }}>
               <div style={{
@@ -707,7 +707,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         </div>
       </ScaledLayout>
 
-      {/* Back button — viewport space so it aligns with the scaled canvas */}
+      {/* Back button - viewport space so it aligns with the scaled canvas */}
       <button
         onClick={onBack}
         style={{
@@ -727,7 +727,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
         <span style={{ fontSize: Math.round(17 * scale), color: '#1e2939', lineHeight: 1 }}>←</span>
       </button>
 
-      {/* Progress bar — right:16px in viewport space matches HomePageHeader exactly */}
+      {/* Progress bar - right:16px in viewport space matches HomePageHeader exactly */}
       <div
         className="glass-65 glass-shadow"
         style={{
@@ -742,7 +742,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           zIndex: 20,
         }}
       >
-        {/* SVG fills 100% width — viewBox 1426×36 stretches proportionally with the container */}
+        {/* SVG fills 100% width - viewBox 1426×36 stretches proportionally with the container */}
         <svg
           width="100%" height="100%"
           viewBox="0 0 1426 36"
@@ -756,7 +756,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           <path d="M1130,0 L1144,18 L1130,36" stroke="rgba(30,41,57,0.45)" strokeWidth="1.5" fill="none" style={{ vectorEffect: 'non-scaling-stroke' } as React.CSSProperties} />
         </svg>
 
-        {/* Labels — percentage-based positions mirror the viewBox fractions */}
+        {/* Labels - percentage-based positions mirror the viewBox fractions */}
         {/* Step 1: 0/1426 → 298/1426 = 0%→20.90% */}
         <div style={{ position: 'absolute', left: '0%', top: 0, width: '20.90%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.7%' }}>
           <span style={{ fontSize: Math.round(13 * scale), fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -791,7 +791,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
 
       <HomePageHeader />
 
-      {/* Map tabs — geo-anchored via map.project(), rendered in raw viewport
+      {/* Map tabs - geo-anchored via map.project(), rendered in raw viewport
           pixels outside ScaledLayout so they track the map on pan/zoom. */}
       {tabPositions && !expandedZone && MAP_TABS.map((tab, i) => {
           const pos = tabPositions[i];
@@ -955,7 +955,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
             </div>
           );
         })}
-      {/* Debug position overlay — visible only with ?debug in URL */}
+      {/* Debug position overlay - visible only with ?debug in URL */}
       {IS_DEBUG && (
         <div style={{
           position: 'fixed', bottom: 16, right: 16, zIndex: 9999,
@@ -964,7 +964,7 @@ export default function AssessCriticalZonesPage({ onBack, onPlan, onCoastalRoad,
           userSelect: 'text', pointerEvents: 'auto',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontWeight: 700, color: 'white' }}>🔧 Tab positions — drag to move</span>
+            <span style={{ fontWeight: 700, color: 'white' }}>🔧 Tab positions - drag to move</span>
             <button
               onClick={() => {
                 const txt = MAP_TABS.map((tab, i) =>

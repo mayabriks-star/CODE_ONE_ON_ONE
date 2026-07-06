@@ -44,7 +44,7 @@ export interface Measure {
   defaultOn: boolean;
 }
 
-// Placeholder simulation model — realistic preset values, not a real GIS
+// Placeholder simulation model - realistic preset values, not a real GIS
 // engine. Defaults (raisedRoads, drainageUpgrade, utilityProtection,
 // residentSupport) are calibrated to sum to the spec's exact default
 // scenario, matching CompareResponseScenariosPage's "Selected Scenario".
@@ -66,7 +66,7 @@ function formatCost(n: number) {
 }
 
 // Fade + rise-into-place entrance for map overlay groups, instead of a flat
-// fade — reads as the intervention being "added into the environment".
+// fade - reads as the intervention being "added into the environment".
 function overlayGroupStyle(isActive: boolean): CSSProperties {
   return {
     opacity: isActive ? 1 : 0,
@@ -265,7 +265,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
   const timeMax = Math.round(activeMeasures.reduce((s, m) => s + m.timeMax * mp(m), 0));
   const budgetPct = Math.round((totalCost / AVAILABLE_BUDGET) * 100);
   const effortRatio = totalCost > 0 ? (residentsProtected / 100 + floodRiskReduction) / (totalCost / 1_000_000) : 0;
-  const valueForEffort = activeMeasures.length === 0 ? '—' : effortRatio >= 2 ? 'Strong' : effortRatio >= 1.2 ? 'Moderate' : 'Limited';
+  const valueForEffort = activeMeasures.length === 0 ? '-' : effortRatio >= 2 ? 'Strong' : effortRatio >= 1.2 ? 'Moderate' : 'Limited';
   const mainTradeoff = offMeasures.length === 0
     ? 'Full coverage across all measures'
     : `Lower coverage: ${offMeasures.map((m) => m.label).join(', ')} not included`;
@@ -310,20 +310,20 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
       <SimulationLayers map={map} activeMeasures={active} />
       {(SEA_WALL_CONFIG.debugMode || (ELEVATED_BUILDINGS_CONFIG.cameraDebugMode && active.elevatedBuildings) || (ELEVATED_WALKWAY_CONFIG.cameraDebugMode && active.elevatedWalkways)) && <CameraDebugOverlay map={map} />}
       <ScaledLayout className="screen-enter">
-        {/* Map overlays — layered "built asset" illustrations per active measure */}
+        {/* Map overlays - layered "built asset" illustrations per active measure */}
         <svg
           className="absolute"
           style={{ left: 0, top: 0, width: 1512, height: 1008, pointerEvents: 'none' }}
           viewBox="0 0 1512 1008"
         >
-          {/* Sea wall — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
+          {/* Sea wall - replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
-          {/* Raised roads — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
+          {/* Raised roads - replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
 
-          {/* Elevated walkways — replaced by 3D MapLibre layer in SimulationLayers.jsx */}
+          {/* Elevated walkways - replaced by 3D MapLibre layer in SimulationLayers.jsx */}
 
-          {/* Drainage upgrade — infrastructure marker: ring + core + funnel glyph */}
+          {/* Drainage upgrade - infrastructure marker: ring + core + funnel glyph */}
           <g style={overlayGroupStyle(active.drainageUpgrade)}>
             {[[700, 700], [820, 640], [950, 720]].map(([x, y], i) => (
               <g key={i}>
@@ -337,7 +337,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         </svg>
       </ScaledLayout>
 
-      {/* Progress bar — step 2 active */}
+      {/* Progress bar - step 2 active */}
       <div
         className="glass-65 glass-shadow"
         style={{
@@ -374,7 +374,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             Assess critical zones
           </span>
         </div>
-        {/* Step 2 — active */}
+        {/* Step 2 - active */}
         <div style={{ position: 'absolute', left: '20.90%', top: 0, width: '19.77%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.7%', paddingRight: '1.5%' }}>
           <span style={{ fontSize: Math.round(13 * scale), fontWeight: 600, color: 'white', letterSpacing: '-0.2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             Simulate response scenarios
@@ -402,13 +402,13 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
 
       <HomePageHeader reducedShadow={active.seaWall || active.raisedRoads} />
 
-      {/* Left-side column — toggle panel stacked above the data card, as a
+      {/* Left-side column - toggle panel stacked above the data card, as a
           single flex column so the data card always sits directly below the
           toggle panel regardless of its content height (no hardcoded gap
           guessing). Rendered outside ScaledLayout with position:fixed so it
           stays flush with the true viewport left edge on any screen width
           (see ARCHITECTURE_AND_DESIGN_SYSTEM.md Section D pattern). */}
-      {/* Back button — matches AssessCriticalZonesPage exactly */}
+      {/* Back button - matches AssessCriticalZonesPage exactly */}
       <button
         onClick={onBack}
         style={{
@@ -423,7 +423,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         <span style={{ fontSize: Math.round(17 * scale), color: '#1e2939', lineHeight: 1 }}>←</span>
       </button>
 
-      {/* Left column — scenario controls */}
+      {/* Left column - scenario controls */}
       <div style={{ position: 'fixed', left: 16, top: 141, width: 400, display: 'flex', flexDirection: 'column', gap: 12, pointerEvents: 'none' }}>
         <div
           className="glass-shadow"
@@ -467,7 +467,7 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
         </div>
       </div>
 
-      {/* Top-right — summary card, horizontal layout */}
+      {/* Top-right - summary card, horizontal layout */}
       <div style={{ position: 'fixed', right: 16, top: 141, width: 520, pointerEvents: 'none' }}>
         <div
           className="glass-shadow"

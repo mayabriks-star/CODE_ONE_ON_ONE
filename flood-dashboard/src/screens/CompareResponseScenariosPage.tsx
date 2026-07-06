@@ -290,7 +290,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
         <span style={{ fontSize: 17, color: '#1e2939', lineHeight: 1 }}>←</span>
       </button>
 
-      {/* Progress bar — step 3 (Compare) active, steps 1+2 completed */}
+      {/* Progress bar - step 3 (Compare) active, steps 1+2 completed */}
       <div
         className="glass-65 glass-shadow"
         style={{
@@ -426,7 +426,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
 
             </div>
 
-            {/* Outcomes — table style, same white card as above */}
+            {/* Outcomes - table style, same white card as above */}
             <div style={{ background: 'white', borderRadius: 12, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
               {[
                 { label: 'Total investment',    key: 'totalCost' as const,              bold: false },
@@ -472,7 +472,7 @@ export default function CompareResponseScenariosPage({ onBack, onContinue, selec
 
             </div>{/* end scrollable area */}
 
-            {/* Footer — button always visible */}
+            {/* Footer - button always visible */}
             <div style={{ flexShrink: 0, padding: '16px 28px', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
               <button onClick={onContinue} style={{
                 width: 354, height: 44, borderRadius: 12,

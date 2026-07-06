@@ -1,43 +1,71 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
-import { TriangleAlert, MapPin, X, Search, BarChart2, Scale, Users, Rocket, ChevronRight } from 'lucide-react';
+import { TriangleAlert, MapPin, X, Search, BarChart2, Scale, Users, Rocket, Waves, SlidersHorizontal, ListOrdered, GitBranch, TrendingUp, DollarSign, ArrowLeftRight, BadgeCheck, UserCheck, Calendar, ClipboardList, Zap, Shield, Activity, CalendarCheck, type LucideIcon } from 'lucide-react';
 
 interface Props {
   onZoomOut: () => void;
   onPlan: () => void;
 }
 
-const PLAN_STEPS = [
+interface PlanStep {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  points: { icon: LucideIcon; text: string }[];
+}
+
+const PLAN_STEPS: PlanStep[] = [
   {
     icon: Search,
     title: 'Assess Critical Zones',
     description: 'Identify the highest-risk areas in Harbor District before taking action.',
-    points: ['Review flood depth projections', 'Map vulnerable infrastructure', 'Rank zones by impact severity'],
+    points: [
+      { icon: Waves, text: 'Flood depth projections' },
+      { icon: MapPin, text: 'Infrastructure exposure map' },
+      { icon: ListOrdered, text: 'Zone risk ranking' },
+    ],
   },
   {
     icon: BarChart2,
     title: 'Simulate Scenarios',
     description: 'Model different protection strategies and compare projected outcomes.',
-    points: ['Run barrier vs. drainage models', 'Compare 3 and 10-year projections', 'Estimate cost per scenario'],
+    points: [
+      { icon: GitBranch, text: 'Barrier vs. drainage models' },
+      { icon: TrendingUp, text: '10-year storm projections' },
+      { icon: DollarSign, text: 'Cost per intervention' },
+    ],
   },
   {
     icon: Scale,
     title: 'Compare Options',
     description: 'Weigh each option against budget constraints and community impact.',
-    points: ['Short-term vs. long-term plans', 'Budget feasibility analysis', 'Risk-benefit comparison'],
+    points: [
+      { icon: ArrowLeftRight, text: 'Short vs. long-term tradeoffs' },
+      { icon: SlidersHorizontal, text: 'Budget & feasibility scoring' },
+      { icon: BadgeCheck, text: 'Risk-benefit comparison' },
+    ],
   },
   {
     icon: Users,
     title: 'Assign Teams & Tasks',
     description: 'Match tasks to response teams and set clear ownership per zone.',
-    points: ['Match tasks to expert teams', 'Set team leads per zone', 'Define deliverables & deadlines'],
+    points: [
+      { icon: UserCheck, text: 'Expert-to-zone matching' },
+      { icon: Calendar, text: 'Deadlines & deliverables' },
+      { icon: ClipboardList, text: 'District sign-off' },
+    ],
   },
   {
     icon: Rocket,
     title: 'Launch Action Plan',
     description: 'Deploy the approved plan and begin active flood protection.',
-    points: ['Activate first-response teams', 'Begin zone protections', 'Set monitoring checkpoints'],
+    points: [
+      { icon: Zap, text: 'Activate response teams' },
+      { icon: Shield, text: 'Phased zone protection' },
+      { icon: Activity, text: 'Live monitoring dashboard' },
+      { icon: CalendarCheck, text: '30-day stakeholder review' },
+    ],
   },
 ];
 
@@ -266,7 +294,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
           display: 'flex', flexDirection: 'row', position: 'relative',
         }}
       >
-        {/* ── X button — absolute at top-right of the whole card ── */}
+        {/* ── X button - absolute at top-right of the whole card ── */}
         {isOpen && (
           <button
             onClick={handleClosePlan}
@@ -302,7 +330,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
             The system built a recommended action plan for this situation. Acting now can delay the projected flood impact by over a year.
           </p>
 
-          {/* Stat boxes — only when expanded */}
+          {/* Stat boxes - only when expanded */}
           {isOpen && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 * s, margin: `${14 * s}px ${16 * s}px 0` }}>
               <div style={{ background: 'rgba(70,129,55,0.08)', padding: `${10 * s}px ${13 * s}px`, borderRadius: 11 * s, display: 'flex', flexDirection: 'column', gap: 4 * s }}>
@@ -316,7 +344,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
             </div>
           )}
 
-          {/* Start Assessment CTA — pinned to bottom when expanded */}
+          {/* Start Assessment CTA - pinned to bottom when expanded */}
           {isOpen && (
             <div style={{ marginTop: 'auto', padding: `${16 * s}px` }}>
               <button
@@ -334,7 +362,7 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
             </div>
           )}
 
-          {/* Buttons — only when collapsed */}
+          {/* Buttons - only when collapsed */}
           {!isOpen && (
             <div style={{ margin: `${14 * s}px ${16 * s}px ${16 * s}px`, display: 'flex', flexDirection: 'column', gap: 10 * s }}>
               <button
@@ -444,22 +472,31 @@ export default function AlertPageV2({ onZoomOut, onPlan }: Props) {
                   <div style={{ height: 1, background: isActive ? 'rgba(40,100,228,0.12)' : 'rgba(0,0,0,0.07)', marginBottom: 11 * s, flexShrink: 0 }} />
 
                   {/* Bullet points */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 * s }}>
-                    {step.points.map(pt => (
-                      <div key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 * s }}>
-                        <ChevronRight size={13 * s} color="#9ca3af" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 3 * s }} />
-                        <span style={{
-                          fontSize: 14 * s, fontWeight: 500,
-                          color: '#6b7280',
-                          lineHeight: `${20 * s}px`, letterSpacing: '-0.2px',
-                        }}>
-                          {pt}
-                        </span>
-                      </div>
-                    ))}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 * s }}>
+                    {step.points.map(pt => {
+                      const PtIcon = pt.icon;
+                      return (
+                        <div key={pt.text} style={{ display: 'flex', alignItems: 'center', gap: 8 * s }}>
+                          <div style={{
+                            width: 24 * s, height: 24 * s, borderRadius: 6 * s, flexShrink: 0,
+                            background: isActive ? 'rgba(40,100,228,0.08)' : 'rgba(0,0,0,0.05)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <PtIcon size={13 * s} color={isActive ? '#2864e4' : '#9ca3af'} strokeWidth={2} />
+                          </div>
+                          <span style={{
+                            fontSize: 13 * s, fontWeight: 500,
+                            color: isActive ? '#374151' : '#9ca3af',
+                            lineHeight: `${18 * s}px`, letterSpacing: '-0.1px',
+                          }}>
+                            {pt.text}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {/* Bottom action — only for locked steps */}
+                  {/* Bottom action - only for locked steps */}
                   {!isActive && (
                     <div style={{ marginTop: 'auto', paddingTop: 14 * s }}>
                       <span style={{ fontSize: 11 * s, fontWeight: 500, color: isHovered ? '#9ca3af' : 'rgba(0,0,0,0.22)', letterSpacing: '-0.1px' }}>

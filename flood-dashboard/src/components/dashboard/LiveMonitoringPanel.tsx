@@ -4,7 +4,7 @@ import { cityOverview } from '../../mockData';
 interface Props {
   vulnerableDistricts?: string;
   // When true, the panel reflects the live alert state instead of the
-  // baseline "Moderate" overview — same data/copy established on the Alert
+  // baseline "Moderate" overview - same data/copy established on the Alert
   // screen and the hazard-zone hover card, kept consistent rather than
   // inventing new alert language here.
   alert?: boolean;

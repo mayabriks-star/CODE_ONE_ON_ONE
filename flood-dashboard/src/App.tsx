@@ -69,7 +69,7 @@ export default function App() {
   }, [screen]);
 
   // On return visits from detail screens, restore the map to where it was.
-  // On first visit the map stays exactly as it was on the Alert screen — no camera change.
+  // On first visit the map stays exactly as it was on the Alert screen - no camera change.
   useEffect(() => {
     if (screen === 'assess-critical-zones' && assessVisited.current && mapRef.current && cameraRef.current) {
       mapRef.current.jumpTo(cameraRef.current);
@@ -185,7 +185,7 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
-      {/* 3D map — persistent background for all map-based screens */}
+      {/* 3D map - persistent background for all map-based screens */}
       {(screen === 'home' || screen === 'home-alert' || screen === 'alert' || screen === 'assess-critical-zones'
         || screen === 'simulate-scenarios' || screen === 'compare-scenarios' || screen === 'allocate-budget-teams'
         || screen === 'launch-action-plan'
@@ -211,7 +211,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Screen 2 — rAF drives translate + scale + opacity during zoom-in */}
+      {/* Screen 2 - rAF drives translate + scale + opacity during zoom-in */}
       {screen === 'home-alert' && (
         <div
           ref={s2Ref}
@@ -225,7 +225,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Screen 3 — rAF drives scale + opacity during zoom-out */}
+      {/* Screen 3 - rAF drives scale + opacity during zoom-out */}
       {screen === 'alert' && (
         <div
           ref={s3Ref}
@@ -235,7 +235,7 @@ export default function App() {
           <AlertPageV2 onZoomOut={handleZoomOut} onPlan={handleOpenAssessCriticalZones} />
         </div>
       )}
-      {/* Screen 4 — Assess Critical Zones */}
+      {/* Screen 4 - Assess Critical Zones */}
       {screen === 'assess-critical-zones' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AssessCriticalZonesPage
@@ -252,7 +252,7 @@ export default function App() {
           />
         </div>
       )}
-      {/* Screen — Simulate Response Scenarios */}
+      {/* Screen - Simulate Response Scenarios */}
       {screen === 'simulate-scenarios' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <SimulateResponseScenariosPage
@@ -262,7 +262,7 @@ export default function App() {
           />
         </div>
       )}
-      {/* Screen 5 — Response Planning: full white page, no background image */}
+      {/* Screen 5 - Response Planning: full white page, no background image */}
       {screen === 'planning' && (
         <div className="absolute inset-0" style={{ background: '#F9FAFB' }}>
           <ResponsePlanningPage
@@ -272,13 +272,13 @@ export default function App() {
           />
         </div>
       )}
-      {/* Screen — Compare Response Scenarios */}
+      {/* Screen - Compare Response Scenarios */}
       {screen === 'compare-scenarios' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <CompareResponseScenariosPage onBack={() => setScreen('assess-critical-zones')} onContinue={handleOpenAllocateBudget} selectedScenario={simulatedScenario ?? undefined} />
         </div>
       )}
-      {/* Screen — Allocate Budget & Teams */}
+      {/* Screen - Allocate Budget & Teams */}
       {screen === 'allocate-budget-teams' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <AllocateBudgetTeamsPage
@@ -299,7 +299,7 @@ export default function App() {
           />
         </div>
       )}
-      {/* Screen — Launch Action Plan */}
+      {/* Screen - Launch Action Plan */}
       {screen === 'launch-action-plan' && (
         <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
           <LaunchActionPlanPage
@@ -308,31 +308,31 @@ export default function App() {
           />
         </div>
       )}
-      {/* Screen 6 — Costal Road Access detail */}
+      {/* Screen 6 - Costal Road Access detail */}
       {screen === 'coastal-road' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <CoastalRoadAccessPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Costal Road Access')} />
         </div>
       )}
-      {/* Screen 7 — Vulnerable Residents detail */}
+      {/* Screen 7 - Vulnerable Residents detail */}
       {screen === 'vulnerable-residents' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <VulnerableResidentsPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Vulnerable Residents')} />
         </div>
       )}
-      {/* Screen 8 — Electric Utility Point detail */}
+      {/* Screen 8 - Electric Utility Point detail */}
       {screen === 'electric-utility' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <ElectricUtilityPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Electric Utility Point')} />
         </div>
       )}
-      {/* Screen 9 — Residential Edge Blocks detail */}
+      {/* Screen 9 - Residential Edge Blocks detail */}
       {screen === 'residential-edge' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <ResidentialEdgePage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Residential Edge Blocks')} />
         </div>
       )}
-      {/* Screen 10 — Increase Pump Capacity detail */}
+      {/* Screen 10 - Increase Pump Capacity detail */}
       {screen === 'pump-capacity' && (
         <div className="absolute inset-0" style={{ background: '#f8f8f8' }}>
           <PumpCapacityPage onBack={() => setScreen(detailReturnScreen)} onApprove={() => handleApproveZone('Increase pump capacity')} />

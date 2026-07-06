@@ -46,7 +46,7 @@ export default function AlertBanner({ onAssess, onDismiss }: Props) {
             color: 'white', letterSpacing: '-0.3px',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
-            Sea level rise detected — Harbor District at risk
+            Sea level rise detected - Harbor District at risk
           </span>
 
           <button

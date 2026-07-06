@@ -52,7 +52,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
           {/* Divider 1 */}
           <div className="absolute bg-[rgba(0,0,0,0.08)]" style={{ top: 59, left: 0, right: 0, height: 1 }} />
 
-          {/* Risk → Divider 2 → Recommended — flow wrapper for exact 25px gaps */}
+          {/* Risk → Divider 2 → Recommended - flow wrapper for exact 25px gaps */}
           <div style={{ position: 'absolute', top: 84, left: 0, right: 0 }}>
             {/* Risk section */}
             <div className="flex flex-col gap-[8px]" style={{ paddingLeft: 17, paddingRight: 46, paddingBottom: 25 }}>
@@ -77,7 +77,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               </p>
             </div>
 
-            {/* Divider 2 — sits exactly 25px below risk content, 25px above recommended */}
+            {/* Divider 2 - sits exactly 25px below risk content, 25px above recommended */}
             <div className="bg-[rgba(0,0,0,0.08)]" style={{ margin: '0 14px 0 12px', height: 1 }} />
 
             {/* Recommended response plan section */}
@@ -100,7 +100,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   Program stages
                 </p>
                 <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px', marginLeft: '13px' }}>
-                  {/* Vertical connecting line — same token values as the
+                  {/* Vertical connecting line - same token values as the
                       Implementation Schedule stepper used on the zone detail
                       screens (e.g. CoastalRoadAccessPage.tsx). */}
                   <div style={{ position: 'absolute', left: '10px', top: '10px', width: '1.5px', height: `${(STEPS.length - 1) * 40}px`, background: '#364153', zIndex: 0 }} />
@@ -144,7 +144,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
           </button>
         </div>
 
-        {/* Impact Timeline overlay — Figma node 396:1047 */}
+        {/* Impact Timeline overlay - Figma node 396:1047 */}
         {isTimelineOpen && (
           <div
             style={{
@@ -162,7 +162,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               pointerEvents: 'auto',
             }}
           >
-            {/* X close button — Figma node 396:1307, absolute x:9 y:8, 23×23 */}
+            {/* X close button - Figma node 396:1307, absolute x:9 y:8, 23×23 */}
             <button
               onClick={() => setIsTimelineOpen(false)}
               aria-label="Close"
@@ -182,7 +182,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               </svg>
             </button>
 
-            {/* Header — Figma node 416:74, 944×64, paddingLeft:88, flex justify-between */}
+            {/* Header - Figma node 416:74, 944×64, paddingLeft:88, flex justify-between */}
             <div
               style={{
                 width: 944, height: 64, flexShrink: 0,
@@ -199,7 +199,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   The timeline updates as protection measures progress
                 </p>
               </div>
-              {/* Legend — 153×64 */}
+              {/* Legend - 153×64 */}
               <div style={{ position: 'relative', width: 153, height: 64, flexShrink: 0 }}>
                 <div style={{ position: 'absolute', top: 0, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 20, height: 2, background: '#468137', flexShrink: 0 }} />
@@ -212,7 +212,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
               </div>
             </div>
 
-            {/* Chart area — Figma node 396:1051, 1056×238, full card width */}
+            {/* Chart area - Figma node 396:1051, 1056×238, full card width */}
             <div style={{ width: 1056, height: 238, flexShrink: 0, position: 'relative' }}>
               <svg
                 viewBox="0 0 960 238"
@@ -240,7 +240,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                 {/* Y-axis vertical spine */}
                 <line x1={85} y1={8} x2={85} y2={140} stroke="rgba(0,0,0,0.18)" strokeWidth={1} />
 
-                {/* Green path — With protection */}
+                {/* Green path - With protection */}
                 <path
                   d="M 107 74 C 200 79, 330 82, 450 78 C 560 72, 630 61, 668 53 C 750 48, 860 46, 939 45"
                   stroke="#468137"
@@ -254,7 +254,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   }}
                 />
 
-                {/* Red path — Without protection */}
+                {/* Red path - Without protection */}
                 <path
                   d="M 107 74 C 160 55, 195 42, 228 34 C 295 20, 360 8, 430 4 C 520 2, 680 5, 939 7"
                   stroke="#c0392b"
@@ -268,7 +268,7 @@ export default function AlertPage({ onZoomOut, onPlan }: Props) {
                   }}
                 />
 
-                {/* Dots — Figma cx≈107,228,668 cy≈73,34,53 */}
+                {/* Dots - Figma cx≈107,228,668 cy≈73,34,53 */}
                 <circle cx={107} cy={73} r={7} fill="#1a1a1a" />
                 <circle cx={228} cy={34} r={7} fill="#1a1a1a" />
                 <circle cx={668} cy={53} r={7} fill="#1a1a1a" />

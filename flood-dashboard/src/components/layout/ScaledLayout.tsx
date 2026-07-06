@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react';
 
-// Figma design canvas dimensions — do not change without reviewing all absolute positions
+// Figma design canvas dimensions - do not change without reviewing all absolute positions
 const DESIGN_W = 1512;
 const DESIGN_H = 1008;
 
@@ -12,7 +12,7 @@ interface Props {
 /**
  * Scales the 1512×1008 Figma design canvas to fit within the actual browser viewport.
  * The background image (set on App root) remains full-screen; only UI panels scale.
- * Scale = min(1, viewportW / 1512, viewportH / 1008) — shrinks when viewport is smaller,
+ * Scale = min(1, viewportW / 1512, viewportH / 1008) - shrinks when viewport is smaller,
  * never enlarges beyond 1× so the design stays crisp on large displays.
  * Transform origin is top-left to preserve the top and left panel alignment.
  */

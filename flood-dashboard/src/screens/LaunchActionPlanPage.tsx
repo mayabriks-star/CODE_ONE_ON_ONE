@@ -55,7 +55,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
         <span style={{ fontSize: 17, color: '#1e2939' }}>←</span>
       </button>
 
-      {/* Progress bar — step 5 active */}
+      {/* Progress bar - step 5 active */}
       <div className="glass-65 glass-shadow" style={{
         position: 'fixed', top: 93, left: 60, right: 16, height: 36,
         borderRadius: 18, overflow: 'hidden', pointerEvents: 'none', zIndex: 20,
@@ -95,7 +95,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
       }}>
 
-        {/* 1 — Header */}
+        {/* 1 - Header */}
         <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
           <div style={{ minWidth: 0 }}>
             <p style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.44px' }}>
@@ -118,7 +118,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
 
         <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '0 14px' }} />
 
-        {/* 2 — Plan context */}
+        {/* 2 - Plan context */}
         <div style={{ padding: '10px 16px 0' }}>
           <p style={{ margin: '0 0 1px', fontSize: 15, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.3px' }}>
             Adaptation Plan · Harbor District
@@ -128,7 +128,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
           </p>
         </div>
 
-        {/* 3 — Hero outcome */}
+        {/* 3 - Hero outcome */}
         <div style={{ margin: '12px 12px 0', borderRadius: 12, background: 'rgba(30,41,57,0.055)', padding: '13px 14px 12px' }}>
           <p style={{ margin: '0 0 5px', fontSize: 10, fontWeight: 700, color: '#6b7280', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
             Protected time gained
@@ -159,7 +159,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
           </div>
         </div>
 
-        {/* 4 — Secondary metrics — 3 compact equal columns */}
+        {/* 4 - Secondary metrics - 3 compact equal columns */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 5, padding: '9px 12px 0' }}>
           {SECONDARY_METRICS.map(({ label, value }) => (
             <div key={label} style={{ background: 'rgba(255,255,255,0.55)', borderRadius: 9, padding: '8px 9px' }}>
@@ -171,7 +171,7 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
 
         <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '11px 14px 0' }} />
 
-        {/* 5 — Readiness */}
+        {/* 5 - Readiness */}
         <div style={{ padding: '10px 16px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
           {READINESS.map((item) => (
             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -189,12 +189,12 @@ export default function LaunchActionPlanPage({ onBack, onLaunch }: Props) {
           ))}
         </div>
 
-        {/* 6 — Consequence line */}
+        {/* 6 - Consequence line */}
         <p style={{ margin: '10px 16px 0', fontSize: 13, fontWeight: 400, color: '#6b7280', lineHeight: '18px', letterSpacing: '-0.1px' }}>
           Activating this plan will notify assigned leads and start the first 30-day response window.
         </p>
 
-        {/* 7 — CTA */}
+        {/* 7 - CTA */}
         <div style={{ padding: '12px 14px 16px' }}>
           <button onClick={handleLaunch} style={{
             width: '100%', height: 44, borderRadius: 11,

@@ -44,7 +44,7 @@ function RiskGauge() {
   const r = 34;        // Figma arc radius ≈34
   const strokeW = 7;
   const startAngle = 215; // lower-left
-  const endAngle = 145;   // lower-right (was 325 = upper-left — wrong direction)
+  const endAngle = 145;   // lower-right (was 325 = upper-left - wrong direction)
   const fillPct = 9.2 / 10;
 
   function polarToXY(angle: number, radius: number) {
@@ -224,7 +224,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
               <ArrowLeft size={20} />
             </button>
             <span style={{ fontSize: '26px', fontWeight: 600, color: '#364153', letterSpacing: '-0.44px', lineHeight: '28px' }}>
-              Assess Critical Zones — Costal Road Access
+              Assess Critical Zones - Costal Road Access
             </span>
           </div>
         </div>
@@ -245,16 +245,16 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
           boxSizing: 'border-box',
         }}
       >
-        {/* Top card — text left (1/3) + image right (2/3) */}
+        {/* Top card - text left (1/3) + image right (2/3) */}
         <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
-          {/* Left — text */}
+          {/* Left - text */}
           <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
             <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
-              The coastal road is the primary evacuation route for 620 residents. Rising sea levels and storm surge create critical elevation vulnerabilities — without intervention, Harbor District access will be lost during high-water events.
+              The coastal road is the primary evacuation route for 620 residents. Rising sea levels and storm surge create critical elevation vulnerabilities - without intervention, Harbor District access will be lost during high-water events.
             </p>
           </div>
-          {/* Right — image (2/3) */}
+          {/* Right - image (2/3) */}
           <div style={{ flex: 2, position: 'relative' }}>
             <img
               src="/coastal-road-tab.png"
@@ -314,7 +314,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
         {/* Bottom two columns */}
         <div style={{ flex: 1, display: 'flex', gap: '14px', overflow: 'hidden', minHeight: 0 }}>
 
-          {/* Left — Implementation Steps */}
+          {/* Left - Implementation Steps */}
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -344,7 +344,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
             )}
           </div>
 
-          {/* Right — Cost & Budget + Schedule + Approve */}
+          {/* Right - Cost & Budget + Schedule + Approve */}
           <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
 
             {/* Cost & Budget */}

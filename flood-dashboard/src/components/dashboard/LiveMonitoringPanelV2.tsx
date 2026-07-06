@@ -94,13 +94,13 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown, planActivated 
             const noise = (Math.random() - 0.5) * 1.5;
             next = Math.max(7, +(last - 13.0 + noise).toFixed(2));
           } else {
-            // Reached normal — gentle oscillation like the first screen
+            // Reached normal - gentle oscillation like the first screen
             const t = Date.now() / 8000;
             const tide = 7.0 + Math.sin(t) * 2.2 + Math.cos(t * 2.1) * 1.0;
             next = Math.max(4, +(tide + (Math.random() - 0.5) * 0.7).toFixed(2));
           }
         } else if (!isAlt) {
-          // Normal: pure tide oscillation around ~7mm — never drifts above 11mm
+          // Normal: pure tide oscillation around ~7mm - never drifts above 11mm
           const t = Date.now() / 8000;
           const tide = 7.0 + Math.sin(t) * 2.2 + Math.cos(t * 2.1) * 1.0;
           next = Math.max(0.5, +(tide + (Math.random() - 0.5) * 0.7).toFixed(2));
@@ -199,7 +199,7 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown, planActivated 
             <div className="flex-1" />
             {/* Status word + arrow share the same semantic color.
                 Normal = no arrow (neutral). High/Critical = always red word + red arrow,
-                direction based on delta — "High" can never appear green. */}
+                direction based on delta - "High" can never appear green. */}
             <div className="flex items-center gap-[6px] mb-[3px]">
               <span className="font-medium text-[14px] leading-[21px] tracking-[-0.44px]"
                 style={{ color: isNormal ? '#1e2939' : '#dc2626' }}>
@@ -214,7 +214,7 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown, planActivated 
           </div>
         </div>
 
-        {/* Chart — key on tick to trigger CSS re-animation each update */}
+        {/* Chart - key on tick to trigger CSS re-animation each update */}
         <div className="px-[11px]">
           <svg key={tick} width="100%" height={VH}
             viewBox={`0 0 ${VW} ${VH}`} className="chart-tick" style={{ display: 'block' }}>
@@ -256,7 +256,7 @@ export default function LiveMonitoringPanelV2({ alert, nudgeDown, planActivated 
 
         <div className="h-px bg-[rgba(0,0,0,0.08)] mx-[7px]" />
 
-        {/* Wave metrics — larger values + label hierarchy */}
+        {/* Wave metrics - larger values + label hierarchy */}
         <div className="flex flex-col mx-[11px] rounded-[12px]" style={{ background: 'rgba(0,0,0,0.025)' }}>
           {/* Wave Height */}
           <div className="flex items-center justify-between px-[13px] pt-[12px] pb-[8px]"

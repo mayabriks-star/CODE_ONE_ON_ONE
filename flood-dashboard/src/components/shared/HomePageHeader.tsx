@@ -10,7 +10,7 @@ export default function HomePageHeader({ onMinus, onMenu, map, reducedShadow }: 
     <div className="absolute left-[16px] right-[16px] top-[12px]" style={{ pointerEvents: 'auto' }}>
       <div className="h-[52px] glass-65 glass-shadow rounded-[26px] flex items-center px-[10px] gap-[6px]" style={{ border: '1px solid rgba(0,0,0,0.10)', boxShadow: shadow }}>
 
-        {/* Icon buttons — each in its own circle */}
+        {/* Icon buttons - each in its own circle */}
         {leftIcons.map((Icon, i) => (
           <button
             key={i}

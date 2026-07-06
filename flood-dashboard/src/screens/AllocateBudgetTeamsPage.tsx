@@ -4,7 +4,7 @@ import { MEASURES } from './SimulateResponseScenariosPage';
 import type { MeasureKey } from './SimulateResponseScenariosPage';
 import { ChevronRight, Clock, Users, Briefcase } from 'lucide-react';
 
-// Zone accent colors — same as ZONE_ACCENT in AssessCriticalZonesPage
+// Zone accent colors - same as ZONE_ACCENT in AssessCriticalZonesPage
 const MEASURE_ICON: Record<string, { icon: string; color: string }> = {
   seaWall:           { icon: '/icons/tab-water.svg',    color: '#2864e4' },
   raisedRoads:       { icon: '/icons/tab-car.svg',      color: '#ea7836' },
@@ -15,7 +15,7 @@ const MEASURE_ICON: Record<string, { icon: string; color: string }> = {
   residentSupport:   { icon: '/icons/tab-people.svg',   color: '#84af79' },
 };
 
-// Groups — mirrors the zones tab structure
+// Groups - mirrors the zones tab structure
 const MEASURE_GROUPS: { icon: string; color: string; label: string; keys: MeasureKey[]; teamCount: number }[] = [
   { icon: '/icons/tab-water.svg',    color: '#2864e4', label: 'Water Infrastructure', keys: ['seaWall', 'drainageUpgrade'],       teamCount: 4 },
   { icon: '/icons/tab-car.svg',      color: '#ea7836', label: 'Transportation',        keys: ['raisedRoads', 'elevatedWalkways'],  teamCount: 4 },
@@ -28,19 +28,19 @@ interface Props { onBack: () => void; onContinue: () => void; map?: any; }
 
 interface Team {
   id: string; name: string; lead: string; initials: string;
-  avatarGrad: [string, string]; exp: number; members: number;
+  avatarGrad: [string, string]; avatar: string; exp: number; members: number;
   cityProjects: number; specialty: string; limited?: boolean;
   details: string[];
 }
 
 const TEAMS: Team[] = [
-  { id: 'coastal',   name: 'Coastal Engineering',       lead: 'M. Alvarez',  initials: 'MA', avatarGrad: ['#1e40af','#3b82f6'], exp: 12, members: 8,  cityProjects: 4,  specialty: 'Marine barriers & flood control',     details: ['Seawall & breakwater design certified', 'FEMA floodplain management accreditation', '3 completed coastal barrier projects in FL', 'Real-time storm surge monitoring integration'] },
-  { id: 'works',     name: 'Public Works',              lead: 'D. Chen',     initials: 'DC', avatarGrad: ['#5b21b6','#8b5cf6'], exp: 8,  members: 14, cityProjects: 26, specialty: 'Roads, bridges & civil works',           details: ['FDOT-certified road elevation planning', 'Bridge load rating & structural assessment', 'Active contracts in 3 Miami-Dade districts', 'Emergency access corridor prioritization'] },
-  { id: 'water',     name: 'Water & Stormwater',        lead: 'S. Patel',    initials: 'SP', avatarGrad: ['#155e75','#22d3ee'], exp: 15, members: 6,  cityProjects: 14, specialty: 'Drainage systems & hydrology',          details: ['Green infrastructure & bioretention design', 'SWFWMD stormwater management permit holder', 'Pump station capacity modeling', 'GIS-based flood routing analysis'] },
-  { id: 'urban',     name: 'Urban Planning & Zoning',   lead: 'R. Osei',     initials: 'RO', avatarGrad: ['#92400e','#f59e0b'], exp: 9,  members: 5,  cityProjects: 8,  specialty: 'Building codes & elevation zoning',    details: ['FEMA FIRM map amendment specialist', 'Miami 21 zoning code expertise', 'Currently supporting 4 active permit reviews', 'Elevation certificate processing & compliance'], limited: true },
-  { id: 'electric',  name: 'Electric Utility Auth.',    lead: 'J. Romero',   initials: 'JR', avatarGrad: ['#14532d','#22c55e'], exp: 11, members: 9,  cityProjects: 19, specialty: 'Grid hardening & power systems',        details: ['Substation flood-proofing to NERC CIP standards', 'Underground cable transition planning', 'Smart grid resilience upgrades', 'Generator placement & fuel logistics coordination'] },
-  { id: 'community', name: 'Community Services',        lead: 'L. Kim',      initials: 'LK', avatarGrad: ['#9d174d','#f472b6'], exp: 6,  members: 14, cityProjects: 31, specialty: 'Resident programs & social outreach',  details: ['Multi-language outreach in 5 languages', 'FEMA Individual Assistance program liaison', 'Temporary housing placement & case management', 'Community resilience hub operations'] },
-  { id: 'emergency', name: 'Emergency Management',      lead: 'K. Williams', initials: 'KW', avatarGrad: ['#581c87','#a855f7'], exp: 14, members: 7,  cityProjects: 9,  specialty: 'Crisis coordination & rapid response',  details: ['NIMS/ICS certified command structure', 'Miami-Dade EOC integration & liaison', 'Pre-positioned equipment in 2 staging areas', '24/7 on-call rapid deployment roster'] },
+  { id: 'coastal',   name: 'Coastal Engineering',       lead: 'M. Alvarez',  initials: 'MA', avatarGrad: ['#1e40af','#3b82f6'], avatar: '/avatars/t3.png', exp: 12, members: 8,  cityProjects: 4,  specialty: 'Marine barriers & flood control',     details: ['Seawall & breakwater design certified', 'FEMA floodplain management accreditation', '3 completed coastal barrier projects in FL', 'Real-time storm surge monitoring integration'] },
+  { id: 'works',     name: 'Public Works',              lead: 'D. Chen',     initials: 'DC', avatarGrad: ['#5b21b6','#8b5cf6'], avatar: '/avatars/t1.png', exp: 8,  members: 14, cityProjects: 26, specialty: 'Roads, bridges & civil works',           details: ['FDOT-certified road elevation planning', 'Bridge load rating & structural assessment', 'Active contracts in 3 Miami-Dade districts', 'Emergency access corridor prioritization'] },
+  { id: 'water',     name: 'Water & Stormwater',        lead: 'S. Patel',    initials: 'SP', avatarGrad: ['#155e75','#22d3ee'], avatar: '/avatars/t5.png', exp: 15, members: 6,  cityProjects: 14, specialty: 'Drainage systems & hydrology',          details: ['Green infrastructure & bioretention design', 'SWFWMD stormwater management permit holder', 'Pump station capacity modeling', 'GIS-based flood routing analysis'] },
+  { id: 'urban',     name: 'Urban Planning & Zoning',   lead: 'R. Osei',     initials: 'RO', avatarGrad: ['#92400e','#f59e0b'], avatar: '/avatars/t4.png', exp: 9,  members: 5,  cityProjects: 8,  specialty: 'Building codes & elevation zoning',    details: ['FEMA FIRM map amendment specialist', 'Miami 21 zoning code expertise', 'Currently supporting 4 active permit reviews', 'Elevation certificate processing & compliance'], limited: true },
+  { id: 'electric',  name: 'Electric Utility Auth.',    lead: 'J. Romero',   initials: 'JR', avatarGrad: ['#14532d','#22c55e'], avatar: '/avatars/t6.png', exp: 11, members: 9,  cityProjects: 19, specialty: 'Grid hardening & power systems',        details: ['Substation flood-proofing to NERC CIP standards', 'Underground cable transition planning', 'Smart grid resilience upgrades', 'Generator placement & fuel logistics coordination'] },
+  { id: 'community', name: 'Community Services',        lead: 'L. Kim',      initials: 'LK', avatarGrad: ['#9d174d','#f472b6'], avatar: '/avatars/t2.png', exp: 6,  members: 14, cityProjects: 31, specialty: 'Resident programs & social outreach',  details: ['Multi-language outreach in 5 languages', 'FEMA Individual Assistance program liaison', 'Temporary housing placement & case management', 'Community resilience hub operations'] },
+  { id: 'emergency', name: 'Emergency Management',      lead: 'K. Williams', initials: 'KW', avatarGrad: ['#581c87','#a855f7'], avatar: '/avatars/t9.png', exp: 14, members: 7,  cityProjects: 9,  specialty: 'Crisis coordination & rapid response',  details: ['NIMS/ICS certified command structure', 'Miami-Dade EOC integration & liaison', 'Pre-positioned equipment in 2 staging areas', '24/7 on-call rapid deployment roster'] },
 ];
 
 const MATCH: Record<MeasureKey, Record<string, number>> = {
@@ -156,7 +156,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
         <span style={{ fontSize: 17, color: '#1e2939' }}>←</span>
       </button>
 
-      {/* Progress bar — step 4 active */}
+      {/* Progress bar - step 4 active */}
       <div className="glass-65 glass-shadow" style={{
         position: 'fixed', top: 93, left: 60, right: 16, height: 36,
         borderRadius: 18, overflow: 'hidden', pointerEvents: 'none', zIndex: 20,
@@ -186,7 +186,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
         ))}
       </div>
 
-      {/* Main card — expands right like AssessCriticalZonesPage */}
+      {/* Main card - expands right like AssessCriticalZonesPage */}
       <div className="glass-65 glass-shadow" style={{
         position: 'fixed', left: 16, top: 137, bottom: 32,
         width: expanded ? 'calc(100vw - 32px)' : LEFT_W,
@@ -195,7 +195,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
         transition: 'width 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
 
-        {/* ── Left column — always visible ── */}
+        {/* ── Left column - always visible ── */}
         <div style={{ width: LEFT_W, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
 
           {/* Header */}
@@ -213,7 +213,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
 
           <div style={{ height: 1, background: 'rgba(0,0,0,0.07)', margin: '10px 12px 0' }} />
 
-          {/* Group cards — one per domain, click header to open team picker */}
+          {/* Group cards - one per domain, click header to open team picker */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, padding: '6px 10px 8px' }}>
             {MEASURE_GROUPS.map(group => {
               const isOpen = expanded === group.label;
@@ -246,7 +246,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                     <ChevronRight size={14} color="rgba(30,41,57,0.25)" strokeWidth={2}
                       style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }} />
                   </div>
-                  {/* 2-task groups — inside the same frame */}
+                  {/* 2-task groups - inside the same frame */}
                   {group.keys.length > 1 && (
                     <div style={{ margin: '0 8px 7px 50px' }}>
                       {group.keys.map((key, idx) => (
@@ -282,12 +282,12 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
           </div>
         </div>
 
-        {/* ── Right panel — team picker ── */}
+        {/* ── Right panel - team picker ── */}
         {expanded && expandedGroup && (
           <div style={{ flex: 1, borderLeft: '1px solid rgba(0,0,0,0.09)', overflow: 'auto', display: 'flex', flexDirection: 'column',
             animation: 'panelFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
 
-            {/* Cards area — aligned with left panel group cards (~130px from top) */}
+            {/* Cards area - aligned with left panel group cards (~130px from top) */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '130px 28px 28px' }}>
               <div style={{ display: 'flex', flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
                 {(() => {
@@ -313,7 +313,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         backdropFilter: 'blur(8px)', overflow: 'hidden',
                       }}>
 
-                      {/* Badge — centered, attached to card top edge */}
+                      {/* Badge - centered, attached to card top edge */}
                       {isBest && (
                         <div style={{
                           position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
@@ -326,26 +326,29 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         </div>
                       )}
 
-                      {/* ── Photo zone ── fixed 120px */}
+                      {/* ── Photo zone ── 64px colored banner */}
                       <button onClick={() => pick(expandedGroup.label, team.id)}
                         style={{
-                          height: 120, flexShrink: 0, position: 'relative', overflow: 'hidden',
+                          height: 64, flexShrink: 0, position: 'relative', overflow: 'visible',
                           background: expandedGroup.color,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
                           border: 'none', cursor: 'pointer', padding: 0, width: '100%',
+                          zIndex: 1,
                         }}>
-                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.18) 0%, transparent 70%)' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.18) 0%, transparent 70%)', overflow: 'hidden' }} />
+                        {/* Avatar: center is at bottom edge of banner, so top half in banner, bottom half in white area */}
                         <div style={{
-                          width: 70, height: 70, borderRadius: '50%', position: 'relative', zIndex: 1,
-                          background: 'rgba(255,255,255,0.18)',
-                          border: isPicked ? '3px solid white' : '2.5px solid rgba(255,255,255,0.5)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          boxShadow: isPicked ? '0 0 0 3px rgba(255,255,255,0.35), 0 4px 18px rgba(0,0,0,0.2)' : '0 4px 18px rgba(0,0,0,0.2)',
-                          transition: 'border .18s, box-shadow .18s',
+                          width: 84, height: 84, borderRadius: '50%', position: 'absolute',
+                          bottom: -42, left: '50%', transform: 'translateX(-50%)',
+                          overflow: 'hidden',
+                          border: `3.5px solid ${expandedGroup.color}`,
+                          boxShadow: isPicked ? `0 0 0 2.5px white, 0 4px 18px rgba(0,0,0,0.18)` : '0 4px 18px rgba(0,0,0,0.15)',
+                          transition: 'box-shadow .18s',
+                          zIndex: 2,
                         }}>
-                          <span style={{ fontSize: 22, fontWeight: 700, color: 'white', letterSpacing: '0.5px' }}>
-                            {team.initials}
-                          </span>
+                          <img src={team.avatar} alt={team.lead} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+                          {/* white inset ring to hide any dark photo border artifact */}
+                          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', boxShadow: 'inset 0 0 0 3px white', pointerEvents: 'none' }} />
                           {isPicked && (
                             <div style={{
                               position: 'absolute', bottom: -2, right: -2,
@@ -361,15 +364,15 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                         </div>
                       </button>
 
-                      {/* ── Info zone ── flex:1 so all cards stretch to same height */}
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '13px 14px 13px' }}>
+                      {/* ── Info zone ── paddingTop makes room for avatar overflow (42px half + 10px gap) */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '52px 14px 13px' }}>
 
-                        {/* Name — own row */}
+                        {/* Name - own row */}
                         <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 700, color: '#101828', letterSpacing: '-0.3px', lineHeight: '22px' }}>
                           {team.name}
                         </p>
 
-                        {/* Stars — own row below name */}
+                        {/* Stars - own row below name */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 7 }}>
                           {[1,2,3,4,5].map(s => (
                             <span key={s} style={{ fontSize: 15, lineHeight: 1, color: s <= stars ? '#f59e0b' : 'rgba(0,0,0,0.14)' }}>
@@ -389,7 +392,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                           {team.specialty}
                         </p>
 
-                        {/* Feature checklist — Lucide icons in rounded-rect frames */}
+                        {/* Feature checklist - Lucide icons in rounded-rect frames */}
                         <div style={{ borderTop: '1px solid rgba(0,0,0,0.07)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 12 }}>
                           {[
                             { Icon: Clock,    text: `${team.exp} yrs experience` },
@@ -417,7 +420,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                           ))}
                         </div>
 
-                        {/* Read more toggle — right after checklist */}
+                        {/* Read more toggle - right after checklist */}
                         <button onClick={() => setExpandedCards(prev => { const s = new Set(prev); isCardExpanded ? s.delete(team.id) : s.add(team.id); return s; })}
                           style={{
                             background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0 16px',
@@ -440,10 +443,10 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                           </div>
                         </div>
 
-                        {/* Spacer — pushes assign button to bottom */}
+                        {/* Spacer - pushes assign button to bottom */}
                         <div style={{ flex: 1 }} />
 
-                        {/* Assign button — outline, fills on hover/picked */}
+                        {/* Assign button - outline, fills on hover/picked */}
                         <button onClick={() => pick(expandedGroup.label, team.id)}
                           onMouseEnter={() => setHoveredAssign(team.id)}
                           onMouseLeave={() => setHoveredAssign(null)}

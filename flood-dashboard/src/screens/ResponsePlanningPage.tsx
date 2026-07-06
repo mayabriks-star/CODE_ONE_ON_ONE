@@ -161,7 +161,7 @@ function ImpactTimelineChart() {
         <line x1="82" y1="90" x2="1080" y2="90" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
         <line x1="82" y1="160" x2="1080" y2="160" stroke="rgba(0,0,0,0.12)" strokeDasharray="5,4" strokeWidth="1"/>
 
-        {/* Red line — animated left-to-right draw */}
+        {/* Red line - animated left-to-right draw */}
         <path
           d="M 82 90 C 155 75, 185 52, 225 48 C 350 32, 520 20, 700 15 C 850 12, 980 10, 1080 10"
           stroke="#e05252" strokeWidth="2" fill="none"
@@ -169,7 +169,7 @@ function ImpactTimelineChart() {
           style={{ strokeDasharray: 1, strokeDashoffset: 1, animation: 'drawLine 0.7s ease-out forwards' }}
         />
 
-        {/* Green line — animated, slightly delayed */}
+        {/* Green line - animated, slightly delayed */}
         <path
           d="M 82 90 C 250 90, 400 86, 500 84 C 600 80, 760 76, 1080 70"
           stroke="#84af79" strokeWidth="2" fill="none"
@@ -237,7 +237,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
     >
       {/* Vertical centering group */}
       <div style={{ marginTop: '6px', zoom: pageScale }}>
-      {/* ── Header — NOT scaled, icons at 28px from viewport left ── */}
+      {/* ── Header - NOT scaled, icons at 28px from viewport left ── */}
       <div style={{ paddingLeft: '28px', paddingRight: '70px', paddingTop: '33px' }}>
         {/* Menu + Bell row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '21px' }}>
@@ -260,9 +260,9 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
         </div>
       </div>
 
-      {/* ── Padded content wrapper — provides fixed 70px visual margins, NOT scaled ── */}
+      {/* ── Padded content wrapper - provides fixed 70px visual margins, NOT scaled ── */}
       <div style={{ paddingLeft: '70px', paddingRight: '70px', boxSizing: 'border-box' as const }}>
-        {/* Inner canvas — natural layout, no scaling */}
+        {/* Inner canvas - natural layout, no scaling */}
         <div style={{ width: '100%', paddingBottom: '34px' }}>
 
         {/* Projected Impact card */}
@@ -351,7 +351,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
             <ChevronDown size={12} style={{ transform: isTimelineOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
-          {/* Impact Timeline chart — inside the card, card expands to contain it */}
+          {/* Impact Timeline chart - inside the card, card expands to contain it */}
           {isTimelineOpen && (
             <div style={{
               marginTop: '43px',
@@ -390,7 +390,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
           Recommended Action Sequence
         </p>
 
-        {/* Bottom row — flex, space-between distributes available space */}
+        {/* Bottom row - flex, space-between distributes available space */}
         <div
           style={{
             marginTop: '30px',
@@ -414,7 +414,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
               gap: '34px',
             }}
           >
-            {/* Step 1 — active */}
+            {/* Step 1 - active */}
             <div
               style={{
                 height: '67px',
@@ -440,7 +440,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
               </div>
             </div>
 
-            {/* Steps 2–5 — inactive */}
+            {/* Steps 2–5 - inactive */}
             {inactiveSteps.map((step) => (
               <div
                 key={step.n}
@@ -493,7 +493,7 @@ export default function ResponsePlanningPage({ onBack, onCoastalRoad, onVulnerab
 
         </div>
 
-        {/* Confirm area mapping — bottom right of page */}
+        {/* Confirm area mapping - bottom right of page */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-42px', paddingRight: '49px' }}>
           <button
             style={{

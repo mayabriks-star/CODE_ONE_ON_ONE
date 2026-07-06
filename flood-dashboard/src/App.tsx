@@ -64,6 +64,20 @@ export default function App() {
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key !== 'f' && e.key !== 'F') return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
+  useEffect(() => {
     if (screen === 'assess-critical-zones' && !assessVisited.current) {
       assessVisited.current = true;
     }

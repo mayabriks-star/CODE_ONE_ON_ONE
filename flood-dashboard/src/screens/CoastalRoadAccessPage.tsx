@@ -348,7 +348,7 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
           <div className="no-scrollbar" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
 
             {/* Cost & Budget */}
-            <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flexShrink: 0 }}>
+            <div style={{ background: 'white', borderRadius: 16, padding: '18px 22px', flex: 1 }}>
               <p style={{ margin: '0 0 12px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Cost &amp; Budget</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                 <DonutChart size={146} />
@@ -370,9 +370,9 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
             </div>
 
             {/* Implementation Schedule */}
-            <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
+            <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, display: 'flex', flexDirection: 'column' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#1e2939', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, height: 0, flexGrow: 1 }}>
                 {[
                   { label: 'Planning & Approval', value: '0–4 months' },
                   { label: 'Site Preparation', value: '4–16 months' },
@@ -380,14 +380,14 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
                 ].map((item, i, arr) => {
                   const isLast = i === arr.length - 1;
                   return (
-                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                    <div key={item.label} style={{ display: 'flex', gap: 14, flex: 1, minHeight: 0 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
                         <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{i + 1}</span>
                         </div>
                         {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: ACCENT }} />}
                       </div>
-                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#1e2939' }}>
+                      <p style={{ margin: 0, fontSize: 20, color: '#1e2939', alignSelf: 'flex-start' }}>
                         <span style={{ color: '#6b7280' }}>{item.label}</span>{' '}
                         <span style={{ fontWeight: 700 }}>{item.value}</span>
                       </p>

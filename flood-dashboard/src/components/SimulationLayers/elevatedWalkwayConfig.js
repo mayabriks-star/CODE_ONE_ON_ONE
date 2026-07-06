@@ -42,8 +42,8 @@ export const ELEVATED_WALKWAY_CONFIG = {
     bearing:  -19.9,
     duration: 1400,
   },
-  cameraDebugMode: true,
+  cameraDebugMode: false,
 
   // ── DEBUG ─────────────────────────────────────────────────────────────────
-  debugMode: true,
+  debugMode: false,
 }

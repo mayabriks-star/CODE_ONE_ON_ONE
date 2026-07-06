@@ -334,22 +334,6 @@ export default function SimulateResponseScenariosPage({ onBack, onCompare, map }
             ))}
           </g>
 
-          {/* Utility protection — shield marker with inner glyph */}
-          <g style={overlayGroupStyle(active.utilityProtection)}>
-            {[[980, 380], [1080, 460]].map(([x, y], i) => (
-              <g key={i}>
-                <path
-                  d={`M ${x},${y - 13} L ${x + 10},${y - 8} L ${x + 10},${y + 4} C ${x + 10},${y + 11} ${x + 5},${y + 15} ${x},${y + 17} C ${x - 5},${y + 15} ${x - 10},${y + 11} ${x - 10},${y + 4} L ${x - 10},${y - 8} Z`}
-                  fill={MEASURES[5].color}
-                  fillOpacity={0.85}
-                  stroke="#fff"
-                  strokeWidth={1.5}
-                />
-                <circle cx={x} cy={y} r={2.5} fill="#fff" />
-              </g>
-            ))}
-          </g>
-
         </svg>
       </ScaledLayout>
 

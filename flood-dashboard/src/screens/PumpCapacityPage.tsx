@@ -72,20 +72,28 @@ export default function PumpCapacityPage({ onBack, onApprove: _onApprove }: Prop
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: '70px', paddingRight: '70px', paddingTop: '16px', paddingBottom: '16px', gap: '14px', boxSizing: 'border-box' }}>
 
-        {/* Top card — image on top (260px) + text below */}
-        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
-          <div style={{ position: 'relative', height: 260, overflow: 'hidden' }}>
-            <img src="/costal-road-map.jpg" alt="Pump capacity area" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 50%', display: 'block' }} />
-            <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s ease' }}>
-              <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
-              <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
-            </button>
-          </div>
-          <div style={{ padding: '20px 28px 24px' }}>
+        {/* Top card — text left (1/3) + image right (2/3) */}
+        <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
+          <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
             <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: '10px 0 0 0', fontSize: 20, fontWeight: 400, color: '#505153', lineHeight: '30px', letterSpacing: '-0.08px' }}>
               The drainage system must handle higher water levels, storm surge, and street runoff without allowing floodwater and sewage overflow to block local roads. The response focuses on increasing pump capacity, improving drainage routes, and protecting outflow points.
             </p>
+          </div>
+          <div style={{ flex: 2, position: 'relative' }}>
+            <img src="/pump-capacity-tab.png" alt="Pump capacity area"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '26% 45%', display: 'block' }} />
+            <button onClick={() => setIsEditing(e => !e)} style={{
+              position: 'absolute', top: 12, right: 12, zIndex: 10,
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 14px 6px 10px', borderRadius: 100,
+              background: isEditing ? '#101828' : 'white',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}>
+              <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s ease' }}>Edit</span>
+            </button>
           </div>
         </div>
 

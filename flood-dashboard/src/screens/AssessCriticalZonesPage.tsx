@@ -21,6 +21,8 @@ const ZONE_IMAGE: Record<string, string> = {
   'Costal Road Access': '/coastal-road-tab.png',
   'Electric Utility Point': '/electric-utility-tab.png',
   'Residential Edge Blocks': '/elevated-buildings-tab.png',
+  'Increase pump capacity': '/pump-capacity-tab.png',
+  'Vulnerable Residents': '/vulnerable-residents-tab.png',
 };
 
 const ZONE_ACCENT: Record<string, string> = {
@@ -321,8 +323,8 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 20, paddingRight: 20, paddingTop: 16, paddingBottom: 16, gap: 14, boxSizing: 'border-box' }}>
 
           {/* Top card — image or colored banner + overview */}
-          {zone === 'Electric Utility Point' ? (
-            /* Side-by-side layout for Electric Utility (matches CoastalRoadAccessPage) */
+          {(zone === 'Electric Utility Point' || zone === 'Residential Edge Blocks' || zone === 'Increase pump capacity' || zone === 'Vulnerable Residents') ? (
+            /* Side-by-side layout (matches CoastalRoadAccessPage) */
             <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', flexShrink: 0, display: 'flex', flexDirection: 'row', height: 395 }}>
               <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
                 <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '30px' }}>Action Plan Overview</p>
@@ -331,7 +333,7 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
                 </p>
               </div>
               <div style={{ flex: 2, position: 'relative' }}>
-                <img src={zoneImage} alt={zone} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '40% 35%', display: 'block' }} />
+                <img src={zoneImage} alt={zone} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: zone === 'Residential Edge Blocks' ? '46% 44%' : zone === 'Increase pump capacity' ? '26% 45%' : zone === 'Vulnerable Residents' ? '20% 19%' : '40% 35%', display: 'block' }} />
                 <button onClick={() => setIsEditing(e => !e)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px 6px 10px', borderRadius: 100, background: isEditing ? '#101828' : 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
                   <Pencil size={13} color={isEditing ? 'white' : '#101828'} />
                   <span style={{ fontSize: 13, fontWeight: 500, color: isEditing ? 'white' : '#101828', letterSpacing: '-0.2px', transition: 'color 0.2s' }}>Edit</span>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MousePointerClick, ChevronRight, Pencil } from 'lucide-react';
+import { MousePointerClick, ChevronRight, Pencil, Building2, Bell, Car } from 'lucide-react';
 import ScaledLayout from '../components/layout/ScaledLayout';
 import HomePageHeader from '../components/shared/HomePageHeader';
 import CoastalRoadAccessPage from './CoastalRoadAccessPage';
@@ -380,19 +380,29 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
             <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
               <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {data.steps.map((step, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ flexShrink: 0, paddingTop: 3 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: `${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: '#364153' }}>{i + 1}</span>
+                {data.steps.map((step, i) => {
+                  const vulnerableIcons = [Building2, Bell, Car];
+                  const StepIcon = zone === 'Vulnerable Residents' ? vulnerableIcons[i] : null;
+                  return (
+                    <div key={i} style={{ display: 'flex', gap: StepIcon ? 14 : 12, alignItems: 'flex-start' }}>
+                      <div style={{ flexShrink: 0, paddingTop: StepIcon ? 2 : 3 }}>
+                        {StepIcon ? (
+                          <div style={{ width: 36, height: 36, borderRadius: 9, background: `${accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <StepIcon size={18} color={accent} strokeWidth={1.8} />
+                          </div>
+                        ) : (
+                          <div style={{ width: 20, height: 20, borderRadius: '50%', background: `${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: '#364153' }}>{i + 1}</span>
+                          </div>
+                        )}
                       </div>
+                      <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
+                        <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
+                        <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
+                      </p>
                     </div>
-                    <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
-                      <span style={{ fontWeight: 600, color: '#364153' }}>{step.label}</span>{' '}
-                      <span style={{ fontWeight: 400, color: '#505153' }}>{step.desc}</span>
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -420,18 +430,40 @@ function ZoneDetailPanel({ zone, onBack, containerHeight }: { zone: string; onBa
               {/* Implementation Schedule */}
               <div className="no-scrollbar" style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
                 <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
-                  {data.schedule.map((item) => (
-                    <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                      <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                        <span style={{ fontWeight: 700 }}>{item.value}</span>
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                {zone === 'Vulnerable Residents' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {data.schedule.map((item, i) => {
+                      const isLast = i === data.schedule.length - 1;
+                      return (
+                        <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                            <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: `${accent}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#3d6b31' }}>{i + 1}</span>
+                            </div>
+                            {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: '#3d6b31' }} />}
+                          </div>
+                          <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                            <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                            <span style={{ fontWeight: 700 }}>{item.value}</span>
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+                    {data.schedule.map((item) => (
+                      <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
+                        <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
+                          <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                          <span style={{ fontWeight: 700 }}>{item.value}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </div>

@@ -88,21 +88,15 @@ function computeGroupScore(group: typeof MEASURE_GROUPS[0], teamId: string) {
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 }
 
-// Pre-assign teams to groups so no team appears in more than one group.
-// Each group claims its best available teams greedily (highest match score first).
-const GROUP_TEAMS: Record<string, Team[]> = (() => {
-  const result: Record<string, Team[]> = {};
-  const usedIds = new Set<string>();
-  for (const group of MEASURE_GROUPS) {
-    const top = [...TEAMS]
-      .filter(t => !usedIds.has(t.id))
+// Each group independently picks its top-matched teams by score.
+const GROUP_TEAMS: Record<string, Team[]> = Object.fromEntries(
+  MEASURE_GROUPS.map(group => [
+    group.label,
+    [...TEAMS]
       .sort((a, b) => computeGroupScore(group, b.id) - computeGroupScore(group, a.id))
-      .slice(0, Math.max(3, group.teamCount));
-    result[group.label] = top;
-    top.forEach(t => usedIds.add(t.id));
-  }
-  return result;
-})();
+      .slice(0, Math.max(3, group.teamCount)),
+  ])
+);
 const LEFT_W = 386;
 
 function Avatar({ team, size = 56 }: { team: Team; size?: number }) {
@@ -310,8 +304,8 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                       onMouseLeave={() => setHoveredCard(null)}
                       style={{
                         flex: 1, display: 'flex', flexDirection: 'column',
-                        background: isPicked ? 'linear-gradient(rgba(40,100,228,0.06),rgba(40,100,228,0.06)), #fff' : isHovered ? 'rgba(255,255,255,0.95)' : 'white',
-                        border: isPicked ? '1.5px solid rgba(40,100,228,0.28)' : isHovered ? '1.5px solid rgba(30,41,57,0.22)' : '1.5px solid rgba(0,0,0,0.1)',
+                        background: isPicked ? `linear-gradient(${expandedGroup.color}0f,${expandedGroup.color}0f), #fff` : isHovered ? 'rgba(255,255,255,0.95)' : 'white',
+                        border: isPicked ? `1.5px solid ${expandedGroup.color}45` : isHovered ? '1.5px solid rgba(30,41,57,0.22)' : '1.5px solid rgba(0,0,0,0.1)',
                         borderRadius: 18, position: 'relative',
                         transition: 'border-color .18s, background .18s, box-shadow .18s, transform .18s, opacity .3s',
                         boxShadow: isPicked ? '0 2px 8px rgba(0,0,0,0.08)' : isHovered ? '0 6px 22px rgba(0,0,0,0.13)' : '0 2px 8px rgba(0,0,0,0.07)',
@@ -336,7 +330,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                       <button onClick={() => pick(expandedGroup.label, team.id)}
                         style={{
                           height: 120, flexShrink: 0, position: 'relative', overflow: 'hidden',
-                          background: `linear-gradient(150deg, ${team.avatarGrad[0]} 0%, ${team.avatarGrad[1]} 100%)`,
+                          background: expandedGroup.color,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           border: 'none', cursor: 'pointer', padding: 0, width: '100%',
                         }}>
@@ -356,7 +350,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                             <div style={{
                               position: 'absolute', bottom: -2, right: -2,
                               width: 22, height: 22, borderRadius: '50%',
-                              background: 'rgba(40,100,228,0.9)', border: '2px solid white',
+                              background: `${expandedGroup.color}e6`, border: '2px solid white',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               <svg width="9" height="7" viewBox="0 0 9 7" fill="none">

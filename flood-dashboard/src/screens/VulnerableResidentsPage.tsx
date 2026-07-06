@@ -146,21 +146,28 @@ export default function VulnerableResidentsPage({ onBack, onApprove: _onApprove 
 
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Planning & Resident Notification', value: '0–2 months' },
                   { label: 'Ground-Floor Adaptation Works', value: '2–8 months' },
                   { label: 'Review & Adjustment', value: '8–10 months' },
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                      <span style={{ fontWeight: 700 }}>{item.value}</span>
-                    </p>
-                  </div>
-                ))}
+                ].map((item, i, arr) => {
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#3d6b31' }}>{i + 1}</span>
+                        </div>
+                        {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: '#3d6b31' }} />}
+                      </div>
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

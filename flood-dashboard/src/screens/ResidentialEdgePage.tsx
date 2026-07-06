@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
+import { Menu, Bell, ArrowLeft, Pencil, MapPin, Shield, DoorOpen, Building2, Users } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
@@ -37,11 +37,11 @@ function DonutChart() {
 }
 
 const implementationSteps = [
-  { n: 1, label: 'Map exposed building edges:', desc: 'Identify ground-floor units, shared entrances, service rooms, and building edges exposed to projected flood levels.' },
-  { n: 2, label: 'Reinforce vulnerable building edges:', desc: 'Add flood-resistant barriers, edge protection, and sealing measures where water intrusion is expected.' },
-  { n: 3, label: 'Adapt ground-floor access points:', desc: 'Raise thresholds, improve entrance protection, and adjust access points to reduce flood exposure.' },
-  { n: 4, label: 'Protect shared building areas:', desc: 'Protect lobbies, storage rooms, service rooms, and shared infrastructure located at ground level.' },
-  { n: 5, label: 'Maintain resident access:', desc: 'Create safer temporary access routes during adaptation work and high-water events.' },
+  { icon: MapPin,    label: 'Map exposed building edges:', desc: 'Identify ground-floor units, shared entrances, service rooms, and building edges exposed to projected flood levels.' },
+  { icon: Shield,    label: 'Reinforce vulnerable building edges:', desc: 'Add flood-resistant barriers, edge protection, and sealing measures where water intrusion is expected.' },
+  { icon: DoorOpen,  label: 'Adapt ground-floor access points:', desc: 'Raise thresholds, improve entrance protection, and adjust access points to reduce flood exposure.' },
+  { icon: Building2, label: 'Protect shared building areas:', desc: 'Protect lobbies, storage rooms, service rooms, and shared infrastructure located at ground level.' },
+  { icon: Users,     label: 'Maintain resident access:', desc: 'Create safer temporary access routes during adaptation work and high-water events.' },
 ];
 
 const ACCENT = '#bf5761';
@@ -114,11 +114,11 @@ export default function ResidentialEdgePage({ onBack, onApprove: _onApprove, emb
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {implementationSteps.map(step => (
-                <div key={step.n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div style={{ flexShrink: 0, paddingTop: 3 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{step.n}</span>
+              {implementationSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <step.icon size={18} color={ACCENT} strokeWidth={1.8} />
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
@@ -156,21 +156,28 @@ export default function ResidentialEdgePage({ onBack, onApprove: _onApprove, emb
 
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Building Assessment', value: '0–2 months' },
                   { label: 'Ground-Floor Adaptation Works', value: '2–10 months' },
                   { label: 'Access Review & Adjustments', value: '10–14 months' },
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                      <span style={{ fontWeight: 700 }}>{item.value}</span>
-                    </p>
-                  </div>
-                ))}
+                ].map((item, i, arr) => {
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{i + 1}</span>
+                        </div>
+                        {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: ACCENT }} />}
+                      </div>
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
+import { Menu, Bell, ArrowLeft, Pencil, Search, ArrowUp, GitBranch, Shield, Activity } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
@@ -36,11 +36,11 @@ function DonutChart() {
 }
 
 const implementationSteps = [
-  { n: 1, label: 'Identify drainage bottlenecks:', desc: 'Map overloaded drainage channels, low-lying street segments, and areas where water remains after high-water events.' },
-  { n: 2, label: 'Upgrade pump capacity:', desc: 'Increase pump station capacity to support faster removal of floodwater from low-lying streets.' },
-  { n: 3, label: 'Expand drainage routes:', desc: 'Improve drainage channels and connections to reduce overflow and standing water.' },
-  { n: 4, label: 'Protect outflow points:', desc: 'Add backflow prevention and outflow protection where high tide or storm surge can push water back into the system.' },
-  { n: 5, label: 'Add monitoring and maintenance access:', desc: 'Install monitoring points and improve access for maintenance teams during severe weather periods.' },
+  { icon: Search,     label: 'Identify drainage bottlenecks:', desc: 'Map overloaded drainage channels, low-lying street segments, and areas where water remains after high-water events.' },
+  { icon: ArrowUp,    label: 'Upgrade pump capacity:', desc: 'Increase pump station capacity to support faster removal of floodwater from low-lying streets.' },
+  { icon: GitBranch,  label: 'Expand drainage routes:', desc: 'Improve drainage channels and connections to reduce overflow and standing water.' },
+  { icon: Shield,     label: 'Protect outflow points:', desc: 'Add backflow prevention and outflow protection where high tide or storm surge can push water back into the system.' },
+  { icon: Activity,   label: 'Add monitoring and maintenance access:', desc: 'Install monitoring points and improve access for maintenance teams during severe weather periods.' },
 ];
 
 const ACCENT = '#2864e4';
@@ -104,11 +104,11 @@ export default function PumpCapacityPage({ onBack, onApprove: _onApprove }: Prop
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {implementationSteps.map(step => (
-                <div key={step.n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div style={{ flexShrink: 0, paddingTop: 3 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{step.n}</span>
+              {implementationSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <step.icon size={18} color={ACCENT} strokeWidth={1.8} />
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
@@ -146,21 +146,28 @@ export default function PumpCapacityPage({ onBack, onApprove: _onApprove }: Prop
 
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Hydraulic Review & Planning', value: '0–3 months' },
                   { label: 'Pump and Drainage Works', value: '3–12 months' },
                   { label: 'Testing & Optimization', value: '12–16 months' },
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                      <span style={{ fontWeight: 700 }}>{item.value}</span>
-                    </p>
-                  </div>
-                ))}
+                ].map((item, i, arr) => {
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{i + 1}</span>
+                        </div>
+                        {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: ACCENT }} />}
+                      </div>
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

@@ -29,7 +29,7 @@ const ROAD_GLOW_STYLE = `
 .road-glow-outer { animation: roadPulse 3.2s ease-in-out infinite; }
 .road-glow-mid   { animation: roadPulse 3.2s ease-in-out infinite 0.5s; }
 `;
-import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
+import { Menu, Bell, ArrowLeft, Pencil, ArrowUp, Waves, Wrench, Shield } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
@@ -125,11 +125,14 @@ function DonutChart({ size = 186 }: { size?: number }) {
   );
 }
 
+const ACCENT = '#ea7836';
+const ACCENT_BG = 'rgba(234,120,54,0.15)';
+
 const implementationSteps = [
-  { n: 1, label: 'Raise Road Elevation:', desc: 'Elevate the coastal road to 2.6 m above MSL using pile-supported structures to withstand surge events.' },
-  { n: 2, label: 'Upgrade Drainage & Shoreline:', desc: 'Expand culvert capacity, connect outfalls to a dedicated pump station, and reinforce embankments against storm surge.' },
-  { n: 3, label: 'Relocate & Protect Utilities:', desc: 'Move exposed utilities outside the surge zone and elevate critical infrastructure above the design flood elevation.' },
-  { n: 4, label: 'Ensure Emergency Access:', desc: 'Maintain continuous emergency access throughout all construction phases, coordinated with local services.' },
+  { icon: ArrowUp, label: 'Raise Road Elevation:', desc: 'Elevate the coastal road to 2.6 m above MSL using pile-supported structures to withstand surge events.' },
+  { icon: Waves,   label: 'Upgrade Drainage & Shoreline:', desc: 'Expand culvert capacity, connect outfalls to a dedicated pump station, and reinforce embankments against storm surge.' },
+  { icon: Wrench,  label: 'Relocate & Protect Utilities:', desc: 'Move exposed utilities outside the surge zone and elevate critical infrastructure above the design flood elevation.' },
+  { icon: Shield,  label: 'Ensure Emergency Access:', desc: 'Maintain continuous emergency access throughout all construction phases, coordinated with local services.' },
 ];
 
 export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, containerHeight }: Props) {
@@ -315,11 +318,11 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {implementationSteps.map((step) => (
-                <div key={step.n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div style={{ flexShrink: 0, paddingTop: 3 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(234,120,54,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#ea7836' }}>{step.n}</span>
+              {implementationSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <step.icon size={18} color={ACCENT} strokeWidth={1.8} />
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning className={isEditing ? 'editable-field' : undefined} style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
@@ -369,21 +372,28 @@ export default function CoastalRoadAccessPage({ onBack, onApprove, embedded, con
             {/* Implementation Schedule */}
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Planning & Approval', value: '0–4 months' },
                   { label: 'Site Preparation', value: '4–16 months' },
                   { label: 'Construction & Adaptation Works', value: '16–20 months' },
-                ].map((item) => (
-                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                      <span style={{ fontWeight: 700 }}>{item.value}</span>
-                    </p>
-                  </div>
-                ))}
+                ].map((item, i, arr) => {
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{i + 1}</span>
+                        </div>
+                        {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: ACCENT }} />}
+                      </div>
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

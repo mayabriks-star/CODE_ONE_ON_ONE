@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, Bell, ArrowLeft, Pencil } from 'lucide-react';
+import { Menu, Bell, ArrowLeft, Pencil, Search, ArrowUp, Zap, Battery, Settings } from 'lucide-react';
 
 interface Props {
   onBack: () => void;
@@ -38,11 +38,11 @@ function DonutChart() {
 }
 
 const implementationSteps = [
-  { n: 1, label: 'Identify exposed electrical assets:', desc: 'Map electrical cabinets, distribution points, and building-level power connections exposed to projected flood levels.' },
-  { n: 2, label: 'Raise electrical cabinets:', desc: 'Elevate vulnerable electrical cabinets above projected flood height and protect them from direct water exposure.' },
-  { n: 3, label: 'Add protected building power points:', desc: 'Install protected power access points in selected buildings to support essential services during disruption.' },
-  { n: 4, label: 'Improve backup power readiness:', desc: 'Add backup power support and monitoring for critical service continuity during high-water events.' },
-  { n: 5, label: 'Coordinate utility shutdown protocols:', desc: 'Define safe shutdown and restart procedures with utility providers and emergency teams.' },
+  { icon: Search,   label: 'Identify exposed electrical assets:', desc: 'Map electrical cabinets, distribution points, and building-level power connections exposed to projected flood levels.' },
+  { icon: ArrowUp,  label: 'Raise electrical cabinets:', desc: 'Elevate vulnerable electrical cabinets above projected flood height and protect them from direct water exposure.' },
+  { icon: Zap,      label: 'Add protected building power points:', desc: 'Install protected power access points in selected buildings to support essential services during disruption.' },
+  { icon: Battery,  label: 'Improve backup power readiness:', desc: 'Add backup power support and monitoring for critical service continuity during high-water events.' },
+  { icon: Settings, label: 'Coordinate utility shutdown protocols:', desc: 'Define safe shutdown and restart procedures with utility providers and emergency teams.' },
 ];
 
 const ACCENT = '#ffbb00';
@@ -130,11 +130,11 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
           <div className="no-scrollbar" style={{ flex: 1, background: 'white', borderRadius: 16, padding: '22px 26px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 16px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px', lineHeight: '28px' }}>Implementation Steps</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {implementationSteps.map(step => (
-                <div key={step.n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <div style={{ flexShrink: 0, paddingTop: 3 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{step.n}</span>
+              {implementationSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <step.icon size={18} color={ACCENT} strokeWidth={1.8} />
                     </div>
                   </div>
                   <p contentEditable={isEditing} suppressContentEditableWarning style={{ margin: 0, fontSize: 20, lineHeight: '30px', letterSpacing: '-0.08px' }}>
@@ -182,21 +182,28 @@ export default function ElectricUtilityPage({ onBack, onApprove, embedded }: Pro
             {/* Implementation Schedule */}
             <div style={{ background: 'white', borderRadius: 16, padding: '18px 26px', flex: 1, overflow: 'hidden' }}>
               <p style={{ margin: '0 0 14px 0', fontSize: 22, fontWeight: 600, color: '#364153', letterSpacing: '-0.4px' }}>Implementation Schedule</p>
-              <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ position: 'absolute', left: 9, top: 10, width: 1.5, height: 'calc(100% - 20px)', background: '#364153', zIndex: 0 }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {[
                   { label: 'Planning & Utility Coordination', value: '0–3 months' },
                   { label: 'Electrical Cabinet Elevation', value: '3–9 months' },
                   { label: 'Backup Power & Testing', value: '9–12 months' },
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid #364153', flexShrink: 0, background: 'white' }} />
-                    <p style={{ margin: 0, fontSize: 20, color: '#364153' }}>
-                      <span style={{ color: '#505153' }}>{item.label}</span>{' '}
-                      <span style={{ fontWeight: 700 }}>{item.value}</span>
-                    </p>
-                  </div>
-                ))}
+                ].map((item, i, arr) => {
+                  const isLast = i === arr.length - 1;
+                  return (
+                    <div key={item.label} style={{ display: 'flex', gap: 14 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: ACCENT_BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{i + 1}</span>
+                        </div>
+                        {!isLast && <div style={{ width: 2, flex: 1, minHeight: 20, background: ACCENT }} />}
+                      </div>
+                      <p style={{ margin: 0, paddingBottom: isLast ? 0 : 24, fontSize: 20, color: '#364153' }}>
+                        <span style={{ color: '#505153' }}>{item.label}</span>{' '}
+                        <span style={{ fontWeight: 700 }}>{item.value}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

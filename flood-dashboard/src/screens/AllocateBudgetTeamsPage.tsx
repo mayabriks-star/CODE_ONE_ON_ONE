@@ -123,8 +123,13 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
   const [hoveredAssign, setHoveredAssign] = useState<string | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
+  function changeGroup(label: string | null) {
+    setExpanded(label);
+    setExpandedCards(new Set());
+  }
+
   useEffect(() => {
-    const t = setTimeout(() => setExpanded(MEASURE_GROUPS[0].label), 1000);
+    const t = setTimeout(() => changeGroup(MEASURE_GROUPS[0].label), 1000);
     return () => clearTimeout(t);
   }, []);
   const [assignments, setAssignments] = useState<Record<string, string | null>>(
@@ -225,7 +230,7 @@ export default function AllocateBudgetTeamsPage({ onBack, onContinue }: Props) {
                   transition: 'background .15s',
                 }}>
                   {/* Clickable group header */}
-                  <div onClick={() => setExpanded(isOpen ? null : group.label)}
+                  <div onClick={() => changeGroup(isOpen ? null : group.label)}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 8px', cursor: 'pointer' }}>
                     <img src={group.icon} alt="" width={32} height={32} style={{ flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
